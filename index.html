@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow System - Inscription</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <h1 id="appName">LinkFlow</h1>
+        <p class="slogan">L'écosystème qui propulse votre réseau.</p>
+        
+        <select id="language" onchange="setLanguage()">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+        </select>
+
+        <div id="notification" class="hidden"></div>
+
+        <input id="username" placeholder="Nom d'utilisateur">
+        <input id="whatsapp" placeholder="WhatsApp (ex: +243...)">
+        <input id="usdt" placeholder="Adresse BNB / USDT BEP20">
+        <input id="password" type="password" placeholder="Mot de passe">
+
+        <div class="consent-box">
+            <input type="checkbox" id="consentCheck">
+            <label for="consentCheck">Je comprends que l'étape suivante (vidéo) est cruciale pour activer mon lien et booster l'algorithme du réseau.</label>
+        </div>
+
+        <button onclick="register()" id="btnRegister">DÉMARRER L'AVENTURE</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initDashboard()">
+    <div class="card">
+        <h2 id="appName">LinkFlow</h2>
+        
+        <div class="user-welcome">
+            <p>Bienvenue dans le flux,</p>
+            <h3 id="userName">---</h3>
+        </div>
+
+        <div id="notification" class="info">Statut : Membre Actif ✅</div>
+
+        <div class="stats-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0;">
+            <div class="stat-box" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; text-align: center;">
+                <span style="display: block; font-size: 0.8rem; color: #94a3b8;">Clics</span>
+                <strong id="clickCount" style="font-size: 1.2rem; color: #00d2ff;">0</strong>
+            </div>
+            <div class="stat-box" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; text-align: center;">
+                <span style="display: block; font-size: 0.8rem; color: #94a3b8;">Filleuls</span>
+                <strong id="refCount" style="font-size: 1.2rem; color: #22c55e;">0</strong>
+            </div>
+        </div>
+
+        <button onclick="window.location.href='generate.html'">GÉRER MON LIEN</button>
+        
+        <div class="social-links" style="margin-top: 20px;">
+            <p style="font-size: 0.8rem; text-align: center; margin-bottom: 10px;">Communauté officielle :</p>
+            <a id="telegramBtn" class="btn-link" target="_blank" style="background: #0088cc; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 5px;">Rejoindre Telegram</a>
+            <a id="youtubeBtn" class="btn-link" target="_blank" style="background: #ff0000; color: white; padding: 10px; border-radius: 8px; text-align: center;">S'abonner YouTube</a>
+        </div>
+        
+        <button onclick="logout()" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; margin-top: 30px;">Déconnexion</button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Petite fonction locale pour le dashboard
+        function logout() {
+            if(confirm("Voulez-vous vous déconnecter ?")) {
+                localStorage.removeItem("user");
+                localStorage.removeItem("videoDone");
+                localStorage.removeItem("deadline");
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>

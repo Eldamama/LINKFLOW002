@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow - Activation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initVideoPage()">
+    <div class="card">
+        <h2>Activation du Flux</h2>
+        <div id="notification" class="info">Visionnez et interagissez pour débloquer votre accès.</div>
+        
+        <h3 id="ytTitle"></h3>
+        <p id="ytText" class="small-text"></p>
+
+        <div class="video-container">
+            <iframe id="videoFrame" width="100%" height="200" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div class="actions">
+            <label><input type="checkbox" id="like"> J'ai aimé la vidéo</label>
+            <label><input type="checkbox" id="comment"> J'ai laissé un commentaire</label>
+            <label><input type="checkbox" id="subscribe"> Je me suis abonné</label>
+        </div>
+
+        <button onclick="unlockAccess()" class="btn-secondary">Valider mes actions</button>
+        
+        <button id="getLinkBtn" onclick="goToPlatform()" disabled>
+            Patientez...
+        </button>
+        <p id="timer"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

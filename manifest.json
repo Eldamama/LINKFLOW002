@@ -1,0 +1,22 @@
+{
+  "name": "LinkFlow System",
+  "short_name": "LinkFlow",
+  "description": "L'écosystème qui propulse votre réseau.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0c0f1a",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/2563eb/ffffff?text=LF",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://via.placeholder.com/512/2563eb/ffffff?text=LinkFlow",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

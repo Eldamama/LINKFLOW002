@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkFlow - Mon Lien</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initGeneratePage()">
+    <div class="card">
+        <h2>Votre Lien Flow</h2>
+        <div id="notification"></div>
+
+        <p class="instruction">Collez ci-dessous votre lien de l'opportunité partenaire pour le rendre viral.</p>
+        <input id="victoryLink" placeholder="https://votre-opportunite.com/...">
+        
+        <button onclick="saveLink()">GÉNÉRER MON LIEN LINKFLOW</button>
+
+        <div id="resultBox" class="result-area hidden">
+            <p>Partagez ce lien unique :</p>
+            <strong id="result"></strong>
+            <button onclick="copyLink()" class="btn-small">Copier</button>
+        </div>
+
+        <p id="countdown"></p>
+        <button onclick="shareLink()" id="btnShare" class="btn-whatsapp">Partager sur WhatsApp</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
