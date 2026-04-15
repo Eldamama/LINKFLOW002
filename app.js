@@ -1,8 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// TA CONFIGURATION RÉELLE
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -10,11 +9,9 @@ const firebaseConfig = {
   projectId: "linkflow-7a82a",
   storageBucket: "linkflow-7a82a.firebasestorage.app",
   messagingSenderId: "459654757296",
-  appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475",
-  measurementId: "G-THW9XMEJTX"
+  appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475"
 };
 
-// Initialisation de Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
@@ -23,80 +20,73 @@ let timeLeft = 120;
 let isTimerStarted = false;
 
 const btnAction = document.getElementById('btnAction');
-const nameInput = document.getElementById('userName');
-const emailInput = document.getElementById('userEmail');
-const passInput = document.getElementById('userPassword');
+const stepsBox = document.getElementById('stepsBox');
 
-// Fonction du chronomètre
 function startTimer() {
     isTimerStarted = true;
     const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
             btnAction.disabled = true;
-            btnAction.innerText = `Visionnage obligatoire : ${timeLeft}s`;
+            btnAction.innerText = `Visionnage en cours : ${timeLeft}s`;
             btnAction.style.background = "#475569";
         } else {
             clearInterval(timer);
-            btnAction.disabled = false;
-            btnAction.innerText = "ACTIVER MON ACCÈS FINAL";
-            btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
+            // TEMPS ÉCOULÉ : On montre les cases
+            stepsBox.classList.remove('hidden'); 
+            btnAction.innerText = "Complétez les 3 étapes";
+            btnAction.disabled = true;
         }
     }, 1000);
 }
 
-// Logique du bouton
+// Vérification des cases cochées
+window.checkSteps = function() {
+    const isLiked = document.getElementById('likeCheck').checked;
+    const isCommented = document.getElementById('commentCheck').checked;
+    const isSubbed = document.getElementById('subCheck').checked;
+
+    if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
+        btnAction.disabled = false;
+        btnAction.innerText = "ACTIVER MON ACCÈS FINAL";
+        btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
+    }
+};
+
+document.querySelectorAll('input[type="checkbox"]').forEach(ck => {
+    ck.addEventListener('change', window.checkSteps);
+});
+
 btnAction.addEventListener('click', async () => {
     const user = auth.currentUser;
 
-    // 1. Inscription et lancement du chrono
     if (!user && !isTimerStarted) {
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const password = passInput.value;
+        const name = document.getElementById('userName').value;
+        const email = document.getElementById('userEmail').value;
+        const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !password) {
-            alert("Veuillez remplir le nom, l'email et le mot de passe.");
-            return;
-        }
+        if (!name || !email || !pass) return alert("Veuillez remplir tous les champs.");
 
         try {
-            btnAction.innerText = "Inscription...";
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: name });
-            
-            alert("Compte créé ! Regardez la vidéo (120s) pour débloquer l'activation.");
+            btnAction.innerText = "Initialisation...";
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(res.user, { displayName: name });
+            alert("Compte créé. Suivez la vidéo pour débloquer la suite.");
             startTimer();
-        } catch (error) {
-            alert("Erreur : " + error.message);
-        }
-        return;
-    }
-
-    // 2. Validation finale après les 120s
-    if (user && timeLeft <= 0) {
+        } catch (e) { alert("Erreur : " + e.message); }
+    } else if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
-            try {
-                await sendEmailVerification(user);
-                alert("Lien de confirmation envoyé à votre adresse Gmail ! Vérifiez vos mails.");
-            } catch (error) {
-                alert("Erreur d'envoi : " + error.message);
-            }
+            await sendEmailVerification(user);
+            alert("Lien envoyé ! Vérifiez votre Gmail.");
         } else {
-            try {
-                await set(ref(db, 'membres/' + user.uid), {
-                    nom: user.displayName,
-                    email: user.email,
-                    statut: "actif",
-                    date: new Date().toLocaleDateString()
-                });
-                alert("Bravo ! Accès LinkFlow activé.");
-                window.location.href = "dashboard.html";
-            } catch (error) {
-                alert("Erreur de sauvegarde : " + error.message);
-            }
+            await set(ref(db, 'membres/' + user.uid), { 
+                nom: user.displayName, 
+                email: user.email, 
+                statut: "actif",
+                date: new Date().toLocaleDateString()
+            });
+            alert("Accès activé !");
+            window.location.href = "dashboard.html";
         }
     }
 });
-
-btnAction.innerText = "S'INSCRIRE & LANCER LE CHRONO";
