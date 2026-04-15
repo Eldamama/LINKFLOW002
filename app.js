@@ -1,13 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } 
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getDatabase, ref, set } 
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// ✅ Configuration corrigée
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
   databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "linkflow-7a82a",
-  storageBucket: "linkflow-7a82a.firebasestorage.app",
+  storageBucket: "linkflow-7a82a.appspot.com",   // ✅ correction ici
   messagingSenderId: "459654757296",
   appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475"
 };
@@ -68,14 +71,18 @@ btnAction.addEventListener('click', async () => {
             alert("Compte créé ! La vidéo de validation va démarrer.");
             startTimer(); // Démarre le chrono et montre la vidéo
         } catch (e) { 
-            alert("Erreur de configuration Firebase : " + e.message);
+            alert("Erreur Firebase : " + e.message);
         }
     } else if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
             await sendEmailVerification(user);
             alert("Vérifiez votre Gmail pour valider le lien Victor Hugo !");
         } else {
-            await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "Victory Hugo" });
+            await set(ref(db, 'membres/' + user.uid), { 
+                nom: user.displayName, 
+                email: user.email, 
+                statut: "Victory Hugo" 
+            });
             window.location.href = "dashboard.html";
         }
     }
