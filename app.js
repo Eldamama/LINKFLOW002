@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Configuration réelle extraite de tes paramètres Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -26,7 +25,7 @@ const stepsBox = document.getElementById('stepsBox');
 
 function startTimer() {
     isTimerStarted = true;
-    videoBox.classList.remove('hidden');
+    videoBox.classList.remove('hidden'); // Affiche la vidéo après inscription
     const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
@@ -34,9 +33,8 @@ function startTimer() {
             btnAction.innerText = `Validation Victory Hugo : ${timeLeft}s`;
         } else {
             clearInterval(timer);
-            stepsBox.classList.remove('hidden'); 
-            btnAction.innerText = "Cochez les 3 cases ci-dessus";
-            btnAction.disabled = true;
+            stepsBox.classList.remove('hidden'); // Affiche les cases à la fin du chrono
+            btnAction.innerText = "Cochez les étapes ci-dessus";
         }
     }, 1000);
 }
@@ -61,27 +59,23 @@ btnAction.addEventListener('click', async () => {
         const email = document.getElementById('userEmail').value;
         const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !pass) return alert("Veuillez remplir tous les champs.");
+        if (!name || !email || !pass) return alert("Remplissez vos infos.");
 
         try {
-            btnAction.innerText = "Connexion Firebase...";
+            btnAction.innerText = "Connexion...";
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: name });
-            alert("Compte créé ! Suivez la vidéo pour débloquer le lien Victor Hugo.");
-            startTimer();
+            alert("Compte créé ! La vidéo de validation va démarrer.");
+            startTimer(); // Démarre le chrono et montre la vidéo
         } catch (e) { 
-            alert("Erreur de configuration : " + e.message);
+            alert("Erreur de configuration Firebase : " + e.message);
         }
     } else if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
             await sendEmailVerification(user);
-            alert("Vérifiez votre Gmail pour activer le lien Victor Hugo !");
+            alert("Vérifiez votre Gmail pour valider le lien Victor Hugo !");
         } else {
-            await set(ref(db, 'membres/' + user.uid), { 
-                nom: user.displayName, 
-                email: user.email, 
-                statut: "Victory Hugo" 
-            });
+            await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "Victory Hugo" });
             window.location.href = "dashboard.html";
         }
     }
