@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkFlow - Activation</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
     <div class="card">
@@ -26,7 +29,7 @@
             </iframe>
         </div>
 
-        <div class="steps-box">
+        <div id="stepsBox" class="steps-box hidden">
             <label><input type="checkbox" id="likeCheck"> J'ai aimé</label>
             <label><input type="checkbox" id="commentCheck"> J'ai commenté</label>
             <label><input type="checkbox" id="subCheck"> Je suis abonné</label>
@@ -34,13 +37,6 @@
 
         <button id="btnAction">S'INSCRIRE & LANCER LE CHRONO</button>
     </div>
-
-    <script type="module">
-        import { app } from './firebase-config.js';
-        if (app) {
-            console.log("🚀 LinkFlow : Système prêt.");
-        }
-    </script>
 
     <script type="module" src="app.js"></script>
 </body>
