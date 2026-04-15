@@ -16,7 +16,7 @@
         <div class="auth-box">
             <input type="email" id="userEmail" placeholder="Votre Gmail" required>
             <input type="password" id="userPassword" placeholder="Mot de passe" required>
-            <input type="text" id="userWallet" placeholder="Adresse Portefeuille (BNB/USDT)" required>
+            <input type="text" id="userWallet" placeholder="Adresse Portefeuille (BNB)" required>
         </div>
 
         <div class="video-box">
@@ -35,26 +35,15 @@
         <button id="btnAction" disabled>Patientez (30s)...</button>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
-    <script>
-        // CONFIGURATION AVEC TON LIEN RTDB
-        const firebaseConfig = {
-            apiKey: "AIzaSy...", // À REMPLACER PAR TA CLÉ RÉELLE
-            authDomain: "linkflow-7a82a.firebaseapp.com",
-            databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app/",
-            projectId: "linkflow-7a82a",
-            storageBucket: "linkflow-7a82a.appspot.com",
-            messagingSenderId: "VOTRE_SENDER_ID", // À REMPLACER
-            appId: "VOTRE_APP_ID" // À REMPLACER
-        };
+    <script type="module">
+        import { app } from './firebase-config.js';
         
-        if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
+        // Petit test de vérification dans la console du navigateur
+        if (app) {
+            console.log("🚀 LinkFlow : Connexion Firebase établie avec succès !");
         }
     </script>
-    <script src="app.js"></script>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
