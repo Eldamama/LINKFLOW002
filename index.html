@@ -14,9 +14,9 @@
         <div id="notification" class="hidden"></div>
 
         <div class="auth-box">
+            <input type="text" id="userName" placeholder="Nom d'utilisateur" required>
             <input type="email" id="userEmail" placeholder="Votre Gmail" required>
             <input type="password" id="userPassword" placeholder="Mot de passe" required>
-            <input type="text" id="userWallet" placeholder="Adresse Portefeuille (BNB)" required>
         </div>
 
         <div class="video-box">
@@ -32,15 +32,13 @@
             <label><input type="checkbox" id="subCheck"> Je suis abonné</label>
         </div>
 
-        <button id="btnAction" disabled>Patientez (30s)...</button>
+        <button id="btnAction">S'INSCRIRE & LANCER LE CHRONO</button>
     </div>
 
     <script type="module">
         import { app } from './firebase-config.js';
-        
-        // Petit test de vérification dans la console du navigateur
         if (app) {
-            console.log("🚀 LinkFlow : Connexion Firebase établie avec succès !");
+            console.log("🚀 LinkFlow : Système prêt.");
         }
     </script>
 
