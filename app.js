@@ -12,6 +12,7 @@ const firebaseConfig = {
   appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475"
 };
 
+// Initialisation sécurisée
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
@@ -34,12 +35,13 @@ function startTimer() {
         } else {
             clearInterval(timer);
             stepsBox.classList.remove('hidden'); 
-            btnAction.innerText = "Dernière étape : cochez les cases";
+            btnAction.innerText = "Cochez les cases pour finir";
             btnAction.disabled = true;
         }
     }, 1000);
 }
 
+// Fonction globale pour être lue par le HTML
 window.checkSteps = function() {
     const isLiked = document.getElementById('likeCheck').checked;
     const isCommented = document.getElementById('commentCheck').checked;
@@ -52,10 +54,6 @@ window.checkSteps = function() {
     }
 };
 
-document.querySelectorAll('input[type="checkbox"]').forEach(ck => {
-    ck.addEventListener('change', window.checkSteps);
-});
-
 btnAction.addEventListener('click', async () => {
     const user = auth.currentUser;
 
@@ -64,21 +62,25 @@ btnAction.addEventListener('click', async () => {
         const email = document.getElementById('userEmail').value;
         const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !pass) return alert("Remplissez vos infos pour commencer.");
+        if (!name || !email || !pass) {
+            alert("Remplissez vos infos.");
+            return;
+        }
 
         try {
             btnAction.innerText = "Traitement...";
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: name });
-            alert("Inscription réussie ! Suivez la vidéo pour débloquer votre lien.");
+            alert("Inscription validée ! Suivez la vidéo pour obtenir votre lien.");
             startTimer();
         } catch (e) { 
-            alert("Erreur de connexion. Rafraîchissez la page.");
+            console.error(e);
+            alert("Erreur : " + e.message); // Cela affichera la cause exacte (ex: email invalide)
         }
     } else if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
             await sendEmailVerification(user);
-            alert("Vérifiez votre Gmail pour activer le lien Victor Hugo !");
+            alert("Mail envoyé ! Vérifiez votre boîte Gmail.");
         } else {
             await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "actif" });
             window.location.href = "dashboard.html";
