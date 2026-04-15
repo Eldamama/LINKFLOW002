@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .hidden { display: none !important; }
-        /* Pour que le logo s'affiche bien s'il est présent */
-        .logo { width: 120px; display: block; margin: 0 auto 20px; }
+        .logo-container { text-align: center; margin-bottom: 20px; }
+        .logo { width: 120px; height: auto; }
     </style>
 </head>
 <body>
     <div class="card">
-        <img src="logo.png" alt="Logo LinkFlow" class="logo">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo LinkFlow" class="logo">
+        </div>
         
         <h1>LinkFlow</h1>
         <p class="slogan">L'écosystème qui propulse votre réseau.</p>
@@ -37,9 +39,9 @@
             <label><input type="checkbox" id="subCheck" onchange="window.checkSteps()"> Je suis abonné</label>
         </div>
 
-        <button id="btnAction">S'INSCRIRE POUR VICTORY AUTOMATIC</button>
+        <button id="btnAction">S'INSCRIRE POUR OBTENIR LE LIEN VICTOR HUGO</button>
     </div>
 
-    <script type="module" src="app.js?v=2.0"></script>
+    <script type="module" src="app.js?v=3.0"></script>
 </body>
 </html>
