@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// CONFIGURATION DIRECTE (Pour éviter l'erreur auth/configuration-not-found)
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -26,25 +25,21 @@ const stepsBox = document.getElementById('stepsBox');
 
 function startTimer() {
     isTimerStarted = true;
-    // On affiche la vidéo
     videoBox.classList.remove('hidden');
-    
     const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
             btnAction.disabled = true;
-            btnAction.innerText = `Visionnage en cours : ${timeLeft}s`;
+            btnAction.innerText = `Validation en cours : ${timeLeft}s`;
         } else {
             clearInterval(timer);
-            // On affiche les cases à cocher à la fin
             stepsBox.classList.remove('hidden'); 
-            btnAction.innerText = "Complétez les 3 étapes";
+            btnAction.innerText = "Dernière étape : cochez les cases";
             btnAction.disabled = true;
         }
     }, 1000);
 }
 
-// Vérification des cases
 window.checkSteps = function() {
     const isLiked = document.getElementById('likeCheck').checked;
     const isCommented = document.getElementById('commentCheck').checked;
@@ -52,7 +47,7 @@ window.checkSteps = function() {
 
     if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
         btnAction.disabled = false;
-        btnAction.innerText = "ACTIVER MON ACCÈS FINAL";
+        btnAction.innerText = "OBTENIR MON LIEN VICTOR HUGO";
         btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
     }
 };
@@ -69,24 +64,21 @@ btnAction.addEventListener('click', async () => {
         const email = document.getElementById('userEmail').value;
         const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !pass) return alert("Remplissez tous les champs.");
+        if (!name || !email || !pass) return alert("Remplissez vos infos pour commencer.");
 
         try {
-            btnAction.innerText = "Connexion...";
+            btnAction.innerText = "Traitement...";
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: name });
-            
-            // L'inscription est faite, on lance la vidéo et le chrono
+            alert("Inscription réussie ! Suivez la vidéo pour débloquer votre lien.");
             startTimer();
         } catch (e) { 
-            alert("Erreur de configuration détectée. Essayez de rafraîchir la page (F5).");
-            console.error(e);
+            alert("Erreur de connexion. Rafraîchissez la page.");
         }
     } else if (user && timeLeft <= 0) {
-        // Validation finale
         if (!user.emailVerified) {
             await sendEmailVerification(user);
-            alert("Lien envoyé ! Vérifiez votre Gmail.");
+            alert("Vérifiez votre Gmail pour activer le lien Victor Hugo !");
         } else {
             await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "actif" });
             window.location.href = "dashboard.html";
