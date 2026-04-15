@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// CONFIGURATION DIRECTE (Pour éviter l'erreur auth/configuration-not-found)
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -20,19 +21,22 @@ let timeLeft = 120;
 let isTimerStarted = false;
 
 const btnAction = document.getElementById('btnAction');
+const videoBox = document.getElementById('videoBox');
 const stepsBox = document.getElementById('stepsBox');
 
 function startTimer() {
     isTimerStarted = true;
+    // On affiche la vidéo
+    videoBox.classList.remove('hidden');
+    
     const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
             btnAction.disabled = true;
             btnAction.innerText = `Visionnage en cours : ${timeLeft}s`;
-            btnAction.style.background = "#475569";
         } else {
             clearInterval(timer);
-            // TEMPS ÉCOULÉ : On montre les cases
+            // On affiche les cases à cocher à la fin
             stepsBox.classList.remove('hidden'); 
             btnAction.innerText = "Complétez les 3 étapes";
             btnAction.disabled = true;
@@ -40,7 +44,7 @@ function startTimer() {
     }, 1000);
 }
 
-// Vérification des cases cochées
+// Vérification des cases
 window.checkSteps = function() {
     const isLiked = document.getElementById('likeCheck').checked;
     const isCommented = document.getElementById('commentCheck').checked;
@@ -65,27 +69,26 @@ btnAction.addEventListener('click', async () => {
         const email = document.getElementById('userEmail').value;
         const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !pass) return alert("Veuillez remplir tous les champs.");
+        if (!name || !email || !pass) return alert("Remplissez tous les champs.");
 
         try {
-            btnAction.innerText = "Initialisation...";
+            btnAction.innerText = "Connexion...";
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: name });
-            alert("Compte créé. Suivez la vidéo pour débloquer la suite.");
+            
+            // L'inscription est faite, on lance la vidéo et le chrono
             startTimer();
-        } catch (e) { alert("Erreur : " + e.message); }
+        } catch (e) { 
+            alert("Erreur de configuration détectée. Essayez de rafraîchir la page (F5).");
+            console.error(e);
+        }
     } else if (user && timeLeft <= 0) {
+        // Validation finale
         if (!user.emailVerified) {
             await sendEmailVerification(user);
             alert("Lien envoyé ! Vérifiez votre Gmail.");
         } else {
-            await set(ref(db, 'membres/' + user.uid), { 
-                nom: user.displayName, 
-                email: user.email, 
-                statut: "actif",
-                date: new Date().toLocaleDateString()
-            });
-            alert("Accès activé !");
+            await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "actif" });
             window.location.href = "dashboard.html";
         }
     }
