@@ -11,6 +11,13 @@
   <h1 style="color:gold;">Logo LinkFlow</h1>
   <h2>L’écosystème qui propulse votre réseau</h2>
 
+  <!-- Formulaire d'inscription -->
+  <form id="registerForm" style="margin-top:30px;">
+    <input type="email" id="regEmail" placeholder="Email" required style="padding:10px; margin:5px;">
+    <input type="password" id="regPassword" placeholder="Mot de passe" required style="padding:10px; margin:5px;">
+    <button type="submit" style="padding:10px; margin:5px; background:blue; color:white;">Inscription</button>
+  </form>
+
   <!-- Formulaire de connexion -->
   <form id="loginForm" style="margin-top:30px;">
     <input type="email" id="email" placeholder="Email" required style="padding:10px; margin:5px;">
@@ -41,11 +48,28 @@
     const app = firebase.initializeApp(firebaseConfig);
     const analytics = firebase.analytics();
     const auth = firebase.auth();
-    const db = firebase.database();
 
     console.log("Firebase initialisé :", app.name);
 
-    // Gestion du formulaire de connexion
+    // Gestion inscription
+    const registerForm = document.getElementById("registerForm");
+    registerForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          console réussie :", userCredential.user);
+          alert("Compte créé pour " + userCredential.user.email);
+        })
+        .catch(error => {
+          console.error("Erreur d'inscription :", error);
+          alert("Erreur : " + error.message);
+        });
+    });
+
+    // Gestion connexion
     const loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
