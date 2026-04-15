@@ -1,26 +1,25 @@
-// On attend que le DOM soit chargé
 document.addEventListener('DOMContentLoaded', () => {
     
-    // VERIFICATION DE SECURITE : On attend que Firebase soit prêt
+    // Sécurité pour attendre que Firebase soit bien chargé sur le Tecno
     const checkFirebase = setInterval(() => {
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            clearInterval(checkFirebase); // Firebase est chargé, on arrête de chercher
-            initApp(); // On lance l'application
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.database) {
+            clearInterval(checkFirebase);
+            initApp();
         }
-    }, 500); // On vérifie toutes les 0.5 secondes
+    }, 500);
 
     function initApp() {
         const auth = firebase.auth();
+        const db = firebase.database();
         let timeLeft = 30;
         
         const btnAction = document.getElementById('btnAction');
         const notification = document.getElementById('notification');
         const emailInput = document.getElementById('userEmail');
         const passInput = document.getElementById('userPassword');
+        const walletInput = document.getElementById('userWallet');
 
-        if (!btnAction) return;
-
-        // 1. GESTION DU COMPTE À REBOURS (30s)
+        // 1. Gestion du Compte à rebours
         const timer = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
@@ -31,27 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 1000);
 
-        // 2. FONCTION DE VÉRIFICATION GLOBALE
+        // 2. Vérification des conditions
         window.checkForm = function() {
             const user = auth.currentUser;
             const isLiked = document.getElementById('likeCheck').checked;
             const isCommented = document.getElementById('commentCheck').checked;
             const isSubbed = document.getElementById('subCheck').checked;
 
-            // Une fois le temps écoulé
             if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
                 if (!user) {
-                    btnAction.innerText = "S'INSCRIRE / CONNECTER GMAIL";
+                    btnAction.innerText = "CRÉER MON COMPTE GMAIL";
                     btnAction.disabled = false;
-                    btnAction.style.background = "#3b82f6"; // Bleu
+                    btnAction.style.background = "#3b82f6"; 
                 } else if (!user.emailVerified) {
-                    btnAction.innerText = "ACTIVER MON GMAIL";
+                    btnAction.innerText = "ACTIVER VIA LIEN GMAIL";
                     btnAction.disabled = false;
-                    btnAction.style.background = "#f59e0b"; // Orange
+                    btnAction.style.background = "#f59e0b"; 
                 } else {
-                    btnAction.innerText = "VALIDER MON FLUX";
+                    btnAction.innerText = "VALIDER & SAUVEGARDER";
                     btnAction.disabled = false;
-                    btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)"; // Vert
+                    btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
                 }
             } else {
                 btnAction.disabled = true;
@@ -62,70 +60,78 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // 3. ÉCOUTEURS D'ÉVÉNEMENTS
+        // Écouteurs pour mettre à jour le bouton
         auth.onAuthStateChanged(() => checkForm());
-        
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', checkForm);
-        });
+        document.querySelectorAll('input[type="checkbox"]').forEach(ck => ck.addEventListener('change', checkForm));
 
-        // 4. ACTION CLIC SUR LE BOUTON
+        // 3. Logique du Bouton Action
         btnAction.addEventListener('click', async () => {
             const email = emailInput.value;
             const password = passInput.value;
+            const wallet = walletInput.value;
             const user = auth.currentUser;
 
-            // Étape A : Création ou Connexion
+            // ÉTAPE A : Création de compte / Connexion
             if (!user) {
-                if (!email || !password) {
-                    alert("Veuillez saisir votre Gmail et un mot de passe.");
+                if (!email || !password || !wallet) {
+                    alert("Veuillez remplir tous les champs (Email, Pass, Portefeuille).");
                     return;
                 }
                 try {
-                    btnAction.innerText = "VÉRIFICATION...";
+                    btnAction.innerText = "CRÉATION...";
                     await auth.createUserWithEmailAndPassword(email, password);
-                    alert("Compte créé avec succès ! Cliquez à nouveau pour recevoir le lien d'activation.");
+                    alert("Compte créé ! Cliquez à nouveau pour envoyer le lien d'activation.");
                 } catch (error) {
                     if (error.code === 'auth/email-already-in-use') {
-                        try {
-                            await auth.signInWithEmailAndPassword(email, password);
-                        } catch (err) {
-                            alert("Erreur de connexion : " + err.message);
-                        }
+                        await auth.signInWithEmailAndPassword(email, password).catch(e => alert(e.message));
                     } else {
-                        alert("Erreur : " + error.message);
+                        alert(error.message);
                     }
                 }
                 return;
             }
 
-            // Étape B : Envoi du lien d'activation (Gmail)
+            // ÉTAPE B : Envoi du lien d'activation
             if (!user.emailVerified) {
                 try {
                     await user.sendEmailVerification();
-                    notification.innerText = "Lien d'activation envoyé à " + user.email;
+                    notification.innerText = "Lien envoyé ! Vérifiez vos courriels (et spams).";
                     notification.className = "success";
                     notification.classList.remove('hidden');
-                    alert("Regardez votre boîte Gmail (et spams) pour cliquer sur le lien d'activation.");
+                    alert("Vérifiez votre boîte Gmail pour activer votre compte.");
                 } catch (error) {
                     alert("Erreur d'envoi : " + error.message);
                 }
                 return;
             }
 
-            // Étape C : Validation finale du flux
-            notification.innerText = "Flux validé avec succès !";
-            btnAction.disabled = true;
-            btnAction.innerText = "CHARGEMENT...";
-            
-            setTimeout(() => {
-                alert("Félicitations ! Votre profil est désormais sécurisé et actif.");
-                // Redirection ici si besoin : window.location.href = "profil.html";
-            }, 2000);
+            // ÉTAPE C : Sauvegarde en Realtime Database et Finalisation
+            try {
+                btnAction.innerText = "SAUVEGARDE...";
+                btnAction.disabled = true;
+
+                // On enregistre les données sous l'ID unique de l'utilisateur
+                await db.ref('users/' + user.uid).set({
+                    email: user.email,
+                    wallet: wallet,
+                    status: "activé",
+                    date: new Date().toLocaleString()
+                });
+
+                notification.innerText = "Profil activé et sauvegardé !";
+                setTimeout(() => {
+                    alert("Succès ! Votre profil est prêt.");
+                    // window.location.href = "dashboard.html";
+                }, 1500);
+
+            } catch (error) {
+                alert("Erreur Database : " + error.message);
+                btnAction.disabled = false;
+            }
         });
     }
 });
 
 function toggleLanguage() {
-    // Logique pour le sélecteur de langue si nécessaire
+    // Logique de traduction si nécessaire
 }
