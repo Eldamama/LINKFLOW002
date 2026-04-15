@@ -19,14 +19,20 @@
         <div id="notification" class="hidden"></div>
 
         <div class="auth-box">
-            <input type="email" id="userEmail" placeholder="Votre Gmail" required>
+            <h3>Identification & Profil</h3>
+            <input type="email" id="userEmail" placeholder="Votre Gmail (ex: nom@gmail.com)" required>
             <input type="password" id="userPassword" placeholder="Mot de passe" required>
+            <input type="text" id="userWallet" placeholder="Votre adresse Portefeuille (BNB/USDT)" required>
+            <p style="font-size: 0.75em; color: #64748b; margin-top: 5px;">
+                * Ces infos seront liées à votre compte sécurisé.
+            </p>
         </div>
 
         <div id="videoContainer" class="video-box">
             <iframe id="videoPlayer" 
-                src="https://www.youtube.com/embed/VOTRE_ID_VIDEO?rel=0" 
+                src="https://www.youtube.com/embed/VOTRE_ID_VIDEO_ICI?rel=0" 
                 frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen>
             </iframe>
         </div>
@@ -38,7 +44,7 @@
             </div>
             <div class="consent-box">
                 <input type="checkbox" id="commentCheck">
-                <label for="commentCheck">J'ai commenté</label>
+                <label for="commentCheck">J'ai laissé un commentaire</label>
             </div>
             <div class="consent-box">
                 <input type="checkbox" id="subCheck">
@@ -51,25 +57,27 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <script>
-        // Remplacez ces valeurs par celles de votre console Firebase
         const firebaseConfig = {
             apiKey: "VOTRE_API_KEY",
             authDomain: "VOTRE_PROJET.firebaseapp.com",
+            databaseURL: "https://VOTRE_PROJET-default-rtdb.firebaseio.com",
             projectId: "VOTRE_PROJET_ID",
             storageBucket: "VOTRE_PROJET.appspot.com",
             messagingSenderId: "VOTRE_SENDER_ID",
             appId: "VOTRE_APP_ID"
         };
         
-        // Initialisation immédiate
+        // Initialisation de sécurité
         if (typeof firebase !== 'undefined') {
             firebase.initializeApp(firebaseConfig);
+        } else {
+            alert("Erreur de chargement Firebase. Vérifiez votre connexion.");
         }
     </script>
 
     <script src="app.js"></script>
 </body>
 </html>
-
