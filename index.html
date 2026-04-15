@@ -6,7 +6,7 @@
     <title>LinkFlow - Activation</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .hidden { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
             <input type="password" id="userPassword" placeholder="Mot de passe" required>
         </div>
 
-        <div class="video-box">
+        <div id="videoBox" class="video-box hidden">
             <iframe id="videoPlayer" 
                 src="https://www.youtube.com/embed/VOTRE_ID_VIDEO?rel=0" 
                 frameborder="0" allowfullscreen>
@@ -35,7 +35,7 @@
             <label><input type="checkbox" id="subCheck"> Je suis abonné</label>
         </div>
 
-        <button id="btnAction">S'INSCRIRE & LANCER LE CHRONO</button>
+        <button id="btnAction">S'INSCRIRE POUR VOIR LA VIDÉO</button>
     </div>
 
     <script type="module" src="app.js"></script>
