@@ -17,20 +17,23 @@ import {
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-let timeLeft = 30;
+// RÉGLAGE DU TEMPS : 120 secondes pour le visionnage complet
+let timeLeft = 120; 
+
 const btnAction = document.getElementById('btnAction');
 const notification = document.getElementById('notification');
 const emailInput = document.getElementById('userEmail');
 const passInput = document.getElementById('userPassword');
-const walletInput = document.getElementById('userWallet');
+const walletInput = document.getElementById('userWallet'); // Champ utilisé comme identifiant réseau
 
 // 1. Gestion du Compte à rebours
 const timer = setInterval(() => {
     timeLeft--;
     if (timeLeft > 0) {
-        btnAction.innerText = `Patientez (${timeLeft}s)...`;
+        btnAction.innerText = `Visionnage de la présentation (${timeLeft}s)...`;
     } else {
         clearInterval(timer);
+        btnAction.innerText = "Validation des étapes...";
         checkForm(); 
     }
 }, 1000);
@@ -44,28 +47,27 @@ window.checkForm = function() {
 
     if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
         if (!user) {
-            btnAction.innerText = "CRÉER MON COMPTE GMAIL";
+            btnAction.innerText = "CRÉER MON ACCÈS";
             btnAction.disabled = false;
             btnAction.style.background = "#3b82f6"; 
         } else if (!user.emailVerified) {
-            btnAction.innerText = "ACTIVER VIA LIEN GMAIL";
+            btnAction.innerText = "VÉRIFIER MON GMAIL";
             btnAction.disabled = false;
             btnAction.style.background = "#f59e0b"; 
         } else {
-            btnAction.innerText = "VALIDER & SAUVEGARDER";
+            btnAction.innerText = "ACTIVER MON RÉSEAU";
             btnAction.disabled = false;
             btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
         }
     } else {
         btnAction.disabled = true;
         if (timeLeft <= 0) {
-            btnAction.innerText = "Complétez les étapes";
+            btnAction.innerText = "Finalisez les 3 étapes";
             btnAction.style.background = "#475569";
         }
     }
 };
 
-// Écouteurs pour mettre à jour le bouton
 onAuthStateChanged(auth, () => checkForm());
 document.querySelectorAll('input[type="checkbox"]').forEach(ck => ck.addEventListener('change', checkForm));
 
@@ -76,19 +78,18 @@ btnAction.addEventListener('click', async () => {
     const wallet = walletInput.value;
     const user = auth.currentUser;
 
-    // ÉTAPE A : Création de compte / Connexion
     if (!user) {
         if (!email || !password || !wallet) {
-            alert("Veuillez remplir tous les champs (Email, Pass, Portefeuille).");
+            alert("Veuillez remplir tous les champs pour votre identification.");
             return;
         }
         try {
-            btnAction.innerText = "CRÉATION...";
+            btnAction.innerText = "Initialisation...";
             await createUserWithEmailAndPassword(auth, email, password);
-            alert("Compte créé ! Cliquez à nouveau pour envoyer le lien d'activation.");
+            alert("Identifiants enregistrés ! Vérifiez maintenant votre boîte mail.");
         } catch (error) {
             if (error.code === 'auth/email-already-in-use') {
-                await signInWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
+                await signInWithEmailAndPassword(auth, email, password).catch(e => alert("Mot de passe incorrect"));
             } else {
                 alert(error.message);
             }
@@ -96,32 +97,31 @@ btnAction.addEventListener('click', async () => {
         return;
     }
 
-    // ÉTAPE B : Envoi du lien d'activation
     if (!user.emailVerified) {
         try {
             await sendEmailVerification(user);
-            notification.innerText = "Lien envoyé ! Vérifiez vos courriels (et spams).";
+            notification.innerText = "Lien d'activation envoyé ! Vérifiez vos courriels.";
             notification.classList.remove('hidden');
-            alert("Vérifiez votre boîte Gmail pour activer votre compte.");
+            alert("Consultez votre messagerie pour confirmer votre accès.");
         } catch (error) {
-            alert("Erreur d'envoi : " + error.message);
+            alert("Erreur lors de l'envoi : " + error.message);
         }
         return;
     }
 
-    // ÉTAPE C : Sauvegarde finale (Portefeuille BNB)
     if (user.emailVerified) {
         try {
-            await set(ref(db, 'users/' + user.uid), {
+            // Sauvegarde des informations de structure du membre
+            await set(ref(db, 'membres/' + user.uid), {
                 email: user.email,
-                wallet: wallet,
-                status: "active",
-                timestamp: Date.now()
+                identifiantReseau: wallet,
+                dateActivation: new Date().toLocaleDateString(),
+                statut: "actif"
             });
-            alert("Félicitations ! Vos données sont sauvegardées sur LinkFlow.");
-            window.location.href = "dashboard.html"; // Redirection vers le dashboard
+            alert("Accès validé ! Bienvenue dans l'écosystème LinkFlow.");
+            window.location.href = "dashboard.html"; 
         } catch (error) {
-            alert("Erreur de sauvegarde : " + error.message);
+            alert("Erreur de validation : " + error.message);
         }
     }
 });
