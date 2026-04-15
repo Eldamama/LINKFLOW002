@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .hidden { display: none !important; }
+        .logo { width: 100px; height: auto; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <div class="card">
+        <img src="logo.png" alt="Logo LinkFlow" class="logo">
+        
         <h1>LinkFlow</h1>
         <p class="slogan">L'écosystème qui propulse votre réseau.</p>
        
@@ -28,14 +31,14 @@
         </div>
 
         <div id="stepsBox" class="steps-box hidden">
-            <label><input type="checkbox" id="likeCheck"> J'ai aimé</label>
-            <label><input type="checkbox" id="commentCheck"> J'ai commenté</label>
-            <label><input type="checkbox" id="subCheck"> Je suis abonné</label>
+            <label><input type="checkbox" id="likeCheck" onchange="window.checkSteps()"> J'ai aimé</label>
+            <label><input type="checkbox" id="commentCheck" onchange="window.checkSteps()"> J'ai commenté</label>
+            <label><input type="checkbox" id="subCheck" onchange="window.checkSteps()"> Je suis abonné</label>
         </div>
 
         <button id="btnAction">S'INSCRIRE POUR OBTENIR LE LIEN VICTOR HUGO</button>
     </div>
 
-    <script type="module" src="app.js?v=1.1"></script>
+    <script type="module" src="app.js?v=1.2"></script>
 </body>
 </html>
