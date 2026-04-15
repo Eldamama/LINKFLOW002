@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// Configuration réelle extraite de tes paramètres Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -30,11 +31,12 @@ function startTimer() {
         timeLeft--;
         if (timeLeft > 0) {
             btnAction.disabled = true;
-            btnAction.innerText = `Validation : ${timeLeft}s`;
+            btnAction.innerText = `Validation Victory Hugo : ${timeLeft}s`;
         } else {
             clearInterval(timer);
             stepsBox.classList.remove('hidden'); 
-            btnAction.innerText = "Cochez les 3 cases";
+            btnAction.innerText = "Cochez les 3 cases ci-dessus";
+            btnAction.disabled = true;
         }
     }, 1000);
 }
@@ -46,7 +48,7 @@ window.checkSteps = function() {
 
     if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
         btnAction.disabled = false;
-        btnAction.innerText = "OBTENIR VICTORY AUTOMATIC";
+        btnAction.innerText = "OBTENIR MON LIEN VICTOR HUGO";
         btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
     }
 };
@@ -59,23 +61,27 @@ btnAction.addEventListener('click', async () => {
         const email = document.getElementById('userEmail').value;
         const pass = document.getElementById('userPassword').value;
 
-        if (!name || !email || !pass) return alert("Infos manquantes.");
+        if (!name || !email || !pass) return alert("Veuillez remplir tous les champs.");
 
         try {
-            btnAction.innerText = "Connexion...";
+            btnAction.innerText = "Connexion Firebase...";
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: name });
-            alert("Compte prêt ! Regardez la vidéo pour débloquer Victory Automatic.");
+            alert("Compte créé ! Suivez la vidéo pour débloquer le lien Victor Hugo.");
             startTimer();
         } catch (e) { 
-            alert("Erreur Firebase : " + e.message);
+            alert("Erreur de configuration : " + e.message);
         }
     } else if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
             await sendEmailVerification(user);
-            alert("Vérifiez votre Gmail pour valider Victory Automatic.");
+            alert("Vérifiez votre Gmail pour activer le lien Victor Hugo !");
         } else {
-            await set(ref(db, 'membres/' + user.uid), { nom: user.displayName, email: user.email, statut: "Victory Automatic" });
+            await set(ref(db, 'membres/' + user.uid), { 
+                nom: user.displayName, 
+                email: user.email, 
+                statut: "Victory Hugo" 
+            });
             window.location.href = "dashboard.html";
         }
     }
