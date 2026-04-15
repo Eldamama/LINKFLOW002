@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UNILINK × Victory Automatic</title>
+  <title>LINK FLOW</title>
   <style>
     body {
       margin: 0;
@@ -18,7 +18,11 @@
     }
     header h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    main {
+      padding: 2rem 1rem;
     }
     .video-container {
       position: relative;
@@ -27,6 +31,9 @@
       overflow: hidden;
       max-width: 100%;
       background: #000;
+      border: 2px solid gold;
+      border-radius: 8px;
+      margin-bottom: 2rem;
     }
     .video-container iframe {
       position: absolute;
@@ -36,20 +43,52 @@
       height: 100%;
       border: 0;
     }
+    .lang-select {
+      margin: 1rem 0;
+    }
+    .lang-select select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+    }
     footer {
       background: #111;
       padding: 1rem;
       font-size: 0.9rem;
     }
   </style>
+  <script>
+    function changeLanguage() {
+      const lang = document.getElementById("language").value;
+      const messages = {
+        fr: "Bienvenue sur LINK FLOW — Transparence et mutualisation",
+        en: "Welcome to LINK FLOW — Transparency and mutualization",
+        es: "Bienvenido a LINK FLOW — Transparencia y mutualización",
+        pt: "Bem-vindo ao LINK FLOW — Transparência e mutualização"
+      };
+      document.getElementById("welcome").innerText = messages[lang];
+    }
+  </script>
 </head>
 <body>
   <header>
-    <h1>UNILINK × Victory Automatic</h1>
+    <h1>LINK FLOW</h1>
   </header>
 
   <main>
-    <h2>Présentation vidéo</h2>
+    <div class="lang-select">
+      <label for="language">Choisissez votre langue :</label>
+      <select id="language" onchange="changeLanguage()">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+      </select>
+    </div>
+
+    <h2 id="welcome">Bienvenue sur LINK FLOW — Transparence et mutualisation</h2>
+
     <div class="video-container">
       <iframe 
         src="https://www.youtube.com/embed/9uPybhkqYw4" 
@@ -61,7 +100,7 @@
   </main>
 
   <footer>
-    © 2026 UNILINK × Victory Automatic — Transparence et mutualisation
+    © 2026 LINK FLOW
   </footer>
 </body>
 </html>
