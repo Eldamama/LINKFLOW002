@@ -1,7 +1,21 @@
-import { app } from './firebase-config.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// TA CONFIGURATION RÉELLE
+const firebaseConfig = {
+  apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
+  authDomain: "linkflow-7a82a.firebaseapp.com",
+  databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "linkflow-7a82a",
+  storageBucket: "linkflow-7a82a.firebasestorage.app",
+  messagingSenderId: "459654757296",
+  appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475",
+  measurementId: "G-THW9XMEJTX"
+};
+
+// Initialisation de Firebase
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
@@ -13,6 +27,7 @@ const nameInput = document.getElementById('userName');
 const emailInput = document.getElementById('userEmail');
 const passInput = document.getElementById('userPassword');
 
+// Fonction du chronomètre
 function startTimer() {
     isTimerStarted = true;
     const timer = setInterval(() => {
@@ -30,10 +45,11 @@ function startTimer() {
     }, 1000);
 }
 
+// Logique du bouton
 btnAction.addEventListener('click', async () => {
     const user = auth.currentUser;
 
-    // ÉTAPE 1 : Inscription et lancement du chrono
+    // 1. Inscription et lancement du chrono
     if (!user && !isTimerStarted) {
         const name = nameInput.value;
         const email = emailInput.value;
@@ -47,11 +63,9 @@ btnAction.addEventListener('click', async () => {
         try {
             btnAction.innerText = "Inscription...";
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            // On ajoute le Nom d'utilisateur au profil Firebase
             await updateProfile(userCredential.user, { displayName: name });
             
-            alert("Inscription réussie ! Le décompte de 120s commence pour valider votre accès.");
+            alert("Compte créé ! Regardez la vidéo (120s) pour débloquer l'activation.");
             startTimer();
         } catch (error) {
             alert("Erreur : " + error.message);
@@ -59,17 +73,16 @@ btnAction.addEventListener('click', async () => {
         return;
     }
 
-    // ÉTAPE 2 : Validation après les 120s
+    // 2. Validation finale après les 120s
     if (user && timeLeft <= 0) {
         if (!user.emailVerified) {
             try {
                 await sendEmailVerification(user);
-                alert("Lien de confirmation envoyé à votre adresse Gmail.");
+                alert("Lien de confirmation envoyé à votre adresse Gmail ! Vérifiez vos mails.");
             } catch (error) {
                 alert("Erreur d'envoi : " + error.message);
             }
         } else {
-            // Sauvegarde finale dans la Database
             try {
                 await set(ref(db, 'membres/' + user.uid), {
                     nom: user.displayName,
@@ -77,10 +90,10 @@ btnAction.addEventListener('click', async () => {
                     statut: "actif",
                     date: new Date().toLocaleDateString()
                 });
-                alert("Accès activé avec succès !");
+                alert("Bravo ! Accès LinkFlow activé.");
                 window.location.href = "dashboard.html";
             } catch (error) {
-                alert("Erreur réseau : " + error.message);
+                alert("Erreur de sauvegarde : " + error.message);
             }
         }
     }
