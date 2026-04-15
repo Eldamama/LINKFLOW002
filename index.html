@@ -2,105 +2,116 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINK FLOW</title>
+  <title>UNILINK × Victory Automatic</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #fff;
-      text-align: center;
-    }
-    header {
-      background: linear-gradient(90deg, gold, green, blue, black);
-      padding: 1rem;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: bold;
-    }
-    main {
-      padding: 2rem 1rem;
-    }
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%; /* ratio 16:9 */
-      height: 0;
-      overflow: hidden;
-      max-width: 100%;
-      background: #000;
-      border: 2px solid gold;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .lang-select {
-      margin: 1rem 0;
-    }
-    .lang-select select {
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: none;
-    }
-    footer {
-      background: #111;
-      padding: 1rem;
-      font-size: 0.9rem;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .step { display: none; margin-top: 20px; }
+    input, button { margin: 5px 0; padding: 8px; }
+    button { cursor: pointer; }
   </style>
-  <script>
-    function changeLanguage() {
-      const lang = document.getElementById("language").value;
-      const messages = {
-        fr: "Bienvenue sur LINK FLOW — Transparence et mutualisation",
-        en: "Welcome to LINK FLOW — Transparency and mutualization",
-        es: "Bienvenido a LINK FLOW — Transparencia y mutualización",
-        pt: "Bem-vindo ao LINK FLOW — Transparência e mutualização"
-      };
-      document.getElementById("welcome").innerText = messages[lang];
-    }
-  </script>
 </head>
 <body>
-  <header>
-    <h1>LINK FLOW</h1>
-  </header>
+  <h1>Bienvenue sur LINK FLOW</h1>
 
-  <main>
-    <div class="lang-select">
-      <label for="language">Choisissez votre langue :</label>
-      <select id="language" onchange="changeLanguage()">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="pt">Português</option>
-      </select>
-    </div>
+  <!-- Étape 1 : Inscription / Connexion -->
+  <div id="auth-step" class="step" style="display:block;">
+    <h2>Inscription / Connexion</h2>
+    <input type="email" id="email" placeholder="Votre email"><br>
+    <input type="password" id="password" placeholder="Mot de passe"><br>
+    <button onclick="register()">S'inscrire</button>
+    <button onclick="login()">Se connecter</button><br>
+    <button onclick="resetPassword()">Mot de passe oublié</button>
+  </div>
 
-    <h2 id="welcome">Bienvenue sur LINK FLOW — Transparence et mutualisation</h2>
+  <!-- Étape 2 : Interactions YouTube -->
+  <div id="video-step" class="step">
+    <h2>Étape YouTube</h2>
+    <iframe width="560" height="315"
+      src="https://www.youtube.com/embed/ID_DE_LA_VIDEO"
+      frameborder="0" allowfullscreen></iframe>
+    <p>Likez, commentez et abonnez-vous, puis cliquez sur "Valider".</p>
+    <button onclick="validateYoutube()">Valider</button>
+  </div>
 
-    <div class="video-container">
-      <iframe 
-        src="https://www.youtube.com/embed/9uPybhkqYw4" 
-        title="YouTube video player" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-        allowfullscreen>
-      </iframe>
-    </div>
-  </main>
+  <!-- Étape 3 : Lien Victory Automatic -->
+  <div id="victory-step" class="step">
+    <h2>Votre lien Victory Automatic</h2>
+    <p>Collez ici votre lien Victory Automatic :</p>
+    <input type="text" id="victoryLink" placeholder="https://victory-automatic...">
+    <button onclick="generateLinkFlow()">Générer mon LINK FLOW</button>
+  </div>
 
-  <footer>
-    © 2026 LINK FLOW
-  </footer>
+  <!-- Étape 4 : Résultat LINK FLOW -->
+  <div id="linkflow-step" class="step">
+    <h2>Votre LINK FLOW</h2>
+    <p id="linkflowResult"></p>
+  </div>
+
+  <!-- Firebase + JS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } 
+      from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "TA_CLE_API",
+      authDomain: "ton-projet.firebaseapp.com",
+      projectId: "ton-projet",
+      storageBucket: "ton-projet.appspot.com",
+      messagingSenderId: "ID",
+      appId: "APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Étape 1 : Auth
+    window.register = function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          alert("Inscription réussie !");
+          document.getElementById("auth-step").style.display = "none";
+          document.getElementById("video-step").style.display = "block";
+        })
+        .catch(error => alert(error.message));
+    }
+
+    window.login = function() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          alert("Connexion réussie !");
+          document.getElementById("auth-step").style.display = "none";
+          document.getElementById("video-step").style.display = "block";
+        })
+        .catch(error => alert(error.message));
+    }
+
+    window.resetPassword = function() {
+      const email = document.getElementById("email").value;
+      sendPasswordResetEmail(auth, email)
+        .then(() => alert("Lien de réinitialisation envoyé à " + email))
+        .catch(error => alert(error.message));
+    }
+
+    // Étape 2 : YouTube
+    window.validateYoutube = function() {
+      alert("Merci ! Étape YouTube validée.");
+      document.getElementById("video-step").style.display = "none";
+      document.getElementById("victory-step").style.display = "block";
+    }
+
+    // Étape 3 : Génération LINK FLOW
+    window.generateLinkFlow = function() {
+      const victoryLink = document.getElementById("victoryLink").value;
+      const linkFlow = "https://tonsite.github.io/linkflow?redirect=" + encodeURIComponent(victoryLink);
+      document.getElementById("victory-step").style.display = "none";
+      document.getElementById("linkflow-step").style.display = "block";
+      document.getElementById("linkflowResult").innerText = "Votre LINK FLOW : " + linkFlow;
+    }
+  </script>
 </body>
 </html>
