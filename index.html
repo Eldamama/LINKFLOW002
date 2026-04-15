@@ -3,33 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkFlow System - Inscription</title>
+    <title>LinkFlow System - Activation</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
         <h1 id="appName">LinkFlow</h1>
         <p class="slogan">L'écosystème qui propulse votre réseau.</p>
-        
-        <select id="language" onchange="setLanguage()">
+       
+        <select id="language" onchange="toggleLanguage()">
             <option value="fr">Français</option>
             <option value="en">English</option>
         </select>
 
         <div id="notification" class="hidden"></div>
 
-        <input id="username" placeholder="Nom d'utilisateur">
-        <input id="whatsapp" placeholder="WhatsApp (ex: +243...)">
-        <input id="usdt" placeholder="Adresse BNB / USDT BEP20">
-        <input id="password" type="password" placeholder="Mot de passe">
-
-        <div class="consent-box">
-            <input type="checkbox" id="consentCheck">
-            <label for="consentCheck">Je comprends que l'étape suivante (vidéo) est cruciale pour activer mon lien et booster l'algorithme du réseau.</label>
+        <div class="auth-box">
+            <input type="email" id="userEmail" placeholder="Votre Gmail" required>
+            <input type="password" id="userPassword" placeholder="Mot de passe" required>
         </div>
 
-        <button onclick="register()" id="btnRegister">DÉMARRER L'AVENTURE</button>
+        <div id="videoContainer" class="video-box">
+            <iframe id="videoPlayer" 
+                src="https://www.youtube.com/embed/VOTRE_ID_VIDEO?rel=0" 
+                frameborder="0" 
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <div class="steps-box">
+            <div class="consent-box">
+                <input type="checkbox" id="likeCheck">
+                <label for="likeCheck">J'ai aimé la vidéo</label>
+            </div>
+            <div class="consent-box">
+                <input type="checkbox" id="commentCheck">
+                <label for="commentCheck">J'ai commenté</label>
+            </div>
+            <div class="consent-box">
+                <input type="checkbox" id="subCheck">
+                <label for="subCheck">Je suis abonné</label>
+            </div>
+        </div>
+
+        <button id="btnAction" disabled>Patientez (30s)...</button>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // Remplacez ces valeurs par celles de votre console Firebase
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_PROJET.firebaseapp.com",
+            projectId: "VOTRE_PROJET_ID",
+            storageBucket: "VOTRE_PROJET.appspot.com",
+            messagingSenderId: "VOTRE_SENDER_ID",
+            appId: "VOTRE_APP_ID"
+        };
+        
+        // Initialisation immédiate
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+
     <script src="app.js"></script>
 </body>
 </html>
+
