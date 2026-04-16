@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>LINK FLOW - Authentification</title>
-  <!-- Import Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <style>
-    #videoOnboarding, #linkSection {
-      display: none; /* cachés par défaut */
+    #videoOnboarding, #actionsSection, #linkSection {
+      display: none;
       margin-top: 20px;
     }
     #linkSection a {
@@ -38,20 +37,27 @@
   <h2>Déconnexion</h2>
   <button onclick="deconnecter()">Se déconnecter</button>
 
-  <!-- Vidéo et lien -->
-  <h2>Visionnez la vidéo pour débloquer le lien</h2>
+  <!-- Vidéo -->
+  <h2>Visionnez la vidéo pour débloquer les actions</h2>
   <video id="videoOnboarding" width="320" height="240" controls>
     <source src="video.mp4" type="video/mp4">
     Votre navigateur ne supporte pas la vidéo.
   </video>
 
+  <!-- Actions Like & Comment -->
+  <div id="actionsSection">
+    <button id="likeBtn">👍 Liker</button>
+    <button id="commentBtn">💬 Commenter</button>
+  </div>
+
+  <!-- Lien caché -->
   <div id="linkSection">
-    <p>Bravo, vous avez terminé la vidéo !</p>
+    <p>Bravo, vous avez terminé la vidéo et interagi !</p>
     <a href="https://tonlien.com" target="_blank">Accéder au lien</a>
   </div>
 
   <script>
-    // Configuration Firebase avec TES vraies clés
+    // Config Firebase
     var firebaseConfig = {
       apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
       authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -64,62 +70,66 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Fonction inscription
+    // Inscription
     function inscrire() {
       const email = document.getElementById("emailInscription").value;
       const mdp = document.getElementById("mdpInscription").value;
-
       firebase.auth().createUserWithEmailAndPassword(email, mdp)
-        .then(utilisateur => {
-          alert("Inscription réussie : " + utilisateur.user.email);
-        })
-        .catch(erreur => {
-          alert("Erreur : " + erreur.message);
-        });
+        .then(u => alert("Inscription réussie : " + u.user.email))
+        .catch(e => alert("Erreur : " + e.message));
     }
 
-    // Fonction connexion
+    // Connexion
     function connecter() {
       const email = document.getElementById("emailConnexion").value;
       const mdp = document.getElementById("mdpConnexion").value;
-
       firebase.auth().signInWithEmailAndPassword(email, mdp)
-        .then(utilisateur => {
-          alert("Connexion réussie : " + utilisateur.user.email);
-        })
-        .catch(erreur => {
-          alert("Erreur : " + erreur.message);
-        });
+        .then(u => alert("Connexion réussie : " + u.user.email))
+        .catch(e => alert("Erreur : " + e.message));
     }
 
-    // Fonction déconnexion
+    // Déconnexion
     function deconnecter() {
       firebase.auth().signOut()
-        .then(() => {
-          alert("Déconnexion réussie");
-        })
-        .catch(erreur => {
-          alert("Erreur : " + erreur.message);
-        });
+        .then(() => alert("Déconnexion réussie"))
+        .catch(e => alert("Erreur : " + e.message));
     }
 
-    // Surveiller l’état de l’utilisateur
+    // Surveiller état utilisateur
     firebase.auth().onAuthStateChanged(utilisateur => {
       if (utilisateur) {
-        console.log("Utilisateur connecté :", utilisateur.email);
         document.getElementById("videoOnboarding").style.display = "block";
       } else {
-        console.log("Aucun utilisateur connecté");
         document.getElementById("videoOnboarding").style.display = "none";
+        document.getElementById("actionsSection").style.display = "none";
         document.getElementById("linkSection").style.display = "none";
       }
     });
 
-    // Débloquer le lien après visionnage
+    // Débloquer les boutons après vidéo
     const video = document.getElementById("videoOnboarding");
+    let liked = false;
+    let commented = false;
+
     video.addEventListener("ended", () => {
-      document.getElementById("linkSection").style.display = "block";
+      document.getElementById("actionsSection").style.display = "block";
     });
+
+    document.getElementById("likeBtn").addEventListener("click", () => {
+      liked = true;
+      checkUnlock();
+    });
+
+    document.getElementById("commentBtn").addEventListener("click", () => {
+      commented = true;
+      checkUnlock();
+    });
+
+    function checkUnlock() {
+      if (liked && commented) {
+        document.getElementById("linkSection").style.display = "block";
+      }
+    }
   </script>
 </body>
 </html>
