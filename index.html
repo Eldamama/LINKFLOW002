@@ -6,6 +6,17 @@
   <!-- Import Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <style>
+    #videoOnboarding, #linkSection {
+      display: none; /* cachés par défaut */
+      margin-top: 20px;
+    }
+    #linkSection a {
+      color: blue;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>Bienvenue sur LINK FLOW</h1>
@@ -26,6 +37,18 @@
   <!-- Bouton de déconnexion -->
   <h2>Déconnexion</h2>
   <button onclick="deconnecter()">Se déconnecter</button>
+
+  <!-- Vidéo et lien -->
+  <h2>Visionnez la vidéo pour débloquer le lien</h2>
+  <video id="videoOnboarding" width="320" height="240" controls>
+    <source src="video.mp4" type="video/mp4">
+    Votre navigateur ne supporte pas la vidéo.
+  </video>
+
+  <div id="linkSection">
+    <p>Bravo, vous avez terminé la vidéo !</p>
+    <a href="https://tonlien.com" target="_blank">Accéder au lien</a>
+  </div>
 
   <script>
     // Configuration Firebase avec TES vraies clés
@@ -84,9 +107,18 @@
     firebase.auth().onAuthStateChanged(utilisateur => {
       if (utilisateur) {
         console.log("Utilisateur connecté :", utilisateur.email);
+        document.getElementById("videoOnboarding").style.display = "block";
       } else {
         console.log("Aucun utilisateur connecté");
+        document.getElementById("videoOnboarding").style.display = "none";
+        document.getElementById("linkSection").style.display = "none";
       }
+    });
+
+    // Débloquer le lien après visionnage
+    const video = document.getElementById("videoOnboarding");
+    video.addEventListener("ended", () => {
+      document.getElementById("linkSection").style.display = "block";
     });
   </script>
 </body>
