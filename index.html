@@ -2,37 +2,91 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINK FLOW</title>
+  <title>LINK FLOW - Authentification</title>
+  <!-- Import Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
   <h1>Bienvenue sur LINK FLOW</h1>
-  <p>Firebase est correctement initialisé.</p>
+  <p>Authentification avec Firebase</p>
 
-  <!-- Firebase SDK via CDN -->
-  <script type="module">
-    // Import des modules Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+  <!-- Formulaire d'inscription -->
+  <h2>Inscription</h2>
+  <input type="email" id="emailInscription" placeholder="Votre email">
+  <input type="password" id="mdpInscription" placeholder="Votre mot de passe">
+  <button onclick="inscrire()">S’inscrire</button>
 
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
-      authDomain: "linkflow-7a82a.firebaseapp.com",
-      databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "linkflow-7a82a",
-      storageBucket: "linkflow-7a82a.appspot.com",
-      messagingSenderId: "459654757296",
-      appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475",
-      measurementId: "G-THW9XMEJTX"
+  <!-- Formulaire de connexion -->
+  <h2>Connexion</h2>
+  <input type="email" id="emailConnexion" placeholder="Votre email">
+  <input type="password" id="mdpConnexion" placeholder="Votre mot de passe">
+  <button onclick="connecter()">Se connecter</button>
+
+  <!-- Bouton de déconnexion -->
+  <h2>Déconnexion</h2>
+  <button onclick="deconnecter()">Se déconnecter</button>
+
+  <script>
+    // Configuration Firebase (remplace par tes propres clés)
+    var firebaseConfig = {
+      apiKey: "TON_API_KEY",
+      authDomain: "TON_PROJET.firebaseapp.com",
+      projectId: "TON_PROJET",
+      storageBucket: "TON_PROJET.appspot.com",
+      messagingSenderId: "TON_SENDER_ID",
+      appId: "TON_APP_ID"
     };
+    firebase.initializeApp(firebaseConfig);
 
-    // Initialisation Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    // Fonction inscription
+    function inscrire() {
+      const email = document.getElementById("emailInscription").value;
+      const mdp = document.getElementById("mdpInscription").value;
 
-    // Vérification console
-    console.log("Firebase initialisé avec succès :", app);
+      firebase.auth().createUserWithEmailAndPassword(email, mdp)
+        .then(utilisateur => {
+          alert("Inscription réussie : " + utilisateur.user.email);
+        })
+        .catch(erreur => {
+          alert("Erreur : " + erreur.message);
+        });
+    }
+
+    // Fonction connexion
+    function connecter() {
+      const email = document.getElementById("emailConnexion").value;
+      const mdp = document.getElementById("mdpConnexion").value;
+
+      firebase.auth().signInWithEmailAndPassword(email, mdp)
+        .then(utilisateur => {
+          alert("Connexion réussie : " + utilisateur.user.email);
+        })
+        .catch(erreur => {
+          alert("Erreur : " + erreur.message);
+        });
+    }
+
+    // Fonction déconnexion
+    function deconnecter() {
+      firebase.auth().signOut()
+        .then(() => {
+          alert("Déconnexion réussie");
+        })
+        .catch(erreur => {
+          alert("Erreur : " + erreur.message);
+        });
+    }
+
+    // Surveiller l’état de l’utilisateur
+    firebase.auth().onAuthStateChanged(utilisateur => {
+      if (utilisateur) {
+        console.log("Utilisateur connecté :", utilisateur.email);
+      } else {
+        console.log("Aucun utilisateur connecté");
+      }
+    });
   </script>
 </body>
 </html>
