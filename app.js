@@ -1,89 +1,28 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } 
-  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getDatabase, ref, set } 
-  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// --- LINK FLOW Onboarding Logic ---
+// Ce script gère l'activation du lien, le partage et l'interaction YouTube
 
-// ✅ Configuration corrigée
-const firebaseConfig = {
-  apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
-  authDomain: "linkflow-7a82a.firebaseapp.com",
-  databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "linkflow-7a82a",
-  storageBucket: "linkflow-7a82a.appspot.com",   // ✅ correction ici
-  messagingSenderId: "459654757296",
-  appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475"
-};
+// Vérifie si le bouton "Activer" est cliqué
+document.addEventListener("DOMContentLoaded", function() {
+  const activateBtn = document.getElementById("activateBtn");
+  const shareBtn = document.getElementById("shareBtn");
+  const youtubeBtn = document.getElementById("youtubeBtn");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+  // Étape 1 : Activation du lien
+  activateBtn.addEventListener("click", function() {
+    alert("Lien activé ✅ Vous pouvez continuer.");
+    // Ici tu peux ajouter une redirection ou débloquer une section
+  });
 
-let timeLeft = 120;
-let isTimerStarted = false;
+  // Étape 2 : Partage obligatoire
+  shareBtn.addEventListener("click", function() {
+    alert("Merci d’avoir partagé 🔗 Accès validé.");
+    // Exemple : enregistrer l’action dans localStorage
+    localStorage.setItem("shared", "true");
+  });
 
-const btnAction = document.getElementById('btnAction');
-const videoBox = document.getElementById('videoBox');
-const stepsBox = document.getElementById('stepsBox');
-
-function startTimer() {
-    isTimerStarted = true;
-    videoBox.classList.remove('hidden'); // Affiche la vidéo après inscription
-    const timer = setInterval(() => {
-        timeLeft--;
-        if (timeLeft > 0) {
-            btnAction.disabled = true;
-            btnAction.innerText = `Validation Victory Hugo : ${timeLeft}s`;
-        } else {
-            clearInterval(timer);
-            stepsBox.classList.remove('hidden'); // Affiche les cases à la fin du chrono
-            btnAction.innerText = "Cochez les étapes ci-dessus";
-        }
-    }, 1000);
-}
-
-window.checkSteps = function() {
-    const isLiked = document.getElementById('likeCheck').checked;
-    const isCommented = document.getElementById('commentCheck').checked;
-    const isSubbed = document.getElementById('subCheck').checked;
-
-    if (timeLeft <= 0 && isLiked && isCommented && isSubbed) {
-        btnAction.disabled = false;
-        btnAction.innerText = "OBTENIR MON LIEN VICTOR HUGO";
-        btnAction.style.background = "linear-gradient(135deg, #22c55e, #10b981)";
-    }
-};
-
-btnAction.addEventListener('click', async () => {
-    const user = auth.currentUser;
-
-    if (!user && !isTimerStarted) {
-        const name = document.getElementById('userName').value;
-        const email = document.getElementById('userEmail').value;
-        const pass = document.getElementById('userPassword').value;
-
-        if (!name || !email || !pass) return alert("Remplissez vos infos.");
-
-        try {
-            btnAction.innerText = "Connexion...";
-            const res = await createUserWithEmailAndPassword(auth, email, pass);
-            await updateProfile(res.user, { displayName: name });
-            alert("Compte créé ! La vidéo de validation va démarrer.");
-            startTimer(); // Démarre le chrono et montre la vidéo
-        } catch (e) { 
-            alert("Erreur Firebase : " + e.message);
-        }
-    } else if (user && timeLeft <= 0) {
-        if (!user.emailVerified) {
-            await sendEmailVerification(user);
-            alert("Vérifiez votre Gmail pour valider le lien Victor Hugo !");
-        } else {
-            await set(ref(db, 'membres/' + user.uid), { 
-                nom: user.displayName, 
-                email: user.email, 
-                statut: "Victory Hugo" 
-            });
-            window.location.href = "dashboard.html";
-        }
-    }
+  // Étape 3 : Interaction YouTube
+  youtubeBtn.addEventListener("click", function() {
+    alert("Interaction YouTube confirmée 🎥");
+    // Tu peux ajouter une logique pour vérifier l’ouverture d’un lien
+  });
 });
