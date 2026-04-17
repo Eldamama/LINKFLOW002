@@ -87,7 +87,7 @@
   <!-- Lien caché -->
   <div id="linkSection">
     <p id="msgBravo">Bravo, vous avez terminé la vidéo et interagi !</p>
-    <a href="https://tonlien.com" target="_blank" id="btnAcces">Accéder à Victor Automatic</a>
+    <a href="https://victoryautomatic.com/user/register/okoningana" target="_blank" id="btnAcces">Accéder à Victor Automatic</a>
   </div>
 
   <script>
@@ -130,6 +130,11 @@
     }
 
     // Surveiller état utilisateur
+    let langActuelle = "fr";
+    document.getElementById("langSelect").addEventListener("change", e => {
+      langActuelle = e.target.value;
+    });
+
     firebase.auth().onAuthStateChanged(utilisateur => {
       if (utilisateur) {
         document.getElementById("notification").style.display = "block";
@@ -152,7 +157,7 @@
       player = new YT.Player('player', {
         height: '240',
         width: '320',
-        videoId: 'ID_DE_TA_VIDEO', // Remplace par l’ID YouTube réel
+        videoId: '9uPybhkqYw4', // ID réel de ta vidéo YouTube
         events: {
           'onStateChange': onPlayerStateChange
         }
@@ -190,7 +195,4 @@
         notification: "✅ You are logged in to LINK FLOW! To access Victor Automatic, you must first watch the video and interact (like or comment). This step is crucial: it helps activate the YouTube algorithm, boost our content’s visibility, and ensure the network’s collective vitality and growth."
       },
       es: {
-        notification: "✅ ¡Has iniciado sesión en LINK FLOW! Para acceder a Victor Automatic, primero debes ver el video e interactuar (like o comentario). Este paso es esencial: permite activar el algoritmo de YouTube, aumentar la visibilidad de nuestro contenido y asegurar la vitalidad y el progreso colectivo de la red."
-      },
-      pt: {
-        notification: "✅ Você está conectado ao LINK FLOW! Para acessar Victor Automatic, primeiro assista ao vídeo e interaja (curtir ou comentar). Este passo é essencial: ajuda a ativar o algoritmo do YouTube, aumentar a visibilidade do nosso conteúdo e garantir a vitalidade e o crescimento
+        notification: "✅ ¡Has iniciado sesión en LINK FLOW! Para acceder a Victor Automatic, primero debes ver el video e interactuar (like o
