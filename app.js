@@ -1,4 +1,6 @@
+// ==========================
 // Configuration Firebase
+// ==========================
 var firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -11,15 +13,23 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
+// ==========================
+// Fonctions d'authentification
+// ==========================
+
 // Inscription
 function inscrire() {
   const email = document.getElementById("emailInscription").value;
   const mdp = document.getElementById("mdpInscription").value;
+
   firebase.auth().createUserWithEmailAndPassword(email, mdp)
-    .then(u => alert("Inscription réussie : " + u.user.email))
-    .catch(e => {
-      console.error("Erreur Firebase:", e.code);
-      alert("Erreur : " + e.code + " - " + e.message);
+    .then((userCredential) => {
+      const user = userCredential.user;
+      document.getElementById("status").innerText = "✅ Inscription réussie : " + user.email;
+    })
+    .catch((error) => {
+      console.error("Erreur Firebase:", error.code, error.message);
+      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
     });
 }
 
@@ -27,11 +37,15 @@ function inscrire() {
 function connecter() {
   const email = document.getElementById("emailConnexion").value;
   const mdp = document.getElementById("mdpConnexion").value;
+
   firebase.auth().signInWithEmailAndPassword(email, mdp)
-    .then(u => alert("Connexion réussie : " + u.user.email))
-    .catch(e => {
-      console.error("Erreur Firebase:", e.code);
-      alert("Erreur : " + e.code + " - " + e.message);
+    .then((userCredential) => {
+      const user = userCredential.user;
+      document.getElementById("status").innerText = "✅ Connexion réussie : " + user.email;
+    })
+    .catch((error) => {
+      console.error("Erreur Firebase:", error.code, error.message);
+      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
     });
 }
 
@@ -39,8 +53,8 @@ function connecter() {
 function deconnecter() {
   firebase.auth().signOut()
     .then(() => {
-      alert("Déconnexion réussie");
-      // Effacer les champs du formulaire
+      document.getElementById("status").innerText = "ℹ️ Déconnexion réussie";
+      // Effacer les champs
       document.getElementById("emailInscription").value = "";
       document.getElementById("mdpInscription").value = "";
       document.getElementById("emailConnexion").value = "";
@@ -51,13 +65,15 @@ function deconnecter() {
       document.getElementById("actionsSection").style.display = "none";
       document.getElementById("linkSection").style.display = "none";
     })
-    .catch(e => {
-      console.error("Erreur Firebase:", e.code);
-      alert("Erreur : " + e.code + " - " + e.message);
+    .catch((error) => {
+      console.error("Erreur Firebase:", error.code, error.message);
+      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
     });
 }
 
+// ==========================
 // Surveiller état utilisateur
+// ==========================
 let langActuelle = "fr";
 document.getElementById("langSelect").addEventListener("change", e => {
   langActuelle = e.target.value;
@@ -76,7 +92,9 @@ firebase.auth().onAuthStateChanged(utilisateur => {
   }
 });
 
+// ==========================
 // YouTube API
+// ==========================
 var player;
 let videoTerminee = false;
 let interactionFaite = false;
@@ -102,36 +120,7 @@ function onPlayerStateChange(event) {
 function verifierAcces() {
   if (videoTerminee && interactionFaite) {
     document.getElementById("linkSection").style.display = "block";
+  } else {
+    document.getElementById("status").innerText = "⚠️ Vous devez terminer la vidéo et interagir avant d'accéder au lien.";
   }
 }
-
-document.getElementById("likeBtn").addEventListener("click", () => {
-  interactionFaite = true;
-  verifierAcces();
-});
-document.getElementById("commentBtn").addEventListener("click", () => {
-  interactionFaite = true;
-  verifierAcces();
-});
-
-// Traductions multilingues
-const traductions = {
-  fr: {
-    notification: "✅ Vous êtes connecté à LINK FLOW ! Pour accéder à Victor Automatic, vous devez d’abord regarder la vidéo et interagir (like ou commentaire). Cette étape est essentielle : elle permet de stimuler l’algorithme YouTube, d’augmenter la visibilité de notre contenu et d’assurer la vitalité et la progression collective du réseau."
-  },
-  en: {
-    notification: "✅ You are logged in to LINK FLOW! To access Victor Automatic, you must first watch the video and interact (like or comment). This step is crucial: it helps activate the YouTube algorithm, boost our content’s visibility, and ensure the network’s collective vitality and growth."
-  },
-  es: {
-    notification: "✅ ¡Has iniciado sesión en LINK FLOW! Para acceder a Victor Automatic, primero debes ver el video e interactuar (like o comentario). Este paso es esencial: permite activar el algoritmo de YouTube, aumentar la visibilidad de nuestro contenido y asegurar la vitalidad y el progreso colectivo de la red."
-  },
-  pt: {
-    notification: "✅ Você está conectado ao LINK FLOW! Para acessar Victor Automatic, primeiro assista ao vídeo e interaja (curtir ou comentar). Este passo é essencial: ajuda a ativar o algoritmo do YouTube, aumentar a visibilidade do nosso conteúdo e garantir a vitalidade e o crescimento coletivo da rede."
-  },
-  ln: { // Lingala
-    notification: "✅ Ozali kokangama na LINK FLOW! Po na kozwa Victor Automatic, esengeli liboso otala vidéo mpe osala interaction (like to commentaire). Etape oyo ezali ya ntina: esalaka ete algorithme ya YouTube ebotola makasi, epusa visibilité ya contenu na biso mpe ezala garanti ya bomoi mpe bokoli ya réseau."
-  },
-  sw: { // Swahili
-    notification: "✅ Umeingia kwenye LINK FLOW! Ili kufikia Victor Automatic, lazima kwanza utazame video na uhusike (like au comment). Hatua hii ni muhimu: inasaidia kuamsha algorithm ya YouTube, kuongeza mwonekano wa maudhui yetu na kuhakikisha uhai na maendeleo ya mtandao kwa pamoja."
-  }
-};
