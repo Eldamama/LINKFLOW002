@@ -18,7 +18,35 @@ firebase.initializeApp(firebaseConfig);
 // ==========================
 var player;
 let videoTerminee = false;
-let interactionFaite = false; // C'était la cause du blocage
+let interactionFaite = false; 
+let langActuelle = "fr";
+
+// Tes messages explicatifs (à adapter selon tes besoins)
+const traductions = {
+  fr: {
+    notification: "👋 Bienvenue ! Veuillez regarder la vidéo entièrement pour débloquer votre outil."
+  }
+};
+
+// ==========================
+// Inscription & Affichage Vidéo
+// ==========================
+function inscrire() {
+  const email = document.getElementById("emailInscription").value;
+  const mdp = document.getElementById("mdpInscription").value;
+
+  firebase.auth().createUserWithEmailAndPassword(email, mdp)
+    .then((userCredential) => {
+      document.getElementById("status").innerText = "✅ Inscription réussie !";
+      // On affiche le message explicatif et le lecteur
+      document.getElementById("notification").style.display = "block";
+      document.getElementById("notification").innerText = traductions[langActuelle].notification;
+      document.getElementById("player").style.display = "block";
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
+    });
+}
 
 // ==========================
 // YouTube API
@@ -26,7 +54,7 @@ let interactionFaite = false; // C'était la cause du blocage
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '240',
-    width: '320',
+    width: '100%',
     videoId: '9uPybhkqYw4', 
     events: {
       'onStateChange': onPlayerStateChange
@@ -37,48 +65,40 @@ function onYouTubeIframeAPIReady() {
 function onPlayerStateChange(event) {
   if (event.data === YT.PlayerState.ENDED) {
     videoTerminee = true;
-    // On affiche la section des boutons d'action
     document.getElementById("actionsSection").style.display = "block";
-    document.getElementById("status").innerText = "✅ Vidéo terminée. Cliquez sur le bouton YouTube ci-dessous.";
+    document.getElementById("status").innerText = "✅ Vidéo terminée. Passez à l'étape suivante.";
   }
 }
 
 // ==========================
-// Logique de validation (Réparée)
+// Validation & Déblocage
 // ==========================
 
-// ÉTAPE 1 : L'utilisateur clique pour aller sur YouTube
+// Fonction pour l'action YouTube (Obligatoire pour débloquer)
 function allerSurYoutube() {
-  interactionFaite = true; // IMPORTANT : On valide l'interaction ici
+  interactionFaite = true; 
   window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
-  document.getElementById("status").innerText = "👍 Action enregistrée. Cliquez sur l'étape 2.";
+  document.getElementById("status").innerText = "👍 Interaction enregistrée. Vérifiez l'accès maintenant.";
 }
 
-// ÉTAPE 2 : On vérifie et on affiche le champ pour coller le lien Victory
+// La fonction qui débloque le champ "Coller votre lien Victory"
 function verifierAcces() {
   if (videoTerminee && interactionFaite) {
-    // On affiche enfin la section pour coller le lien et générer le lien LINKFLOW
     document.getElementById("linkSection").style.display = "block";
-    document.getElementById("status").innerText = "✅ Accès autorisé ! Collez votre lien Victory ci-dessous.";
+    document.getElementById("status").innerText = "🔓 Accès débloqué ! Vous pouvez coller votre lien Victory.";
   } else {
-    // L'erreur que tu avais
+    // Ton message d'erreur d'origine
     alert("⚠️ Erreur : Regardez la vidéo et agissez sur YouTube d'abord.");
   }
 }
 
 // ==========================
-// Authentification simple
+// Surveillance utilisateur
 // ==========================
-function inscrire() {
-  const email = document.getElementById("emailInscription").value;
-  const mdp = document.getElementById("mdpInscription").value;
-
-  firebase.auth().createUserWithEmailAndPassword(email, mdp)
-    .then((userCredential) => {
-      document.getElementById("status").innerText = "✅ Inscription réussie. Regardez la vidéo.";
-      document.getElementById("player").style.display = "block"; // Affiche le lecteur
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
-    });
-}
+firebase.auth().onAuthStateChanged(utilisateur => {
+  if (utilisateur) {
+    document.getElementById("notification").style.display = "block";
+    document.getElementById("notification").innerText = traductions[langActuelle].notification;
+    document.getElementById("player").style.display = "block";
+  }
+});
