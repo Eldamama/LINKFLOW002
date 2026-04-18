@@ -4,108 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LINK FLOW - Système Viral</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 15px; line-height: 1.5; max-width: 500px; margin: auto; color: #333; background-color: #f4f7f6; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1 { color: #1a73e8; font-size: 26px; margin-bottom: 5px; text-align: center; font-weight: bold; }
+        h1 { color: #1a73e8; font-size: 26px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; margin-top: 5px; }
         
-        /* Générateur de lien */
+        .btn-auth { background-color: #1a73e8; color: white; }
+        .btn-yt { background-color: #ff0000; color: white !important; text-decoration: none; display: block; text-align: center; border-radius: 30px; padding: 15px; margin-top: 15px; }
+        .btn-success { background-color: #4CAF50; color: white !important; padding: 18px; text-decoration: none; display: none; text-align: center; border-radius: 8px; margin-top: 20px; }
+        
         .generator-box { background-color: #f0f4ff; border: 2px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn-gen { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        #resultBox { display: none; margin-top: 15px; padding: 10px; background: white; border: 1px solid #4CAF50; border-radius: 5px; font-size: 0.85em; }
-
-        /* Stratégie et Propulsion */
-        .strategy-box { background-color: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; margin: 15px 0; font-size: 0.9em; border-radius: 4px; }
-        .propulsion-container { background-color: #e3f2fd; border-left: 5px solid #2196f3; padding: 15px; border-radius: 8px; }
-        .highlight { font-weight: bold; color: #d32f2f; }
-        
-        .btn-yt { display: block; width: 100%; background-color: #ff0000; color: white !important; text-align: center; padding: 15px; text-decoration: none; border-radius: 30px; font-weight: bold; margin: 15px 0; box-sizing: border-box; }
-        .btn-success { display: none; width: 100%; background-color: #4CAF50; color: white !important; text-align: center; padding: 18px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1em; margin-top: 20px; box-sizing: border-box; }
-        
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-top: 15px; }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .status-msg { text-align: center; color: #2e7d32; font-weight: bold; display: none; margin-top: 10px; }
+        .strategy-box { background-color: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; font-size: 0.9em; border-radius: 4px; margin: 15px 0; }
+        #player, #actionsSection, #linkSection, #notification, #generatorSection { display: none; }
+        #status { font-weight: bold; text-align: center; margin: 10px 0; font-size: 0.9em; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; margin-top: 15px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
 </head>
-<body>
-
-    <div class="card">
+<body oncontextmenu="return false;"> <div class="card">
         <h1>LINK FLOW</h1>
-        <p style="text-align:center; font-size: 0.9em; margin-top: 0;">Multipliez votre réseau Victory Automatic</p>
+        <div id="status">En attente d'action...</div>
 
-        <div class="generator-box">
-            <h4 style="margin: 0; color: #1a73e8;">🛠️ Créez votre lien LinkFlow</h4>
-            <p style="font-size: 0.8em; margin: 5px 0;">Collez votre lien Victory Automatic pour recruter avec cette vidéo :</p>
-            <input type="text" id="v_link" placeholder="https://victoryautomatic.com/user/register/votre_pseudo">
-            <button class="btn-gen" onclick="generateLink()">GÉNÉRER MON OUTIL</button>
-            <div id="resultBox">
-                <strong>Votre lien de partage :</strong><br>
-                <code id="displayLink" style="color: #d32f2f; word-break: break-all;"></code>
+        <select id="langSelect">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+        </select>
+
+        <div id="authSection">
+            <h3>Connexion / Inscription</h3>
+            <input type="email" id="emailInput" placeholder="Email">
+            <input type="password" id="mdpInput" placeholder="Mot de passe">
+            <button class="btn-auth" onclick="connecter()">Se connecter</button>
+            <button style="background:#eee;" onclick="inscrire()">Créer un compte</button>
+        </div>
+
+        <div id="generatorSection" class="generator-box">
+            <h4 style="margin:0; color:#1a73e8;">🛠️ Votre Outil de Partage</h4>
+            <p style="font-size:0.8em;">Collez votre lien Victory pour recruter :</p>
+            <input type="text" id="v_link_input" placeholder="Lien Victory Automatic">
+            <button class="btn-auth" style="background:#1a73e8;" onclick="generateLink()">Générer mon lien LinkFlow</button>
+            <div id="resultBox" style="display:none; margin-top:10px; word-break:break-all; font-size:0.8em; color:#d32f2f;">
+                <strong>Lien à partager :</strong> <span id="displayLink"></span>
             </div>
         </div>
 
-        <div class="strategy-box">
-            <strong>💡 Pourquoi utiliser ce lien ?</strong><br>
-            En partageant votre lien personnalisé, le bouton final affichera <u>votre</u> propre lien d'inscription. Plus cette vidéo devient virale grâce à vos likes, plus l'algorithme travaille pour <u>votre</u> réseau !
+        <div id="actionsSection">
+            <div class="strategy-box">
+                <strong>🚀 Mission Viralité :</strong> Likez, Commentez et Abonnez-vous ! Plus cette vidéo explose, plus VOTRE réseau grandit.
+            </div>
+            <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn-yt" onclick="marquerInteraction()">
+                🔴 AGIR SUR YOUTUBE
+            </a>
+            <div id="player" class="video-container"></div>
+            <button class="btn-auth" style="background:#333; margin-top:15px;" onclick="verifierAcces()">VÉRIFIER MON ACCÈS</button>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <div id="notification" class="strategy-box" style="background:#e8f5e9; border-color:#4CAF50;"></div>
 
-        <div id="mainContent">
-            <div class="propulsion-container">
-                <h3 style="margin-top:0; color: #0d47a1;">🚀 Étape de Propulsion</h3>
-                <p>Pour débloquer l'accès : <span class="highlight">Likez, Commentez et Abonnez-vous</span> à la vidéo ci-dessous.</p>
-                
-                <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn-yt" onclick="unlockProcess()">
-                    🔴 AGIR SUR YOUTUBE
-                </a>
-            </div>
-
-            <div class="video-wrapper">
-                <iframe src="https://www.youtube.com/embed/9uPybhkqYw4" allowfullscreen></iframe>
-            </div>
+        <div id="linkSection">
+            <a id="dynamicFinalLink" href="#" target="_blank" class="btn-success" style="display:block;">
+                🚀 ACCÉDER À MON INSCRIPTION
+            </a>
         </div>
 
-        <p id="loadingMsg" class="status-msg">Validation de l'interaction en cours...</p>
-
-        <a id="finalLink" href="#" target="_blank" class="btn-success">
-            🚀 ACCÉDER À MON INSCRIPTION
-        </a>
+        <button id="btnDeconnect" style="display:none; margin-top:20px; background:none; color:red;" onclick="deconnecter()">Se déconnecter</button>
     </div>
 
     <script>
-        // RÉCUPÉRATION DU PARRAIN DANS L'URL
-        function initParrainage() {
-            const params = new URLSearchParams(window.location.search);
-            const parrain = params.get('ref') || 'okoningana'; // 'okoningana' est le parrain par défaut
-            document.getElementById('finalLink').href = "https://victoryautomatic.com/user/register/" + parrain;
+        // ==========================
+        // RÈGLE DE SÉCURITÉ 1 : Blocage F12 et inspection
+        // ==========================
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+        };
+
+        // ==========================
+        // CONFIGURATION FIREBASE
+        // ==========================
+        var firebaseConfig = {
+            apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
+            authDomain: "linkflow-7a82a.firebaseapp.com",
+            databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "linkflow-7a82a",
+            storageBucket: "linkflow-7a82a.firebasestorage.app",
+            messagingSenderId: "459654757296",
+            appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475",
+            measurementId: "G-THW9XMEJTX"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const traductions = {
+            fr: { notification: "✅ Connecté ! Regardez la vidéo pour débloquer le lien." },
+            en: { notification: "✅ Connected! Watch the video to unlock the link." }
+        };
+
+        // ==========================
+        // LOGIQUE AUTH & PARRAINAGE
+        // ==========================
+        let videoTerminee = false;
+        let interactionFaite = false;
+
+        function inscrire() {
+            const email = document.getElementById("emailInput").value;
+            const mdp = document.getElementById("mdpInput").value;
+            firebase.auth().createUserWithEmailAndPassword(email, mdp)
+                .catch(e => document.getElementById("status").innerText = "❌ " + e.message);
         }
 
-        // GÉNÉRATEUR DE LIEN
+        function connecter() {
+            const email = document.getElementById("emailInput").value;
+            const mdp = document.getElementById("mdpInput").value;
+            firebase.auth().signInWithEmailAndPassword(email, mdp)
+                .catch(e => document.getElementById("status").innerText = "❌ " + e.message);
+        }
+
+        function deconnecter() { firebase.auth().signOut(); location.reload(); }
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("generatorSection").style.display = "block";
+                document.getElementById("actionsSection").style.display = "block";
+                document.getElementById("btnDeconnect").style.display = "block";
+                document.getElementById("status").innerText = "👤 " + user.email;
+                initParrainage();
+            }
+        });
+
+        function initParrainage() {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref') || 'okoningana';
+            document.getElementById("dynamicFinalLink").href = "https://victoryautomatic.com/user/register/" + ref;
+        }
+
         function generateLink() {
-            const input = document.getElementById('v_link').value.trim();
-            if (input.includes('/register/')) {
-                const pseudo = input.split('/').pop();
-                const myLink = window.location.origin + window.location.pathname + "?ref=" + pseudo;
-                document.getElementById('displayLink').innerText = myLink;
-                document.getElementById('resultBox').style.display = 'block';
-            } else {
-                alert("Erreur : Collez votre lien Victory Automatic complet.");
+            const val = document.getElementById("v_link_input").value;
+            if(val.includes('/register/')) {
+                const pseudo = val.split('/').pop();
+                const link = window.location.origin + window.location.pathname + "?ref=" + pseudo;
+                document.getElementById("displayLink").innerText = link;
+                document.getElementById("resultBox").style.display = "block";
             }
         }
 
-        // DÉBLOCAGE APRÈS ACTION
-        function unlockProcess() {
-            document.getElementById('loadingMsg').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('loadingMsg').style.display = 'none';
-                document.getElementById('finalLink').style.display = 'block';
-            }, 4000); // Débloque après 4 secondes
+        // ==========================
+        // YOUTUBE & VÉRIFICATION
+        // ==========================
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: '9uPybhkqYw4',
+                events: { 'onStateChange': e => { if(e.data === YT.PlayerState.ENDED) videoTerminee = true; } }
+            });
         }
 
-        window.onload = initParrainage;
+        function marquerInteraction() { interactionFaite = true; }
+
+        function verifierAcces() {
+            if (videoTerminee && interactionFaite) {
+                document.getElementById("linkSection").style.display = "block";
+                document.getElementById("actionsSection").style.display = "none";
+            } else {
+                alert("⚠️ Terminez la vidéo et cliquez sur 'AGIR SUR YOUTUBE' d'abord !");
+            }
+        }
     </script>
 </body>
 </html>
