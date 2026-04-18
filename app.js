@@ -1,6 +1,6 @@
-// ==========================================
-// 1. CONFIGURATION FIREBASE
-// ==========================================
+// ==========================
+// Configuration Firebase
+// ==========================
 var firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -13,22 +13,21 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// ==========================================
-// 2. VARIABLES D'ÉTAT (Le coeur du problème)
-// ==========================================
+// ==========================
+// Variables d'état
+// ==========================
 var player;
 let videoTerminee = false;
-let interactionFaite = false;
-let langActuelle = "fr";
+let interactionFaite = false; // C'était la cause du blocage
 
-// ==========================================
-// 3. LOGIQUE YOUTUBE (API PLAYER)
-// ==========================================
+// ==========================
+// YouTube API
+// ==========================
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '240',
-    width: '100%',
-    videoId: '9uPybhkqYw4', // Ton ID vidéo
+    width: '320',
+    videoId: '9uPybhkqYw4', 
     events: {
       'onStateChange': onPlayerStateChange
     }
@@ -36,70 +35,50 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
-  // Déclenche quand la vidéo est finie
   if (event.data === YT.PlayerState.ENDED) {
     videoTerminee = true;
+    // On affiche la section des boutons d'action
     document.getElementById("actionsSection").style.display = "block";
-    document.getElementById("status").innerText = "✅ Vidéo terminée ! Cliquez sur le bouton rouge.";
+    document.getElementById("status").innerText = "✅ Vidéo terminée. Cliquez sur le bouton YouTube ci-dessous.";
   }
 }
 
-// ==========================================
-// 4. FONCTIONS D'ACCÈS (Redirection)
-// ==========================================
+// ==========================
+// Logique de validation (Réparée)
+// ==========================
 
-// Appelée par le bouton rouge (S'abonner/Like)
+// ÉTAPE 1 : L'utilisateur clique pour aller sur YouTube
 function allerSurYoutube() {
-  interactionFaite = true;
+  interactionFaite = true; // IMPORTANT : On valide l'interaction ici
   window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
-  document.getElementById("status").innerText = "👍 Action enregistrée. Vérifiez l'accès.";
+  document.getElementById("status").innerText = "👍 Action enregistrée. Cliquez sur l'étape 2.";
 }
 
-// Appelée par le bouton "ÉTAPE 2" (Vérification)
+// ÉTAPE 2 : On vérifie et on affiche le champ pour coller le lien Victory
 function verifierAcces() {
   if (videoTerminee && interactionFaite) {
+    // On affiche enfin la section pour coller le lien et générer le lien LINKFLOW
     document.getElementById("linkSection").style.display = "block";
-    document.getElementById("status").innerText = "🎉 Félicitations ! Lien débloqué.";
-    document.getElementById("linkSection").scrollIntoView({ behavior: 'smooth' });
+    document.getElementById("status").innerText = "✅ Accès autorisé ! Collez votre lien Victory ci-dessous.";
   } else {
-    // Message exact de ton erreur
+    // L'erreur que tu avais
     alert("⚠️ Erreur : Regardez la vidéo et agissez sur YouTube d'abord.");
   }
 }
 
-// ==========================================
-// 5. AUTHENTIFICATION FIREBASE
-// ==========================================
+// ==========================
+// Authentification simple
+// ==========================
 function inscrire() {
   const email = document.getElementById("emailInscription").value;
   const mdp = document.getElementById("mdpInscription").value;
+
   firebase.auth().createUserWithEmailAndPassword(email, mdp)
-    .then((u) => { document.getElementById("status").innerText = "✅ Compte créé : " + u.user.email; })
-    .catch((e) => { document.getElementById("status").innerText = "❌ " + e.message; });
+    .then((userCredential) => {
+      document.getElementById("status").innerText = "✅ Inscription réussie. Regardez la vidéo.";
+      document.getElementById("player").style.display = "block"; // Affiche le lecteur
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
+    });
 }
-
-function connecter() {
-  const email = document.getElementById("emailConnexion").value;
-  const mdp = document.getElementById("mdpConnexion").value;
-  firebase.auth().signInWithEmailAndPassword(email, mdp)
-    .then(() => { document.getElementById("status").innerText = "✅ Connecté avec succès"; })
-    .catch((e) => { document.getElementById("status").innerText = "❌ " + e.message; });
-}
-
-function deconnecter() {
-  firebase.auth().signOut().then(() => { location.reload(); });
-}
-
-// Surveillance de la session
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("notification").style.display = "block";
-    document.getElementById("player").style.display = "block";
-    // On cache le formulaire de connexion une fois connecté
-    if(document.getElementById("authSection")) document.getElementById("authSection").style.display = "none";
-  } else {
-    // On cache tout si déconnecté
-    const ids = ["notification", "player", "actionsSection", "linkSection"];
-    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = "none"; });
-  }
-});
