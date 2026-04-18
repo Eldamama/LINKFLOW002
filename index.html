@@ -27,9 +27,12 @@
         #status { font-weight: bold; text-align: center; margin: 10px 0; font-size: 0.9em; }
         .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; margin-top: 15px; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .link-forgot { text-align: center; display: block; font-size: 0.8em; color: #1a73e8; text-decoration: none; margin-top: 10px; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <div class="card">
+<body oncontextmenu="return false;">
+
+    <div class="card">
         <h1>LINK FLOW</h1>
         <div id="status">En attente d'action...</div>
 
@@ -44,6 +47,7 @@
             <input type="password" id="mdpInput" placeholder="Mot de passe">
             <button class="btn-auth" onclick="connecter()">Se connecter</button>
             <button style="background:#eee;" onclick="inscrire()">Créer un compte</button>
+            <a href="#" class="link-forgot" onclick="recupererMdp()">Mot de passe oublié ?</a>
         </div>
 
         <div id="generatorSection" class="generator-box">
@@ -79,16 +83,12 @@
     </div>
 
     <script>
-        // ==========================
-        // RÈGLE DE SÉCURITÉ 1 : Blocage F12 et inspection
-        // ==========================
+        // SÉCURITÉ : Blocage inspection
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
 
-        // ==========================
         // CONFIGURATION FIREBASE
-        // ==========================
         var firebaseConfig = {
             apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
             authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -106,12 +106,10 @@
             en: { notification: "✅ Connected! Watch the video to unlock the link." }
         };
 
-        // ==========================
-        // LOGIQUE AUTH & PARRAINAGE
-        // ==========================
         let videoTerminee = false;
         let interactionFaite = false;
 
+        // AUTHENTIFICATION
         function inscrire() {
             const email = document.getElementById("emailInput").value;
             const mdp = document.getElementById("mdpInput").value;
@@ -124,6 +122,14 @@
             const mdp = document.getElementById("mdpInput").value;
             firebase.auth().signInWithEmailAndPassword(email, mdp)
                 .catch(e => document.getElementById("status").innerText = "❌ " + e.message);
+        }
+
+        function recupererMdp() {
+            const email = document.getElementById("emailInput").value;
+            if (!email) { alert("Entrez votre email d'abord."); return; }
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => alert("Email de récupération envoyé !"))
+                .catch(e => alert("Erreur: " + e.message));
         }
 
         function deconnecter() { firebase.auth().signOut(); location.reload(); }
@@ -139,6 +145,7 @@
             }
         });
 
+        // PARRAINAGE & GÉNÉRATEUR
         function initParrainage() {
             const params = new URLSearchParams(window.location.search);
             const ref = params.get('ref') || 'okoningana';
@@ -152,12 +159,10 @@
                 const link = window.location.origin + window.location.pathname + "?ref=" + pseudo;
                 document.getElementById("displayLink").innerText = link;
                 document.getElementById("resultBox").style.display = "block";
-            }
+            } else { alert("Lien invalide"); }
         }
 
-        // ==========================
-        // YOUTUBE & VÉRIFICATION
-        // ==========================
+        // YOUTUBE API
         var player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
@@ -173,7 +178,7 @@
                 document.getElementById("linkSection").style.display = "block";
                 document.getElementById("actionsSection").style.display = "none";
             } else {
-                alert("⚠️ Terminez la vidéo et cliquez sur 'AGIR SUR YOUTUBE' d'abord !");
+                alert("⚠️ Terminez la vidéo et cliquez sur 'AGIR SUR YOUTUBE' !");
             }
         }
     </script>
