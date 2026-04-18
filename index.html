@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINK FLOW - Propulsion Réseau</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            line-height: 1.6; 
+            max-width: 500px; 
+            margin: auto; 
+            color: #333;
+        }
+        h1 { color: #000; text-align: left; font-size: 28px; margin-bottom: 5px; }
+        
+        /* Bloc de l'étape de propulsion */
+        .propulsion-container {
+            background-color: #f0f7ff;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .propulsion-title {
+            color: #0d47a1;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.2em;
+        }
+        .highlight { font-weight: bold; color: #d32f2f; }
+        
+        /* Bouton YouTube */
+        .btn-youtube {
+            display: block;
+            width: 100%;
+            background-color: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .explanation {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 10px;
+            line-height: 1.4;
+            border-top: 1px solid #d1e3f5;
+            padding-top: 10px;
+        }
+
+        select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        .status-box { background-color: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 5px; font-weight: bold; display: flex; align-items: center; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-top: 15px; border-radius: 10px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+    <h1>LINK FLOW</h1>
+    
+    <p><strong>Connecté :</strong> <span id="userEmail">lobongoaime@gmail.com</span></p>
+
+    <label for="lang">🌐 Langue / Language:</label>
+    <select id="lang">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+    </select>
+
+    <div class="propulsion-container">
+        <h3 class="propulsion-title">🚀 Étape de Propulsion</h3>
+        <p>
+            Avant d'accéder à votre lien, participez à la croissance du réseau. 
+            <span class="highlight">Likez, Commentez et Abonnez-vous</span> à la vidéo ci-dessous.
+        </p>
+        
+        <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn-youtube">
+            🔴 AGIR SUR YOUTUBE MAINTENANT
+        </a>
+
+        <p class="explanation">
+            <strong>Pourquoi ?</strong> Votre interaction pousse YouTube à rendre cette vidéo virale. 
+            Une vidéo qui explose, ce sont des milliers de nouveaux utilisateurs potentiels qui rejoindront l'écosystème en dessous de vous !
+        </p>
+    </div>
+
+    <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/9uPybhkqYw4" allowfullscreen></iframe>
+    </div>
+
+    <br>
+
+    <div class="status-box">
+        ✅ Connecté ! Regardez la vidéo et interagissez (like/commentaire) pour débloquer le lien.
+    </div>
+
+    <button style="margin-top: 20px; background: none; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%;">
+        Se déconnecter
+    </button>
+
+</body>
+</html>
