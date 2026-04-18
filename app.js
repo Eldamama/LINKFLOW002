@@ -1,6 +1,16 @@
-// ==========================
-// Configuration Firebase
-// ==========================
+// ==========================================
+// 1. PROTECTION ANTI-TRICHE (Bloquer Inspecteur)
+// ==========================================
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.onkeydown = function(e) {
+  if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67))) {
+    return false;
+  }
+};
+
+// ==========================================
+// 2. CONFIGURATION FIREBASE
+// ==========================================
 var firebaseConfig = {
   apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
   authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -13,92 +23,88 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// ==========================
-// Variables d'état
-// ==========================
+// Variables d'état sécurisées
 var player;
-let videoTerminee = false;
-let interactionFaite = false; 
-let langActuelle = "fr";
+let _0x_vT = false; // Vidéo terminée
+let _0x_iF = false; // Interaction YouTube faite
 
-// Tes messages explicatifs (à adapter selon tes besoins)
-const traductions = {
-  fr: {
-    notification: "👋 Bienvenue ! Veuillez regarder la vidéo entièrement pour débloquer votre outil."
-  }
-};
+// ==========================================
+// 3. SURVEILLANCE ET PROTECTION REDIRECTION
+// ==========================================
+firebase.auth().onAuthStateChanged(user => {
+  const authSection = document.getElementById("authSection");
+  const mainContent = ["notification", "player", "actionsSection"];
 
-// ==========================
-// Inscription & Affichage Vidéo
-// ==========================
-function inscrire() {
-  const email = document.getElementById("emailInscription").value;
-  const mdp = document.getElementById("mdpInscription").value;
-
-  firebase.auth().createUserWithEmailAndPassword(email, mdp)
-    .then((userCredential) => {
-      document.getElementById("status").innerText = "✅ Inscription réussie !";
-      // On affiche le message explicatif et le lecteur
-      document.getElementById("notification").style.display = "block";
-      document.getElementById("notification").innerText = traductions[langActuelle].notification;
-      document.getElementById("player").style.display = "block";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
+  if (user) {
+    // Utilisateur connecté
+    if(authSection) authSection.style.display = "none";
+    document.getElementById("notification").style.display = "block";
+    document.getElementById("notification").innerText = "👋 Bienvenue ! Regardez la vidéo pour débloquer l'outil.";
+    document.getElementById("player").style.display = "block";
+  } else {
+    // Utilisateur déconnecté : on cache tout et on force la connexion
+    mainContent.forEach(id => {
+      if(document.getElementById(id)) document.getElementById(id).style.display = "none";
     });
-}
+    if(document.getElementById("linkSection")) document.getElementById("linkSection").style.display = "none";
+    if(authSection) authSection.style.display = "block";
+    document.getElementById("status").innerText = "Veuillez vous inscrire ou vous connecter.";
+  }
+});
 
-// ==========================
-// YouTube API
-// ==========================
+// ==========================================
+// 4. LOGIQUE YOUTUBE API
+// ==========================================
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '240',
     width: '100%',
-    videoId: '9uPybhkqYw4', 
-    events: {
-      'onStateChange': onPlayerStateChange
-    }
+    videoId: '9uPybhkqYw4',
+    events: { 'onStateChange': onPlayerStateChange }
   });
 }
 
 function onPlayerStateChange(event) {
   if (event.data === YT.PlayerState.ENDED) {
-    videoTerminee = true;
+    _0x_vT = true;
     document.getElementById("actionsSection").style.display = "block";
-    document.getElementById("status").innerText = "✅ Vidéo terminée. Passez à l'étape suivante.";
+    document.getElementById("status").innerText = "✅ Vidéo finie ! Cliquez sur le bouton YouTube.";
   }
 }
 
-// ==========================
-// Validation & Déblocage
-// ==========================
+// ==========================================
+// 5. ACTIONS ET DÉBLOCAGE DU LIEN
+// ==========================================
 
-// Fonction pour l'action YouTube (Obligatoire pour débloquer)
 function allerSurYoutube() {
-  interactionFaite = true; 
+  _0x_iF = true;
   window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
-  document.getElementById("status").innerText = "👍 Interaction enregistrée. Vérifiez l'accès maintenant.";
+  document.getElementById("status").innerText = "👍 Interaction validée. Cliquez sur Étape 2.";
 }
 
-// La fonction qui débloque le champ "Coller votre lien Victory"
 function verifierAcces() {
-  if (videoTerminee && interactionFaite) {
+  if (_0x_vT && _0x_iF) {
+    // DÉBLOCAGE : On affiche la section pour coller le lien Victory
     document.getElementById("linkSection").style.display = "block";
-    document.getElementById("status").innerText = "🔓 Accès débloqué ! Vous pouvez coller votre lien Victory.";
+    document.getElementById("status").innerText = "🔓 Accès débloqué. Collez votre lien ci-dessous.";
+    document.getElementById("linkSection").scrollIntoView({ behavior: 'smooth' });
   } else {
-    // Ton message d'erreur d'origine
     alert("⚠️ Erreur : Regardez la vidéo et agissez sur YouTube d'abord.");
   }
 }
 
-// ==========================
-// Surveillance utilisateur
-// ==========================
-firebase.auth().onAuthStateChanged(utilisateur => {
-  if (utilisateur) {
-    document.getElementById("notification").style.display = "block";
-    document.getElementById("notification").innerText = traductions[langActuelle].notification;
-    document.getElementById("player").style.display = "block";
-  }
-});
+// ==========================================
+// 6. FONCTIONS AUTHENTIFICATION
+// ==========================================
+function inscrire() {
+  const email = document.getElementById("emailInscription").value;
+  const mdp = document.getElementById("mdpInscription").value;
+  if(!email || !mdp) return alert("Remplissez les champs");
+
+  firebase.auth().createUserWithEmailAndPassword(email, mdp)
+    .catch(error => alert("Erreur: " + error.message));
+}
+
+function deconnecter() {
+  firebase.auth().signOut().then(() => { location.reload(); });
+}
