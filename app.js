@@ -17,83 +17,58 @@ firebase.initializeApp(firebaseConfig);
 // Fonctions d'authentification
 // ==========================
 
-// Inscription
 function inscrire() {
   const email = document.getElementById("emailInscription").value;
   const mdp = document.getElementById("mdpInscription").value;
-
   firebase.auth().createUserWithEmailAndPassword(email, mdp)
     .then((userCredential) => {
-      const user = userCredential.user;
-      document.getElementById("status").innerText = "✅ Inscription réussie : " + user.email;
+      document.getElementById("status").innerText = "✅ Inscription réussie : " + userCredential.user.email;
     })
     .catch((error) => {
-      console.error("Erreur Firebase:", error.code, error.message);
-      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
+      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
     });
 }
 
-// Connexion
 function connecter() {
   const email = document.getElementById("emailConnexion").value;
   const mdp = document.getElementById("mdpConnexion").value;
-
   firebase.auth().signInWithEmailAndPassword(email, mdp)
     .then((userCredential) => {
-      const user = userCredential.user;
-      document.getElementById("status").innerText = "✅ Connexion réussie : " + user.email;
+      document.getElementById("status").innerText = "✅ Connexion réussie";
     })
     .catch((error) => {
-      console.error("Erreur Firebase:", error.code, error.message);
-      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
+      document.getElementById("status").innerText = "❌ Erreur : " + error.message;
     });
 }
 
-// Déconnexion
 function deconnecter() {
   firebase.auth().signOut()
     .then(() => {
       document.getElementById("status").innerText = "ℹ️ Déconnexion réussie";
-      // Effacer les champs
-      document.getElementById("emailInscription").value = "";
-      document.getElementById("mdpInscription").value = "";
-      document.getElementById("emailConnexion").value = "";
-      document.getElementById("mdpConnexion").value = "";
-      // Masquer sections
+      ["emailInscription", "mdpInscription", "emailConnexion", "mdpConnexion"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("notification").style.display = "none";
       document.getElementById("player").style.display = "none";
       document.getElementById("actionsSection").style.display = "none";
       document.getElementById("linkSection").style.display = "none";
-    })
-    .catch((error) => {
-      console.error("Erreur Firebase:", error.code, error.message);
-      document.getElementById("status").innerText = "❌ Erreur : " + error.code + " - " + error.message;
     });
 }
 
 // ==========================
-// Surveiller état utilisateur
+// Gestion de l'état et Langue
 // ==========================
 let langActuelle = "fr";
-document.getElementById("langSelect").addEventListener("change", e => {
-  langActuelle = e.target.value;
-});
-
+// Note : Assurez-vous que votre objet 'traductions' est bien défini ailleurs dans votre code
 firebase.auth().onAuthStateChanged(utilisateur => {
   if (utilisateur) {
     document.getElementById("notification").style.display = "block";
-    document.getElementById("notification").innerText = traductions[langActuelle].notification;
     document.getElementById("player").style.display = "block";
   } else {
-    document.getElementById("notification").style.display = "none";
-    document.getElementById("player").style.display = "none";
-    document.getElementById("actionsSection").style.display = "none";
-    document.getElementById("linkSection").style.display = "none";
+    ["notification", "player", "actionsSection", "linkSection"].forEach(id => document.getElementById(id).style.display = "none");
   }
 });
 
 // ==========================
-// YouTube API
+// YouTube API & Logique de Verrouillage
 // ==========================
 var player;
 let videoTerminee = false;
@@ -102,8 +77,8 @@ let interactionFaite = false;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '240',
-    width: '320',
-    videoId: '9uPybhkqYw4', // ID réel de ta vidéo YouTube
+    width: '100%', // Adapté au mobile
+    videoId: '9uPybhkqYw4', 
     events: {
       'onStateChange': onPlayerStateChange
     }
@@ -111,16 +86,31 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerStateChange(event) {
+  // Quand la vidéo est finie
   if (event.data === YT.PlayerState.ENDED) {
     videoTerminee = true;
     document.getElementById("actionsSection").style.display = "block";
+    document.getElementById("status").innerText = "✅ Vidéo terminée. Cliquez sur le bouton YouTube.";
   }
+}
+
+// --- FONCTION CRUCIALE AJOUTÉE ---
+function allerSurYoutube() {
+  interactionFaite = true;
+  // Ouvre la vidéo ou votre chaîne dans un nouvel onglet
+  window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
+  document.getElementById("status").innerText = "👍 Interaction enregistrée. Vous pouvez vérifier l'accès.";
 }
 
 function verifierAcces() {
   if (videoTerminee && interactionFaite) {
     document.getElementById("linkSection").style.display = "block";
+    document.getElementById("status").innerText = "🎉 Accès débloqué !";
+    // Optionnel : Scroll automatique vers le lien
+    document.getElementById("linkSection").scrollIntoView({ behavior: 'smooth' });
   } else {
-    document.getElementById("status").innerText = "⚠️ Vous devez terminer la vidéo et interagir avant d'accéder au lien.";
+    // Message d'alerte identique à votre capture d'écran
+    alert("⚠️ Erreur : Regardez la vidéo et agissez sur YouTube d'abord.");
+    document.getElementById("status").innerText = "⚠️ Conditions non remplies.";
   }
 }
