@@ -3,177 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINK FLOW - Propulsion Réseau</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+    <title>LINK FLOW - Système Viral</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 20px; 
-            line-height: 1.6; 
-            max-width: 500px; 
-            margin: auto; 
-            color: #333;
-        }
-        h1 { color: #000; text-align: left; font-size: 28px; margin-bottom: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 15px; line-height: 1.5; max-width: 500px; margin: auto; color: #333; background-color: #f4f7f6; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #1a73e8; font-size: 26px; margin-bottom: 5px; text-align: center; font-weight: bold; }
         
-        /* Bloc de l'étape de propulsion */
-        .propulsion-container {
-            background-color: #f0f7ff;
-            border-left: 5px solid #2196f3;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .propulsion-title {
-            color: #0d47a1;
-            margin-top: 0;
-            font-size: 1.2em;
-        }
+        /* Générateur de lien */
+        .generator-box { background-color: #f0f4ff; border: 2px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        .btn-gen { width: 100%; background-color: #1a73e8; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        #resultBox { display: none; margin-top: 15px; padding: 10px; background: white; border: 1px solid #4CAF50; border-radius: 5px; font-size: 0.85em; }
+
+        /* Stratégie et Propulsion */
+        .strategy-box { background-color: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; margin: 15px 0; font-size: 0.9em; border-radius: 4px; }
+        .propulsion-container { background-color: #e3f2fd; border-left: 5px solid #2196f3; padding: 15px; border-radius: 8px; }
         .highlight { font-weight: bold; color: #d32f2f; }
         
-        /* Bouton YouTube */
-        .btn-youtube {
-            display: block;
-            width: 100%;
-            background-color: #ff0000;
-            color: white !important;
-            text-align: center;
-            padding: 15px;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
-            margin-top: 15px;
-            font-size: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
+        .btn-yt { display: block; width: 100%; background-color: #ff0000; color: white !important; text-align: center; padding: 15px; text-decoration: none; border-radius: 30px; font-weight: bold; margin: 15px 0; box-sizing: border-box; }
+        .btn-success { display: none; width: 100%; background-color: #4CAF50; color: white !important; text-align: center; padding: 18px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1em; margin-top: 20px; box-sizing: border-box; }
         
-        .explanation {
-            font-size: 0.9em;
-            color: #555;
-            margin-top: 10px;
-            line-height: 1.4;
-            border-top: 1px solid #d1e3f5;
-            padding-top: 10px;
-        }
-
-        select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        
-        .status-box { 
-            background-color: #e8f5e9; 
-            color: #2e7d32; 
-            padding: 15px; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            margin-top: 15px;
-        }
-
-        .video-container { 
-            position: relative; 
-            padding-bottom: 56.25%; 
-            height: 0; 
-            overflow: hidden; 
-            margin-top: 15px; 
-            border-radius: 10px; 
-        }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-        /* Section Lien Final (Masquée par défaut) */
-        #linkSection {
-            display: none; /* Changera en 'block' après visionnage */
-            margin-top: 25px; 
-            padding: 20px; 
-            border: 2px solid #4CAF50; 
-            border-radius: 10px; 
-            background-color: #f9fff9; 
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
-        }
-        .btn-success {
-            display: block; 
-            background-color: #4CAF50; 
-            color: white !important; 
-            padding: 15px; 
-            text-decoration: none; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            font-size: 1.1em; 
-            margin-top: 15px;
-        }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-top: 15px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .status-msg { text-align: center; color: #2e7d32; font-weight: bold; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>LINK FLOW</h1>
-    
-    <p><strong>Connecté :</strong> <span id="userEmail">lobongoaime@gmail.com</span></p>
+    <div class="card">
+        <h1>LINK FLOW</h1>
+        <p style="text-align:center; font-size: 0.9em; margin-top: 0;">Multipliez votre réseau Victory Automatic</p>
 
-    <label for="lang">🌐 Langue / Language:</label>
-    <select id="lang">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-    </select>
-
-    <div id="stepPropulsion">
-        <div class="propulsion-container">
-            <h3 class="propulsion-title">🚀 Étape de Propulsion</h3>
-            <p>
-                Avant d'accéder à votre lien, participez à la croissance du réseau. 
-                <span class="highlight">Likez, Commentez et Abonnez-vous</span> à la vidéo ci-dessous.
-            </p>
-            
-            <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn-youtube" onclick="showLinkDelayed()">
-                🔴 AGIR SUR YOUTUBE MAINTENANT
-            </a>
-
-            <p class="explanation">
-                <strong>Pourquoi ?</strong> Votre interaction pousse YouTube à rendre cette vidéo virale. 
-                Une vidéo qui explose, ce sont des milliers de nouveaux utilisateurs potentiels qui rejoindront l'écosystème en dessous de vous !
-            </p>
+        <div class="generator-box">
+            <h4 style="margin: 0; color: #1a73e8;">🛠️ Créez votre lien LinkFlow</h4>
+            <p style="font-size: 0.8em; margin: 5px 0;">Collez votre lien Victory Automatic pour recruter avec cette vidéo :</p>
+            <input type="text" id="v_link" placeholder="https://victoryautomatic.com/user/register/votre_pseudo">
+            <button class="btn-gen" onclick="generateLink()">GÉNÉRER MON OUTIL</button>
+            <div id="resultBox">
+                <strong>Votre lien de partage :</strong><br>
+                <code id="displayLink" style="color: #d32f2f; word-break: break-all;"></code>
+            </div>
         </div>
 
-        <div class="video-container">
-            <iframe id="ytPlayer" src="https://www.youtube.com/embed/9uPybhkqYw4?enablejsapi=1" allowfullscreen></iframe>
+        <div class="strategy-box">
+            <strong>💡 Pourquoi utiliser ce lien ?</strong><br>
+            En partageant votre lien personnalisé, le bouton final affichera <u>votre</u> propre lien d'inscription. Plus cette vidéo devient virale grâce à vos likes, plus l'algorithme travaille pour <u>votre</u> réseau !
         </div>
 
-        <div class="status-box">
-            ✅ Connecté ! Regardez la vidéo et interagissez pour débloquer le lien.
-        </div>
-    </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
-    <div id="linkSection">
-        <h3 style="color: #2e7d32; margin-top: 0;">🎉 Mission Accomplie !</h3>
-        <p>Merci d'avoir propulsé la communauté. Votre lien est maintenant débloqué :</p>
-        
-        <a href="https://victoryautomatic.com/user/register/okoningana" target="_blank" class="btn-success">
+        <div id="mainContent">
+            <div class="propulsion-container">
+                <h3 style="margin-top:0; color: #0d47a1;">🚀 Étape de Propulsion</h3>
+                <p>Pour débloquer l'accès : <span class="highlight">Likez, Commentez et Abonnez-vous</span> à la vidéo ci-dessous.</p>
+                
+                <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn-yt" onclick="unlockProcess()">
+                    🔴 AGIR SUR YOUTUBE
+                </a>
+            </div>
+
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/9uPybhkqYw4" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <p id="loadingMsg" class="status-msg">Validation de l'interaction en cours...</p>
+
+        <a id="finalLink" href="#" target="_blank" class="btn-success">
             🚀 ACCÉDER À MON INSCRIPTION
         </a>
-        
-        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
-            Cliquez ci-dessus pour finaliser sur Victory Automatic.
-        </p>
     </div>
 
-    <button style="margin-top: 30px; background: none; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer;">
-        Se déconnecter
-    </button>
-
     <script>
-        // Fonction de démonstration : Affiche le lien après un clic sur le bouton YouTube
-        // Dans votre version finale, vous pourrez lier cela à la fin réelle de la vidéo via l'API YouTube
-        function showLinkDelayed() {
-            console.log("L'utilisateur est parti sur YouTube...");
-            // Optionnel : On peut afficher le lien après un délai ou une action
-            // Pour l'instant, on laisse l'utilisateur revenir et voir le lien
-            setTimeout(function() {
-                document.getElementById('stepPropulsion').style.display = 'none';
-                document.getElementById('linkSection').style.display = 'block';
-            }, 2000); // Affiche le lien après 2 secondes pour l'exemple
+        // RÉCUPÉRATION DU PARRAIN DANS L'URL
+        function initParrainage() {
+            const params = new URLSearchParams(window.location.search);
+            const parrain = params.get('ref') || 'okoningana'; // 'okoningana' est le parrain par défaut
+            document.getElementById('finalLink').href = "https://victoryautomatic.com/user/register/" + parrain;
         }
-    </script>
 
+        // GÉNÉRATEUR DE LIEN
+        function generateLink() {
+            const input = document.getElementById('v_link').value.trim();
+            if (input.includes('/register/')) {
+                const pseudo = input.split('/').pop();
+                const myLink = window.location.origin + window.location.pathname + "?ref=" + pseudo;
+                document.getElementById('displayLink').innerText = myLink;
+                document.getElementById('resultBox').style.display = 'block';
+            } else {
+                alert("Erreur : Collez votre lien Victory Automatic complet.");
+            }
+        }
+
+        // DÉBLOCAGE APRÈS ACTION
+        function unlockProcess() {
+            document.getElementById('loadingMsg').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('loadingMsg').style.display = 'none';
+                document.getElementById('finalLink').style.display = 'block';
+            }, 4000); // Débloque après 4 secondes
+        }
+
+        window.onload = initParrainage;
+    </script>
 </body>
 </html>
