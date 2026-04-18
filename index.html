@@ -2,98 +2,87 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LINK FLOW - Authentification</title>
-  <!-- Firebase -->
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <!-- YouTube API -->
+  
   <script src="https://www.youtube.com/iframe_api"></script>
+
   <style>
+    body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
     #player, #actionsSection, #linkSection, #notification {
       display: none;
       margin-top: 20px;
     }
     #notification {
-      color: green;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #e8f5e9;
+      color: #2e7d32;
       font-weight: bold;
     }
     #linkSection a {
-      color: blue;
-      font-weight: bold;
-      text-decoration: underline;
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
     }
-    input, select {
-      display: block;
-      margin: 5px 0;
-      padding: 8px;
-    }
-    button {
-      margin: 5px 0;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
+    input, select { display: block; margin: 10px 0; padding: 10px; width: 100%; max-width: 300px; }
+    button { margin: 5px 0; padding: 10px 15px; cursor: pointer; background-color: #f0f0f0; border: 1px solid #ccc; }
+    #status { font-weight: bold; margin: 10px 0; }
   </style>
 </head>
 <body>
-  <h1 id="titrePrincipal">Bienvenue sur LINK FLOW</h1>
-  <p id="sousTitre">Authentification avec Firebase</p>
 
-  <!-- Sélecteur de langue -->
+  <h1>LINK FLOW</h1>
+  <p id="status">En attente d'action...</p>
+
   <label for="langSelect">🌐 Langue / Language:</label>
   <select id="langSelect">
     <option value="fr">Français</option>
     <option value="en">English</option>
     <option value="es">Español</option>
     <option value="pt">Português</option>
-    <option value="ln">Lingala</option>
-    <option value="sw">Swahili</option>
   </select>
 
-  <!-- Formulaire d'inscription -->
-  <h2 id="titreInscription">Inscription</h2>
-  <form onsubmit="event.preventDefault(); inscrire();">
-    <label for="emailInscription" id="labelEmailInscription">Email :</label>
-    <input type="email" id="emailInscription" placeholder="Votre email" required>
-    <label for="mdpInscription" id="labelMdpInscription">Mot de passe :</label>
-    <input type="password" id="mdpInscription" placeholder="Votre mot de passe" required>
-    <button type="submit" id="btnInscrire">S’inscrire</button>
-  </form>
-
-  <!-- Formulaire de connexion -->
-  <h2 id="titreConnexion">Connexion</h2>
-  <form onsubmit="event.preventDefault(); connecter();">
-    <label for="emailConnexion" id="labelEmailConnexion">Email :</label>
-    <input type="email" id="emailConnexion" placeholder="Votre email" required>
-    <label for="mdpConnexion" id="labelMdpConnexion">Mot de passe :</label>
-    <input type="password" id="mdpConnexion" placeholder="Votre mot de passe" required>
-    <button type="submit" id="btnConnecter">Se connecter</button>
-  </form>
-
-  <!-- Bouton de déconnexion -->
-  <h2 id="titreDeconnexion">Déconnexion</h2>
-  <button onclick="deconnecter()" id="btnDeconnecter">Se déconnecter</button>
-
-  <!-- Notification après connexion -->
-  <div id="notification"></div>
-
-  <!-- Vidéo YouTube -->
-  <h2 id="titreVideo">Visionnez la vidéo pour débloquer les actions</h2>
-  <div id="player"></div>
-
-  <!-- Actions Like & Comment -->
-  <div id="actionsSection">
-    <button id="likeBtn">👍 Liker</button>
-    <button id="commentBtn">💬 Commenter</button>
+  <div id="authSection">
+    <h2>Inscription / Connexion</h2>
+    <input type="email" id="emailInput" placeholder="Email">
+    <input type="password" id="mdpInput" placeholder="Mot de passe">
+    <button onclick="inscrire()">S'inscrire</button>
+    <button onclick="connecter()">Se connecter</button>
   </div>
 
-  <!-- Lien caché -->
+  <button onclick="deconnecter()" id="btnDeconnecter" style="display:none;">Se déconnecter</button>
+
+  <div id="notification"></div>
+  <div id="player"></div>
+
+  <div id="actionsSection">
+    <button id="likeBtn">👍 Liker la vidéo</button>
+    <button id="commentBtn">💬 Commenter la vidéo</button>
+  </div>
+
   <div id="linkSection">
-    <p id="msgBravo">Bravo, vous avez terminé la vidéo et interagi !</p>
-    <a href="https://victoryautomatic.com/user/register/okoningana" target="_blank" id="btnAcces">Accéder à Victor Automatic</a>
+    <p>✅ Merci ! Vous pouvez maintenant accéder au réseau :</p>
+    <a href="https://victoryautomatic.com/user/register/okoningana" target="_blank">Accéder à Victor Automatic</a>
   </div>
 
   <script>
-    // Config Firebase
+    // 1. TRADUCTIONS (Placées au début pour éviter les erreurs)
+    const traductions = {
+      fr: { notification: "✅ Connecté ! Regardez la vidéo et interagissez (like/commentaire) pour débloquer le lien." },
+      en: { notification: "✅ Connected! Watch the video and interact (like/comment) to unlock the link." },
+      es: { notification: "✅ ¡Conectado! Mira el video e interactúa para desbloquear el enlace." },
+      pt: { notification: "✅ Conectado! Assista ao vídeo e interaja para desbloquear o link." }
+    };
+
+    // 2. CONFIGURATION FIREBASE
     var firebaseConfig = {
       apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
       authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -106,51 +95,52 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Inscription
+    // 3. LOGIQUE D'AUTHENTIFICATION
     function inscrire() {
-      const email = document.getElementById("emailInscription").value;
-      const mdp = document.getElementById("mdpInscription").value;
+      const email = document.getElementById("emailInput").value;
+      const mdp = document.getElementById("mdpInput").value;
       firebase.auth().createUserWithEmailAndPassword(email, mdp)
-        .then(u => alert("Inscription réussie : " + u.user.email))
-        .catch(e => alert("Erreur : " + e.message));
+        .catch(e => alert("Erreur Inscription: " + e.message));
     }
 
-    // Connexion
     function connecter() {
-      const email = document.getElementById("emailConnexion").value;
-      const mdp = document.getElementById("mdpConnexion").value;
+      const email = document.getElementById("emailInput").value;
+      const mdp = document.getElementById("mdpInput").value;
       firebase.auth().signInWithEmailAndPassword(email, mdp)
-        .then(u => alert("Connexion réussie : " + u.user.email))
-        .catch(e => alert("Erreur : " + e.message));
+        .catch(e => alert("Erreur Connexion: " + e.message));
     }
 
-    // Déconnexion
     function deconnecter() {
-      firebase.auth().signOut()
-        .then(() => alert("Déconnexion réussie"))
-        .catch(e => alert("Erreur : " + e.message));
+      firebase.auth().signOut();
     }
 
-    // Surveiller état utilisateur
+    // 4. SURVEILLANCE DE L'UTILISATEUR
     let langActuelle = "fr";
-    document.getElementById("langSelect").addEventListener("change", e => {
-      langActuelle = e.target.value;
-    });
+    document.getElementById("langSelect").addEventListener("change", e => langActuelle = e.target.value);
 
-    firebase.auth().onAuthStateChanged(utilisateur => {
-      if (utilisateur) {
-        document.getElementById("notification").style.display = "block";
-        document.getElementById("notification").innerText = traductions[langActuelle].notification;
-        document.getElementById("player").style.display = "block";
+    firebase.auth().onAuthStateChanged(user => {
+      const authDiv = document.getElementById("authSection");
+      const btnDeco = document.getElementById("btnDeconnecter");
+      const notif = document.getElementById("notification");
+      const playerDiv = document.getElementById("player");
+
+      if (user) {
+        authDiv.style.display = "none";
+        btnDeco.style.display = "block";
+        notif.style.display = "block";
+        notif.innerText = traductions[langActuelle].notification;
+        playerDiv.style.display = "block";
+        document.getElementById("status").innerText = "Connecté : " + user.email;
       } else {
-        document.getElementById("notification").style.display = "none";
-        document.getElementById("player").style.display = "none";
-        document.getElementById("actionsSection").style.display = "none";
-        document.getElementById("linkSection").style.display = "none";
+        authDiv.style.display = "block";
+        btnDeco.style.display = "none";
+        notif.style.display = "none";
+        playerDiv.style.display = "none";
+        document.getElementById("status").innerText = "Veuillez vous identifier.";
       }
     });
 
-    // YouTube API
+    // 5. YOUTUBE ET INTERACTIONS
     var player;
     let videoTerminee = false;
     let interactionFaite = false;
@@ -158,11 +148,9 @@
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
         height: '240',
-        width: '320',
-        videoId: '9uPybhkqYw4', // ID réel de ta vidéo YouTube
-        events: {
-          'onStateChange': onPlayerStateChange
-        }
+        width: '100%',
+        videoId: '9uPybhkqYw4',
+        events: { 'onStateChange': onPlayerStateChange }
       });
     }
 
@@ -179,22 +167,9 @@
       }
     }
 
-    document.getElementById("likeBtn").addEventListener("click", () => {
-      interactionFaite = true;
-      verifierAcces();
-    });
-    document.getElementById("commentBtn").addEventListener("click", () => {
-      interactionFaite = true;
-      verifierAcces();
-    });
+    document.getElementById("likeBtn").onclick = () => { interactionFaite = true; verifierAcces(); alert("Merci pour le Like !"); };
+    document.getElementById("commentBtn").onclick = () => { interactionFaite = true; verifierAcces(); alert("Merci pour le Commentaire !"); };
 
-    // Traductions multilingues
-    const traductions = {
-      fr: {
-        notification: "✅ Vous êtes connecté à LINK FLOW ! Pour accéder à Victor Automatic, vous devez d’abord regarder la vidéo et interagir (like ou commentaire). Cette étape est essentielle : elle permet de stimuler l’algorithme YouTube, d’augmenter la visibilité de notre contenu et d’assurer la vitalité et la progression collective du réseau."
-      },
-      en: {
-        notification: "✅ You are logged in to LINK FLOW! To access Victor Automatic, you must first watch the video and interact (like or comment). This step is crucial: it helps activate the YouTube algorithm, boost our content’s visibility, and ensure the network’s collective vitality and growth."
-      },
-      es: {
-        notification: "✅ ¡Has iniciado sesión en LINK FLOW! Para acceder
+  </script>
+</body>
+</html>
