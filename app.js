@@ -1,8 +1,9 @@
+// ================== FIREBASE CONFIG ==================
 const firebaseConfig = {
-  apiKey: "TA_CLE",
-  authDomain: "TON_DOMAINE",
-  databaseURL: "TON_URL_REALTIME",
-  projectId: "TON_ID"
+  apiKey: "TA_VRAIE_CLE_API",
+  authDomain: "TON_PROJET.firebaseapp.com",
+  databaseURL: "https://TON_PROJET-default-rtdb.firebaseio.com",
+  projectId: "TON_PROJET_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -71,7 +72,7 @@ function register(){
   ).catch(e => notify(e.message, "error"));
 }
 
-// ================== VIDEO ==================
+// ================== YOUTUBE ==================
 function onYouTubeIframeAPIReady(){
   player = new YT.Player('player',{
     height:'200',
@@ -97,7 +98,7 @@ async function claim(){
   if(Date.now() > data.expiresAt){
     notify("Compte expiré", "error");
     await ref.remove();
-    auth.signOut();
+    await auth.signOut();
     return;
   }
 
@@ -109,6 +110,7 @@ async function claim(){
   await ref.update({ hasClaimed: true });
 
   const link = "https://tonsite.com/?ref=" + data.refCode;
+
   window.open(link, "_blank");
 
   document.getElementById("claimSection").classList.add("hidden");
