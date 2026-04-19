@@ -20,7 +20,7 @@
             background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif;
             padding: 15px; display: flex; flex-direction: column; align-items: center;
             margin: 0; min-height: 100vh;
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+            -webkit-user-select: none; user-select: none;
         }
 
         .card {
@@ -42,18 +42,21 @@
         .error { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #ffbaba; }
         .success-box { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--success); color: #b7ffd0; }
 
+        .input-group { position: relative; width: 100%; margin: 8px 0; }
         input {
-            width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px;
+            width: 100%; padding: 14px; border-radius: 10px;
             border: 1px solid #334155; background: #1e293b; color: white;
             box-sizing: border-box; font-size: 16px;
         }
+        .eye-icon { position: absolute; right: 15px; top: 14px; cursor: pointer; color: var(--secondary); z-index: 10; font-size: 18px; }
 
         button {
             width: 100%; padding: 15px; border-radius: 12px; border: none;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;
         }
-        button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .forgot-link { display: block; font-size: 0.8rem; margin-top: 12px; color: var(--secondary); text-decoration: underline; cursor: pointer; }
 
         .video-container { 
             position: relative; padding-bottom: 56.25%; height: 0; 
@@ -61,10 +64,9 @@
             background: #000; border: 1px solid rgba(255,255,255,0.1);
         }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        
-        #playButton { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; cursor: pointer; text-align: center; width: 100%; }
+        #playButton { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; cursor: pointer; width: 100%; }
 
-        #generatorSection, #actionsSection, #btnDeconnect, #resultBox, #finalLinkBtn { display: none; }
+        #generatorSection, #actionsSection, #btnDeconnect, #resultBox { display: none; }
         #status { font-size: 0.7rem; color: #94a3b8; margin-bottom: 5px; }
     </style>
 </head>
@@ -72,38 +74,45 @@
 
     <div class="card">
         <h1 id="appName">LINK FLOW</h1>
-        <p class="slogan">Propulsion Virale & Sécurisée</p>
+        <p class="slogan">Propulsion Virale & Sécurisée ⚡</p>
         
         <div id="status">Chargement...</div>
         <div id="notification"></div>
 
         <div id="authSection">
-            <input type="email" id="emailInput" placeholder="Email">
-            <input type="password" id="mdpInput" placeholder="Mot de passe">
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Email">
+            </div>
+            <div class="input-group">
+                <input type="password" id="mdpInput" placeholder="Mot de passe">
+                <span class="eye-icon" onclick="toggleMdp()">👁️</span>
+            </div>
             <button onclick="connecter()">SE CONNECTER</button>
+            <a class="forgot-link" onclick="recupererMdp()">Mot de passe oublié ?</a>
             <button style="background:none; border: 1px solid #334155; margin-top:20px;" onclick="inscrire()">Créer un compte</button>
         </div>
 
         <div id="actionsSection">
-            <p style="font-size:0.8rem; color:var(--secondary);">Regardez pour débloquer le générateur</p>
+            <p style="font-size:0.8rem; color:var(--secondary);">Regardez la vidéo pour débloquer l'outil</p>
             <div class="video-container">
                 <div id="playButton" onclick="lancerVideo()">
-                    <div style="background:var(--primary); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto;">
+                    <div style="background:var(--primary); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow: 0 0 15px var(--primary);">
                         <span style="color:white; font-size:25px; margin-left:5px;">▶</span>
                     </div>
                 </div>
                 <div id="player"></div>
             </div>
-            <button id="ytBtn" style="background:#cc0000;" onclick="allerSurYoutube()">🔴 ÉTAPE 1 : AGIR SUR YOUTUBE</button>
+            <button style="background:#cc0000;" onclick="allerSurYoutube()">🔴 ÉTAPE 1 : AGIR SUR YOUTUBE</button>
             <button id="verifyBtn" style="background:#1e293b; border:1px solid var(--primary); margin-top:15px;" onclick="verifierAcces()">ÉTAPE 2 : VÉRIFIER L'ACCÈS</button>
         </div>
 
         <div id="generatorSection">
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-            <input type="text" id="v_link_input" placeholder="Lien Victory Automatic...">
-            <button id="btnGenerate" onclick="generateLink()">GÉNÉRER MON LIEN VIRAL</button>
+            <p style="font-size:0.85rem;">🔓 Accès débloqué. Collez votre lien Victory :</p>
+            <input type="text" id="v_link_input" placeholder="https://victoryautomatic.com/...">
+            <button onclick="generateLink()">GÉNÉRER MON LIEN VIRAL</button>
             <div id="resultBox" class="success-box" style="margin-top:15px; padding:15px;">
-                <code id="displayLink" style="font-weight:bold; word-break:break-all;"></code>
+                <code id="displayLink" style="font-weight:bold; word-break:break-all; color:#fff;"></code>
             </div>
         </div>
 
@@ -111,12 +120,11 @@
     </div>
 
     <script>
-        // 1. PROTECTION ANTI-TRICHE
+        // ANTI-TRICHE
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67))) return false;
         };
 
-        // 2. CONFIGURATION FIREBASE
         var firebaseConfig = {
             apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
             authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -135,9 +143,14 @@
         function showNotify(text, type) {
             const n = document.getElementById("notification");
             n.innerText = text; n.className = type; n.style.display = "block";
+            setTimeout(() => { n.style.display = "none"; }, 5000);
         }
 
-        // 3. AUTHENTIFICATION
+        function toggleMdp() {
+            const m = document.getElementById("mdpInput");
+            m.type = m.type === "password" ? "text" : "password";
+        }
+
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 document.getElementById("authSection").style.display = "none";
@@ -147,7 +160,8 @@
             } else {
                 document.getElementById("authSection").style.display = "block";
                 document.getElementById("actionsSection").style.display = "none";
-                document.getElementById("status").innerText = "Veuillez vous connecter.";
+                document.getElementById("generatorSection").style.display = "none";
+                document.getElementById("status").innerText = "Identification requise";
             }
         });
 
@@ -163,9 +177,14 @@
             firebase.auth().createUserWithEmailAndPassword(e, m).catch(err => showNotify(err.message, "error"));
         }
 
+        function recupererMdp() {
+            const e = document.getElementById("emailInput").value.trim();
+            if(!e) return showNotify("Entrez votre email d'abord", "error");
+            firebase.auth().sendPasswordResetEmail(e).then(() => showNotify("Lien de récupération envoyé !", "success-box"));
+        }
+
         function deconnecter() { firebase.auth().signOut().then(() => location.reload()); }
 
-        // 4. YOUTUBE API
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
                 videoId: '9uPybhkqYw4',
@@ -186,9 +205,8 @@
 
         function verifierAcces() {
             if (_0x_vT && _0x_iF) {
+                document.getElementById("actionsSection").style.display = "none";
                 document.getElementById("generatorSection").style.display = "block";
-                document.getElementById("status").innerText = "🔓 Accès Débloqué !";
-                document.getElementById("generatorSection").scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert("⚠️ Erreur : Regardez la vidéo jusqu'au bout et cliquez sur le bouton rouge.");
             }
