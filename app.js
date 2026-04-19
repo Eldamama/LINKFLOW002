@@ -13,7 +13,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.firestore();
 const functions = firebase.functions();
 
@@ -21,86 +20,37 @@ let player;
 let refLink = "";
 
 // ===============================
-// AUTH STATE
+// AUTH STATE (Gère l'affichage)
 // ===============================
 firebase.auth().onAuthStateChanged(async user => {
+  const statusEl = document.getElementById("status");
+  const authSec = document.getElementById("authSection");
+  const videoSec = document.getElementById("videoSection");
+
   if (user) {
-    document.getElementById("authSection").style.display = "none";
-    document.getElementById("videoSection").classList.remove("hidden");
+    authSec.style.display = "none";
+    videoSec.classList.remove("hidden");
+    statusEl.innerText = "Connecté : " + user.email;
 
-    document.getElementById("status").innerText =
-      "Connecté : " + user.email;
-
-    // créer user en base si absent
     const ref = new URLSearchParams(location.search).get("ref");
-
     await db.collection("users").doc(user.uid).set({
       createdAt: Date.now(),
       refBy: ref || null
     }, { merge: true });
 
     refLink = "https://victoryautomatic.com/user/register/" + (ref || "default");
-
   } else {
-    document.getElementById("authSection").style.display = "block";
-    document.getElementById("videoSection").classList.add("hidden");
+    authSec.style.display = "block";
+    videoSec.classList.add("hidden");
     document.getElementById("claimSection").classList.add("hidden");
     document.getElementById("generateSection").classList.add("hidden");
-
-    document.getElementById("status").innerText =
-      "Connecte-toi";
+    statusEl.innerText = "Connecte-toi";
   }
 });
 
 // ===============================
-// YOUTUBE
+// FONCTIONS AUTH (Pour les boutons)
 // ===============================
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '200',
-    width: '100%',
-    videoId: '9uPybhkqYw4', // ID de ta vidéo YouTube
-    events: {
-      'onStateChange': async (e) => {
-        if (e.data === YT.PlayerState.ENDED) {
-          // appeler serveur sécurisé
-          const fn = functions.httpsCallable("markVideoWatched");
-          await fn();
-
-          document.getElementById("videoSection").classList.add("hidden");
-          document.getElementById("claimSection").classList.remove("hidden");
-
-          document.getElementById("status").innerText =
-            "Vidéo validée";
-        }
-      }
-    }
-  });
-}
-
-// ===============================
-// CLAIM
-// ===============================
-async function claimVictory() {
-  const fn = functions.httpsCallable("claimLink");
-  await fn();
-
-  window.open(refLink, "_blank");
-
-  document.getElementById("claimSection").classList.add("hidden");
-  document.getElementById("generateSection").classList.remove("hidden");
-}
-
-// ===============================
-// GENERATE
-// ===============================
-async function generateLink() {
-  const val = document.getElementById("v_link_input").value;
-  const fn = functions.httpsCallable("generateSecureLink");
-
-  const res = await fn({
-    link: val,
-    origin: location.origin + location.pathname
-  });
-
-  document
+function connecter() {
+  const email = document.getElementById("emailInput").value;
+  const mdp
