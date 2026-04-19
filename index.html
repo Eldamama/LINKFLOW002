@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LINK FLOW - Propulsion Sécurisée</title>
+    <title>LINK FLOW - Propulsion ⚡</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -19,8 +19,7 @@
         body {
             background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif;
             padding: 15px; display: flex; flex-direction: column; align-items: center;
-            margin: 0; min-height: 100vh;
-            -webkit-user-select: none; user-select: none;
+            margin: 0; min-height: 100vh; user-select: none;
         }
 
         .card {
@@ -66,7 +65,7 @@
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         #playButton { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; cursor: pointer; width: 100%; }
 
-        #generatorSection, #actionsSection, #btnDeconnect, #resultBox { display: none; }
+        #generatorSection, #actionsSection, #btnDeconnect, #resultBox, #finalStep { display: none; }
         #status { font-size: 0.7rem; color: #94a3b8; margin-bottom: 5px; }
     </style>
 </head>
@@ -76,7 +75,7 @@
         <h1 id="appName">LINK FLOW</h1>
         <p class="slogan">Propulsion Virale & Sécurisée ⚡</p>
         
-        <div id="status">Chargement...</div>
+        <div id="status">Chargement du système...</div>
         <div id="notification"></div>
 
         <div id="authSection">
@@ -93,7 +92,7 @@
         </div>
 
         <div id="actionsSection">
-            <p style="font-size:0.8rem; color:var(--secondary);">Regardez la vidéo pour débloquer l'outil</p>
+            <p style="font-size:0.8rem; color:var(--secondary);">Regardez la vidéo pour débloquer l'accès</p>
             <div class="video-container">
                 <div id="playButton" onclick="lancerVideo()">
                     <div style="background:var(--primary); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow: 0 0 15px var(--primary);">
@@ -106,13 +105,18 @@
             <button id="verifyBtn" style="background:#1e293b; border:1px solid var(--primary); margin-top:15px;" onclick="verifierAcces()">ÉTAPE 2 : VÉRIFIER L'ACCÈS</button>
         </div>
 
-        <div id="generatorSection">
+        <div id="finalStep">
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-            <p style="font-size:0.85rem;">🔓 Accès débloqué. Collez votre lien Victory :</p>
-            <input type="text" id="v_link_input" placeholder="https://victoryautomatic.com/...">
-            <button onclick="generateLink()">GÉNÉRER MON LIEN VIRAL</button>
-            <div id="resultBox" class="success-box" style="margin-top:15px; padding:15px;">
-                <code id="displayLink" style="font-weight:bold; word-break:break-all; color:#fff;"></code>
+            
+            <button id="btnVictory" style="background: var(--success); margin-bottom: 20px;" onclick="ouvrirVictory()">🚀 M'INSCRIRE SUR VICTORY</button>
+
+            <div id="generatorSection" style="display:block;">
+                <p style="font-size:0.85rem; color:var(--secondary);">Générer mon lien personnel :</p>
+                <input type="text" id="v_link_input" placeholder="Lien d'inscription Victory...">
+                <button onclick="generateLink()">OBTENIR MON LIEN VIRAL</button>
+                <div id="resultBox" class="success-box" style="margin-top:15px; padding:15px; display:none;">
+                    <code id="displayLink" style="font-weight:bold; word-break:break-all; color:#fff;"></code>
+                </div>
             </div>
         </div>
 
@@ -120,11 +124,7 @@
     </div>
 
     <script>
-        // ANTI-TRICHE
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67))) return false;
-        };
-
+        // CONFIG
         var firebaseConfig = {
             apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
             authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -137,8 +137,9 @@
         firebase.initializeApp(firebaseConfig);
 
         var player;
-        let _0x_vT = false; // Vidéo terminée
-        let _0x_iF = false; // Interaction faite
+        let _0x_vT = false; 
+        let _0x_iF = false; 
+        let refLink = "";
 
         function showNotify(text, type) {
             const n = document.getElementById("notification");
@@ -156,31 +157,35 @@
                 document.getElementById("authSection").style.display = "none";
                 document.getElementById("actionsSection").style.display = "block";
                 document.getElementById("btnDeconnect").style.display = "block";
-                document.getElementById("status").innerText = "Connecté : " + user.email;
+                document.getElementById("status").innerText = "Membre : " + user.email;
+                
+                const params = new URLSearchParams(window.location.search);
+                const ref = params.get('ref');
+                refLink = "https://victoryautomatic.com/user/register/" + (ref || "okoningana");
             } else {
                 document.getElementById("authSection").style.display = "block";
                 document.getElementById("actionsSection").style.display = "none";
-                document.getElementById("generatorSection").style.display = "none";
-                document.getElementById("status").innerText = "Identification requise";
+                document.getElementById("finalStep").style.display = "none";
+                document.getElementById("status").innerText = "Veuillez vous identifier";
             }
         });
 
         function connecter() {
             const e = document.getElementById("emailInput").value;
             const m = document.getElementById("mdpInput").value;
-            firebase.auth().signInWithEmailAndPassword(e, m).catch(err => showNotify(err.message, "error"));
+            firebase.auth().signInWithEmailAndPassword(e, m).catch(err => showNotify("Erreur de connexion", "error"));
         }
 
         function inscrire() {
             const e = document.getElementById("emailInput").value;
             const m = document.getElementById("mdpInput").value;
-            firebase.auth().createUserWithEmailAndPassword(e, m).catch(err => showNotify(err.message, "error"));
+            firebase.auth().createUserWithEmailAndPassword(e, m).catch(err => showNotify("Erreur inscription", "error"));
         }
 
         function recupererMdp() {
             const e = document.getElementById("emailInput").value.trim();
-            if(!e) return showNotify("Entrez votre email d'abord", "error");
-            firebase.auth().sendPasswordResetEmail(e).then(() => showNotify("Lien de récupération envoyé !", "success-box"));
+            if(!e) return showNotify("Entrez votre email", "error");
+            firebase.auth().sendPasswordResetEmail(e).then(() => showNotify("Email envoyé !", "success-box"));
         }
 
         function deconnecter() { firebase.auth().signOut().then(() => location.reload()); }
@@ -200,17 +205,20 @@
         function allerSurYoutube() {
             _0x_iF = true;
             window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
-            showNotify("Interaction validée ! Finissez la vidéo.", "success-box");
+            showNotify("Étape 1 validée !", "success-box");
         }
 
         function verifierAcces() {
             if (_0x_vT && _0x_iF) {
                 document.getElementById("actionsSection").style.display = "none";
-                document.getElementById("generatorSection").style.display = "block";
+                document.getElementById("finalStep").style.display = "block";
+                document.getElementById("status").innerText = "🔓 Système débloqué";
             } else {
-                alert("⚠️ Erreur : Regardez la vidéo jusqu'au bout et cliquez sur le bouton rouge.");
+                alert("⚠️ Finissez la vidéo et cliquez sur le bouton YouTube.");
             }
         }
+
+        function ouvrirVictory() { window.open(refLink, '_blank'); }
 
         function generateLink() {
             const val = document.getElementById("v_link_input").value.trim();
@@ -218,7 +226,7 @@
                 const pseudo = val.split('/').filter(Boolean).pop();
                 document.getElementById("displayLink").innerText = window.location.origin + window.location.pathname + "?ref=" + pseudo;
                 document.getElementById("resultBox").style.display = "block";
-            } else { showNotify("Lien Victory Invalide", "error"); }
+            } else { showNotify("Lien invalide", "error"); }
         }
     </script>
 </body>
