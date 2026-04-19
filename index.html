@@ -145,4 +145,129 @@
                     <div style="background:var(--primary); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow:0 0 20px rgba(0,0,0,0.8);">
                         <span style="color:white; font-size:25px; margin-left:5px;">▶</span>
                     </div>
-                    <p style="color:white; font-size:10
+                    <p style="color:white; font-size:10px; margin-top:8px; font-weight:bold; text-shadow:1px 1px 3px #000;">LANCER LA VIDÉO</p>
+                </div>
+                <div id="player"></div>
+            </div>
+            
+            <button id="verifyBtn" style="background: #1e293b; border: 1px solid var(--primary);" onclick="verifierAcces()">ÉTAPE 2 : VÉRIFIER L'ACCÈS</button>
+        </div>
+
+        <button id="finalLinkBtn" style="background: var(--success);" onclick="ouvrirInscription()">🚀 S'INSCRIRE DANS LE RÉSEAU</button>
+
+        <button id="btnDeconnect" style="background:none; border:none; color:#64748b; margin-top:30px; font-size:0.7rem;" onclick="deconnecter()">DÉCONNEXION</button>
+    </div>
+
+    <script>
+        // --- BOUTON D'ARRÊT ---
+        var SYSTEME_ARRETE = false; 
+
+        var firebaseConfig = {
+            apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
+            authDomain: "linkflow-7a82a.firebaseapp.com",
+            databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "linkflow-7a82a",
+            storageBucket: "linkflow-7a82a.firebasestorage.app",
+            messagingSenderId: "459654757296",
+            appId: "1:459654757296:web:d6e2609d19d3d7f4a7b475"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        let interactionFaite = false;
+        let lienInscription = "";
+
+        function showNotify(text, type) {
+            const n = document.getElementById("notification");
+            n.innerText = text; n.className = type; n.style.display = "block";
+        }
+
+        function toggleMdp() {
+            const m = document.getElementById("mdpInput");
+            m.type = m.type === "password" ? "text" : "password";
+        }
+
+        function connecter() {
+            const e = document.getElementById("emailInput").value.trim();
+            const m = document.getElementById("mdpInput").value;
+            firebase.auth().signInWithEmailAndPassword(e, m).catch(err => showNotify(err.message, "error"));
+        }
+
+        function inscrire() {
+            const e = document.getElementById("emailInput").value.trim();
+            const m = document.getElementById("mdpInput").value;
+            firebase.auth().createUserWithEmailAndPassword(e, m).catch(err => showNotify(err.message, "error"));
+        }
+
+        function recupererMdp() {
+            const e = document.getElementById("emailInput").value.trim();
+            if(!e) return showNotify("Entrez votre email", "error");
+            firebase.auth().sendPasswordResetEmail(e).then(() => showNotify("Email envoyé !", "success-box"));
+        }
+
+        function deconnecter() { firebase.auth().signOut().then(() => location.reload()); }
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (SYSTEME_ARRETE) {
+                showNotify("MAINTENANCE EN COURS", "error");
+                document.getElementById("authSection").style.display = "none";
+                return;
+            }
+            if (user) {
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("generatorSection").style.display = "block";
+                document.getElementById("actionsSection").style.display = "block";
+                document.getElementById("btnDeconnect").style.display = "block";
+                document.getElementById("status").innerText = "MEMBRE : " + user.email;
+                checkAccess(user.email);
+            }
+        });
+
+        function checkAccess(email) {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref');
+            if (email !== "lobongoaime@gmail.com" && !ref) {
+                document.getElementById("btnGenerate").disabled = true;
+                showNotify("LIEN D'INVITATION REQUIS", "error");
+            } else {
+                lienInscription = "https://victoryautomatic.com/user/register/" + (ref || "okoningana");
+            }
+        }
+
+        function generateLink() {
+            const val = document.getElementById("v_link_input").value.trim();
+            if(val.includes('victoryautomatic.com/user/register/')) {
+                const pseudo = val.split('/').filter(Boolean).pop();
+                document.getElementById("displayLink").innerText = window.location.origin + window.location.pathname + "?ref=" + pseudo;
+                document.getElementById("resultBox").style.display = "block";
+            } else { showNotify("Lien Victory invalide", "error"); }
+        }
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: '9uPybhkqYw4',
+                playerVars: { 'modestbranding': 1, 'rel': 0 },
+                events: { 'onStateChange': function(e) { if(e.data === YT.PlayerState.ENDED) interactionFaite = true; } }
+            });
+        }
+
+        function lancerVideo() {
+            interactionFaite = true; // Valide immédiatement au clic sur PLAY
+            document.getElementById("playButton").style.display = "none";
+            if (player && player.playVideo) player.playVideo();
+            document.getElementById("verifyBtn").innerText = "VÉRIFIER APRÈS LA VIDÉO";
+        }
+
+        function verifierAcces() {
+            if (interactionFaite) {
+                document.getElementById("actionsSection").style.display = "none";
+                document.getElementById("finalLinkBtn").style.display = "block";
+            } else { showNotify("LANCEZ LA VIDÉO D'ABORD", "error"); }
+        }
+
+        function ouvrirInscription() {
+            if(lienInscription) window.open(lienInscription, '_blank');
+        }
+    </script>
+</body>
+</html>
