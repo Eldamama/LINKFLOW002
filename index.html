@@ -10,64 +10,88 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f7f6; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 450px; margin: auto; }
+        body { font-family: sans-serif; padding: 10px; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 400px; margin: 10px auto; text-align: center; }
         
-        /* Correction COLLAGE : On simplifie l'input */
+        /* Style du LOGO */
+        .logo-container { margin-bottom: 15px; }
+        .logo-icon { font-size: 50px; color: #1a73e8; } /* C'est un emoji éclair pour l'instant */
+        
+        h2 { color: #1a73e8; margin: 0 0 15px 0; font-size: 24px; }
+        
+        /* Inputs simplifiés pour COLLAGE facile */
         input { 
-            width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #1a73e8; 
-            border-radius: 8px; font-size: 16px; display: block; box-sizing: border-box;
+            width: 100%; padding: 15px; margin: 8px 0; border: 2px solid #ddd; 
+            border-radius: 8px; font-size: 16px; box-sizing: border-box;
             background: white !important; color: black !important;
         }
+        input:focus { border-color: #1a73e8; outline: none; }
 
-        .btn { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; text-decoration: none; display: block; box-sizing: border-box; }
         .btn-blue { background: #1a73e8; color: white; }
-        .btn-red { background: #ff0000; color: white; text-decoration: none; display: block; text-align: center; }
+        .btn-red { background: #ff0000; color: white; }
         .btn-dark { background: #333; color: white; }
+        .btn-green { background: #4CAF50; color: white; display: none; margin-top: 20px; }
         
-        .msg-error { background: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; font-size: 13px; text-align: center; margin-bottom: 15px; display: none; }
-        #generatorSection, #actionsSection, #linkSection, #btnDeconnect { display: none; }
+        .msg-error { background: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; font-size: 13px; margin-bottom: 15px; display: none; border: 1px solid #ef9a9a; }
+        #generatorSection, #actionsSection, #btnDeconnect, #resultBox { display: none; }
+        #status { font-size: 12px; color: #555; margin-bottom: 10px; }
+        
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; margin-top: 15px; display: none; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2 style="text-align:center; color:#1a73e8;">LINK FLOW</h2>
-        <div id="status" style="text-align:center; font-size:12px; margin-bottom:10px;"></div>
+        <div class="logo-container">
+            <div class="logo-icon">⚡</div>
+        </div>
+        
+        <h2>LINK FLOW</h2>
+        <div id="status">Veuillez vous connecter</div>
 
         <div id="lockMessage" class="msg-error">
-            ⚠️ Accès restreint : Lien d'invitation requis.
+            ⚠️ <strong>Accès refusé</strong> : Vous devez utiliser un lien d'invitation LINKFLOW valide (avec ?ref=...) pour parrainer à votre tour.
         </div>
 
         <div id="authSection">
-            <input type="email" id="emailInput" placeholder="Email">
+            <input type="email" id="emailInput" placeholder="Votre Email">
             <input type="password" id="mdpInput" placeholder="Mot de passe">
-            <button class="btn btn-blue" onclick="connecter()">CONNEXION</button>
+            <button class="btn btn-blue" onclick="connecter()">SE CONNECTER</button>
         </div>
 
         <div id="generatorSection">
-            <p style="font-size:13px; font-weight:bold;">Collez votre lien Victory Automatic :</p>
+            <p style="font-size:14px; font-weight:bold; margin: 0 0 5px 0; color: #333;">Collez votre lien Victory Automatic :</p>
             <input type="text" id="v_link_input" placeholder="https://victoryautomatic.com/...">
             <button id="btnGenerate" class="btn btn-blue" onclick="generateLink()">GÉNÉRER MON LIEN VIRAL</button>
-            <div id="resultBox" style="display:none; margin-top:10px; background:#e8f5e9; padding:10px; border-radius:5px; word-break:break-all;">
-                <code id="displayLink" style="font-weight:bold; color:red;"></code>
+            
+            <div id="resultBox" style="margin-top:15px; background:#e8f5e9; padding:15px; border-radius:8px; border: 1px solid #a5d6a7;">
+                <p style="font-size:12px; color:#2e7d32; margin:0 0 5px 0;">Copiez ce lien pour parrainer :</p>
+                <code id="displayLink" style="font-weight:bold; color:#d32f2f; word-break:break-all; font-size:14px;"></code>
             </div>
         </div>
 
+        <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
+
         <div id="actionsSection">
-            <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-red" onclick="interactionFaite=true">🔴 ÉTAPE 1 : AGIR SUR YOUTUBE</a>
-            <div id="player" style="margin-top:15px; width:100%; border-radius:8px;"></div>
-            <button class="btn btn-dark" onclick="verifierAcces()">ÉTAPE 2 : VÉRIFIER L'ACCÈS</button>
+            <p style="font-size:13px; color:#666; margin: 0 0 10px 0;">Pour débloquer l'inscription, suivez les étapes :</p>
+            <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-red" onclick="interactionFaite=true">🔴 1. AGIR SUR YOUTUBE</a>
+            
+            <div id="videoYT" class="video-container">
+                <div id="player"></div>
+            </div>
+            
+            <button class="btn btn-dark" style="margin-top:15px;" onclick="verifierAcces()">2. VÉRIFIER L'ACCÈS</button>
         </div>
 
-        <div id="linkSection">
-            <a id="dynamicFinalLink" href="#" target="_blank" class="btn" style="background:#4CAF50; color:white; display:block; text-align:center; text-decoration:none;">🚀 S'INSCRIRE MAINTENANT</a>
-        </div>
+        <a id="dynamicFinalLink" href="#" target="_blank" class="btn btn-green">🚀 S'INSCRIRE MAINTENANT</a>
 
-        <button id="btnDeconnect" style="background:none; border:none; color:red; width:100%; margin-top:20px;" onclick="deconnecter()">DÉCONNEXION</button>
+        <button id="btnDeconnect" style="background:none; border:none; color:#d32f2f; width:100%; margin-top:25px; font-size:13px; cursor:pointer;" onclick="deconnecter()">DÉCONNEXION</button>
     </div>
 
     <script>
+        // Configuration Firebase (API Key publique, sans danger)
         var firebaseConfig = {
             apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
             authDomain: "linkflow-7a82a.firebaseapp.com",
@@ -82,58 +106,106 @@
         let videoTerminee = false;
         let interactionFaite = false;
 
+        // --- AUTHENTIFICATION ---
         function connecter() {
-            const e = document.getElementById("emailInput").value;
+            const e = document.getElementById("emailInput").value.trim();
             const m = document.getElementById("mdpInput").value;
-            firebase.auth().signInWithEmailAndPassword(e, m).catch(err => alert(err.message));
+            if(!e || !m) { alert("Remplissez les champs"); return; }
+            firebase.auth().signInWithEmailAndPassword(e, m)
+                .catch(err => alert("Erreur : " + err.message));
         }
 
         function deconnecter() { firebase.auth().signOut().then(() => location.reload()); }
 
+        // --- SURVEILLANCE SESSION ---
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
+                // Utilisateur connecté
                 document.getElementById("authSection").style.display = "none";
                 document.getElementById("generatorSection").style.display = "block";
                 document.getElementById("actionsSection").style.display = "block";
                 document.getElementById("btnDeconnect").style.display = "block";
-                document.getElementById("status").innerText = "✅ Session : " + user.email;
+                document.getElementById("videoYT").style.display = "block"; // Affiche la vidéo
+                document.getElementById("status").innerText = "✅ Connecté : " + user.email;
                 
-                // AUTORISATION : Si c'est ton email admin, on débloque tout sans condition de parrainage
-                const params = new URLSearchParams(window.location.search);
-                const ref = params.get('ref');
-                if (!ref && user.email !== "lobongoaime@gmail.com") {
-                    document.getElementById("btnGenerate").disabled = true;
-                    document.getElementById("btnGenerate").style.opacity = "0.5";
-                    document.getElementById("lockMessage").style.display = "block";
-                } else if (ref) {
-                    document.getElementById("dynamicFinalLink").href = "https://victoryautomatic.com/user/register/" + ref;
-                }
+                checkRéseauAccess(user.email);
+            } else {
+                // Utilisateur déconnecté
+                document.getElementById("authSection").style.display = "block";
+                document.getElementById("generatorSection").style.display = "none";
+                document.getElementById("actionsSection").style.display = "none";
             }
         });
 
-        function generateLink() {
-            const val = document.getElementById("v_link_input").value.trim();
-            if(val.includes('victoryautomatic.com')) {
-                const pseudo = val.split('/').pop();
-                const finalUrl = window.location.origin + window.location.pathname + "?ref=" + pseudo;
-                document.getElementById("displayLink").innerText = finalUrl;
-                document.getElementById("resultBox").style.display = "block";
-            } else { alert("Lien Victory invalide"); }
+        // --- SÉCURITÉ RÉSEAU ---
+        function checkRéseauAccess(userEmail) {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('ref');
+            const lockMsg = document.getElementById("lockMessage");
+            const btnGen = document.getElementById("btnGenerate");
+
+            // Débloque TOUT si c'est l'admin (toi)
+            if (userEmail === "lobongoaime@gmail.com") {
+                lockMsg.style.display = "none";
+                btnGen.disabled = false;
+                btnGen.style.opacity = "1";
+                // Lien par défaut si l'admin teste sans ref
+                if(!ref) document.getElementById("dynamicFinalLink").href = "https://victoryautomatic.com/user/register/okoningana";
+                return; 
+            }
+
+            // Bloque si pas de parrain (?ref=...)
+            if (!ref) {
+                lockMsg.style.display = "block";
+                btnGen.disabled = true;
+                btnGen.style.opacity = "0.4";
+                document.getElementById("v_link_input").disabled = true;
+            } else {
+                // Autorisé, on prépare le lien d'inscription sous le parrain
+                lockMsg.style.display = "none";
+                document.getElementById("dynamicFinalLink").href = "https://victoryautomatic.com/user/register/" + ref;
+            }
         }
 
+        // --- GÉNÉRATEUR ---
+        function generateLink() {
+            const inputVal = document.getElementById("v_link_input").value.trim();
+            
+            if(inputVal.includes('victoryautomatic.com/user/register/')) {
+                // Récupère le pseudo à la fin du lien
+                const pseudo = inputVal.split('/').filter(Boolean).pop();
+                
+                // Crée le lien LinkFlow
+                const finalUrl = window.location.origin + window.location.pathname + "?ref=" + pseudo;
+                
+                document.getElementById("displayLink").innerText = finalUrl;
+                document.getElementById("resultBox").style.display = "block";
+            } else {
+                alert("❌ Lien invalide. Collez votre lien Victory complet (ex: https://victoryautomatic.com/user/register/pseudo)");
+            }
+        }
+
+        // --- YOUTUBE API ---
         var player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '200', width: '100%', videoId: '9uPybhkqYw4',
-                events: { 'onStateChange': e => { if(e.data === YT.PlayerState.ENDED) videoTerminee = true; } }
+                height: '200',
+                width: '100%',
+                videoId: '9uPybhkqYw4',
+                playerVars: { 'modestbranding': 1, 'rel': 0 },
+                events: { 'onStateChange': function(e) { if(e.data === YT.PlayerState.ENDED) videoTerminee = true; } }
             });
         }
 
+        // --- VÉRIFICATION FINALE ---
         function verifierAcces() {
             if (videoTerminee && interactionFaite) {
-                document.getElementById("linkSection").style.display = "block";
+                document.getElementById("dynamicFinalLink").style.display = "block";
                 document.getElementById("actionsSection").style.display = "none";
-            } else { alert("⚠️ Terminez la vidéo et cliquez sur le bouton rouge !"); }
+                window.scrollTo(0, document.body.scrollHeight); // Scroll vers le bas
+            } else {
+                alert("⚠️ Interaction incomplète. Vous devez :\n1. Cliquer sur le bouton rouge YouTube.\n2. Regarder la vidéo jusqu'à la fin.");
+            }
         }
     </script>
 </body>
