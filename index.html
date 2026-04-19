@@ -1,140 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINK FLOW</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINK FLOW</title>
 
-    <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #00d2ff;
-            --bg: #0c0f1a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text: #e2e8f0;
-        }
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-top: 20px;
-        }
-
-        #appName {
-            background: linear-gradient(135deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 2.2rem;
-            text-align: center;
-            margin: 10px 0;
-            font-weight: 800;
-        }
-
-        .slogan {
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-
-        #notification {
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .info { background: rgba(37, 99, 235, 0.2); border: 1px solid var(--primary); }
-        .success { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
-        .error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; }
-
-        .hidden { display: none !important; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #1e293b;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin: 10px 0;
-        }
-
-        button:active { transform: scale(0.98); }
-        .btn-secondary { background: #334155; }
-    </style>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="card">
-    <h2 id="appName">LINK FLOW</h2>
-    <p class="slogan">Optimisez votre engagement</p>
-    
-    <div id="notification" class="info">Chargement...</div>
+<h2 id="appName">LINK FLOW</h2>
 
-    <div id="authSection">
-        <input type="email" id="emailInput" placeholder="Email">
-        <input type="password" id="mdpInput" placeholder="Mot de passe">
-        <button onclick="connecter()">Connexion</button>
-        <button onclick="inscrire()" class="btn-secondary">Créer compte</button>
-    </div>
+<div id="notification"></div>
 
-    <div id="videoSection" class="hidden">
-        <p style="text-align:center">Regardez la vidéo pour continuer</p>
-        <div id="player"></div>
-    </div>
+<div id="authSection">
+<input type="email" id="emailInput" placeholder="Email">
+<input type="password" id="mdpInput" placeholder="Mot de passe">
+<button onclick="login()">Connexion</button>
+<button onclick="register()">Créer compte</button>
+</div>
 
-    <div id="claimSection" class="hidden">
-        <button onclick="claimVictory()">RÉCLAMER MON LIEN VICTORY</button>
-    </div>
+<div id="videoSection" class="hidden">
+<div id="player"></div>
+</div>
 
-    <div id="generateSection" class="hidden">
-        <p>Collez votre lien Victory</p>
-        <input type="text" id="v_link_input" placeholder="Lien ici...">
-        <button onclick="generateLink()">Générer mon lien</button>
-        <p id="result" style="word-break: break-all; margin-top: 10px;"></p>
-    </div>
+<div id="claimSection" class="hidden">
+<button onclick="claim()">Récupérer lien</button>
+</div>
+
+<div id="generateSection" class="hidden">
+<input id="linkInput" placeholder="Ton lien">
+<button onclick="generate()">Générer</button>
+<p id="result"></p>
+</div>
+
 </div>
 
 <script src="app.js"></script>
