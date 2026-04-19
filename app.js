@@ -1,114 +1,129 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyDgBD9NrGaUU92l7vBadVyENH_rby8zZ-w",
-  authDomain: "linkflow-7a82a.firebaseapp.com",
-  databaseURL: "https://linkflow-7a82a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "linkflow-7a82a",
-  storageBucket: "linkflow-7a82a.firebasestorage.app",
-  messagingSenderId: "459654757296",
-  appId: "1:459654757296:web:28354472d69ab6b8a7b475",
-  measurementId: "G-WGT7RLTY17"
+  apiKey: "TA_CLE",
+  authDomain: "TON_DOMAINE",
+  databaseURL: "TON_URL_REALTIME",
+  projectId: "TON_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const functions = firebase.functions();
+
+const auth = firebase.auth();
+const db = firebase.database();
 
 let player;
-let refLink = "";
+let currentUser = null;
 
-// Notification Helper
-function notify(text, type = 'info') {
-    const n = document.getElementById("notification");
-    n.innerText = text;
-    n.className = type;
+// ================== UTIL ==================
+function notify(msg, type="info"){
+  const el = document.getElementById("notification");
+  el.innerText = msg;
+  el.className = type;
 }
 
-// ===============================
-// AUTH STATE
-// ===============================
-firebase.auth().onAuthStateChanged(async user => {
-  if (user) {
-    document.getElementById("authSection").classList.add("hidden");
-    document.getElementById("videoSection").classList.remove("hidden");
-    notify("Connecté : " + user.email, "success");
-
-    const ref = new URLSearchParams(location.search).get("ref");
-    await db.collection("users").doc(user.uid).set({
-      updatedAt: Date.now(),
-      refBy: ref || null
-    }, { merge: true });
-
-    refLink = "https://victoryautomatic.com/user/register/" + (ref || "default");
-  } else {
+// ================== AUTH ==================
+auth.onAuthStateChanged(async user => {
+  if(!user){
     document.getElementById("authSection").classList.remove("hidden");
-    document.getElementById("videoSection").classList.add("hidden");
-    document.getElementById("claimSection").classList.add("hidden");
-    document.getElementById("generateSection").classList.add("hidden");
-    notify("Veuillez vous connecter", "info");
+    return;
   }
+
+  currentUser = user;
+  document.getElementById("authSection").classList.add("hidden");
+
+  const refCode = new URLSearchParams(location.search).get("ref");
+
+  const userRef = db.ref("users/" + user.uid);
+  const snap = await userRef.once("value");
+
+  if(!snap.exists()){
+    const myCode = Math.random().toString(36).substring(2,8);
+
+    await userRef.set({
+      email: user.email,
+      refCode: myCode,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + (24*60*60*1000),
+      hasClaimed: false,
+      referredBy: refCode || null
+    });
+
+    await db.ref("referrals/" + myCode).set({
+      owner: user.uid,
+      clicks: 0
+    });
+  }
+
+  document.getElementById("videoSection").classList.remove("hidden");
 });
 
-// ===============================
-// FONCTIONS BOUTONS
-// ===============================
-function connecter() {
-  const email = document.getElementById("emailInput").value;
-  const mdp = document.getElementById("mdpInput").value;
-  if(!email || !mdp) return notify("Champs vides !", "error");
-  
-  firebase.auth().signInWithEmailAndPassword(email, mdp)
-    .catch(e => notify(e.message, "error"));
+// ================== LOGIN ==================
+function login(){
+  auth.signInWithEmailAndPassword(
+    emailInput.value,
+    mdpInput.value
+  ).catch(e => notify(e.message, "error"));
 }
 
-function inscrire() {
-  const email = document.getElementById("emailInput").value;
-  const mdp = document.getElementById("mdpInput").value;
-  if(!email || !mdp) return notify("Champs vides !", "error");
-
-  firebase.auth().createUserWithEmailAndPassword(email, mdp)
-    .catch(e => notify(e.message, "error"));
+function register(){
+  auth.createUserWithEmailAndPassword(
+    emailInput.value,
+    mdpInput.value
+  ).catch(e => notify(e.message, "error"));
 }
 
-// ===============================
-// YOUTUBE & ACTIONS
-// ===============================
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '200', width: '100%', videoId: '9uPybhkqYw4',
-    events: {
-      'onStateChange': async (e) => {
-        if (e.data === YT.PlayerState.ENDED) {
-          try {
-            const fn = functions.httpsCallable("markVideoWatched");
-            await fn();
-            document.getElementById("videoSection").classList.add("hidden");
-            document.getElementById("claimSection").classList.remove("hidden");
-            notify("Vidéo validée !", "success");
-          } catch(err) { notify("Erreur validation vidéo", "error"); }
+// ================== VIDEO ==================
+function onYouTubeIframeAPIReady(){
+  player = new YT.Player('player',{
+    height:'200',
+    width:'100%',
+    videoId:'9uPybhkqYw4',
+    events:{
+      onStateChange: e=>{
+        if(e.data === YT.PlayerState.ENDED){
+          document.getElementById("videoSection").classList.add("hidden");
+          document.getElementById("claimSection").classList.remove("hidden");
         }
       }
     }
   });
 }
 
-async function claimVictory() {
-  try {
-    const fn = functions.httpsCallable("claimLink");
-    await fn();
-    window.open(refLink, "_blank");
-    document.getElementById("claimSection").classList.add("hidden");
-    document.getElementById("generateSection").classList.remove("hidden");
-  } catch(e) { notify("Erreur claim", "error"); }
+// ================== CLAIM ==================
+async function claim(){
+  const ref = db.ref("users/" + currentUser.uid);
+  const snap = await ref.once("value");
+  const data = snap.val();
+
+  if(Date.now() > data.expiresAt){
+    notify("Compte expiré", "error");
+    await ref.remove();
+    auth.signOut();
+    return;
+  }
+
+  if(data.hasClaimed){
+    notify("Déjà utilisé", "error");
+    return;
+  }
+
+  await ref.update({ hasClaimed: true });
+
+  const link = "https://tonsite.com/?ref=" + data.refCode;
+  window.open(link, "_blank");
+
+  document.getElementById("claimSection").classList.add("hidden");
+  document.getElementById("generateSection").classList.remove("hidden");
 }
 
-async function generateLink() {
-  const val = document.getElementById("v_link_input").value;
-  if(!val) return notify("Lien manquant", "error");
-  
-  try {
-    const fn = functions.httpsCallable("generateSecureLink");
-    const res = await fn({ link: val, origin: location.origin + location.pathname });
-    document.getElementById("result").innerText = "Lien prêt !";
-    notify("Succès !", "success");
-  } catch(e) { notify("Erreur serveur", "error"); }
+// ================== GENERATE ==================
+async function generate(){
+  const val = linkInput.value;
+  if(!val) return notify("Lien vide", "error");
+
+  const userSnap = await db.ref("users/"+currentUser.uid).once("value");
+  const code = userSnap.val().refCode;
+
+  const finalLink = location.origin + "?ref=" + code;
+
+  document.getElementById("result").innerText = finalLink;
 }
