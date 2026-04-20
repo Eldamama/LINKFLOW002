@@ -1,16 +1,4 @@
-// ================== FIREBASE CONFIG ==================
-const firebaseConfig = {
-  apiKey: "TA_VRAIE_CLE_API",
-  authDomain: "TON_PROJET.firebaseapp.com",
-  databaseURL: "https://TON_PROJET-default-rtdb.firebaseio.com",
-  projectId: "TON_PROJET_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.database();
-
+// ================== VARIABLES ==================
 let player;
 let currentUser = null;
 
@@ -21,8 +9,8 @@ function notify(msg, type="info"){
   el.className = type;
 }
 
-// ================== AUTH ==================
-auth.onAuthStateChanged(async user => {
+// ================== AUTH (à remplacer par Supabase) ==================
+async function handleAuth(user){
   if(!user){
     document.getElementById("authSection").classList.remove("hidden");
     return;
@@ -33,43 +21,22 @@ auth.onAuthStateChanged(async user => {
 
   const refCode = new URLSearchParams(location.search).get("ref");
 
-  const userRef = db.ref("users/" + user.uid);
-  const snap = await userRef.once("value");
-
-  if(!snap.exists()){
-    const myCode = Math.random().toString(36).substring(2,8);
-
-    await userRef.set({
-      email: user.email,
-      refCode: myCode,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + (24*60*60*1000),
-      hasClaimed: false,
-      referredBy: refCode || null
-    });
-
-    await db.ref("referrals/" + myCode).set({
-      owner: user.uid,
-      clicks: 0
-    });
-  }
+  // TODO: remplacer ceci par Supabase
+  // Vérifier si utilisateur existe en base
+  // Créer utilisateur sinon
 
   document.getElementById("videoSection").classList.remove("hidden");
-});
-
-// ================== LOGIN ==================
-function login(){
-  auth.signInWithEmailAndPassword(
-    emailInput.value,
-    mdpInput.value
-  ).catch(e => notify(e.message, "error"));
 }
 
-function register(){
-  auth.createUserWithEmailAndPassword(
-    emailInput.value,
-    mdpInput.value
-  ).catch(e => notify(e.message, "error"));
+// ================== LOGIN ==================
+async function login(){
+  // TODO: Supabase login ici
+  notify("Login à connecter à Supabase", "info");
+}
+
+async function register(){
+  // TODO: Supabase signup ici
+  notify("Register à connecter à Supabase", "info");
 }
 
 // ================== YOUTUBE ==================
@@ -91,14 +58,17 @@ function onYouTubeIframeAPIReady(){
 
 // ================== CLAIM ==================
 async function claim(){
-  const ref = db.ref("users/" + currentUser.uid);
-  const snap = await ref.once("value");
-  const data = snap.val();
+  // TODO: récupérer données utilisateur depuis Supabase
+
+  // Simulation temporaire
+  const data = {
+    expiresAt: Date.now() + 1000,
+    hasClaimed: false,
+    refCode: "demo123"
+  };
 
   if(Date.now() > data.expiresAt){
     notify("Compte expiré", "error");
-    await ref.remove();
-    await auth.signOut();
     return;
   }
 
@@ -107,7 +77,7 @@ async function claim(){
     return;
   }
 
-  await ref.update({ hasClaimed: true });
+  // TODO: update Supabase (hasClaimed = true)
 
   const link = "https://tonsite.com/?ref=" + data.refCode;
 
@@ -122,8 +92,8 @@ async function generate(){
   const val = linkInput.value;
   if(!val) return notify("Lien vide", "error");
 
-  const userSnap = await db.ref("users/"+currentUser.uid).once("value");
-  const code = userSnap.val().refCode;
+  // TODO: récupérer refCode depuis Supabase
+  const code = "demo123";
 
   const finalLink = location.origin + "?ref=" + code;
 
