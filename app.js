@@ -1,101 +1,41 @@
-// ================== VARIABLES ==================
-let player;
-let currentUser = null;
+// Configuration de la connexion
+const SUPABASE_URL = "https://xkyynzbbatglctgdtqyu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_pcrDzFZ9rkilVlw12_0uvw_2CcdtvLB";
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ================== UTIL ==================
-function notify(msg, type="info"){
-  const el = document.getElementById("notification");
-  el.innerText = msg;
-  el.className = type;
-}
+async function inscription() {
+    const email = document.getElementById('email').value;
+    const refCode = document.getElementById('ref_code').value;
+    const parrain = document.getElementById('parrain_code').value;
 
-// ================== AUTH (à remplacer par Supabase) ==================
-async function handleAuth(user){
-  if(!user){
-    document.getElementById("authSection").classList.remove("hidden");
-    return;
-  }
-
-  currentUser = user;
-  document.getElementById("authSection").classList.add("hidden");
-
-  const refCode = new URLSearchParams(location.search).get("ref");
-
-  // TODO: remplacer ceci par Supabase
-  // Vérifier si utilisateur existe en base
-  // Créer utilisateur sinon
-
-  document.getElementById("videoSection").classList.remove("hidden");
-}
-
-// ================== LOGIN ==================
-async function login(){
-  // TODO: Supabase login ici
-  notify("Login à connecter à Supabase", "info");
-}
-
-async function register(){
-  // TODO: Supabase signup ici
-  notify("Register à connecter à Supabase", "info");
-}
-
-// ================== YOUTUBE ==================
-function onYouTubeIframeAPIReady(){
-  player = new YT.Player('player',{
-    height:'200',
-    width:'100%',
-    videoId:'9uPybhkqYw4',
-    events:{
-      onStateChange: e=>{
-        if(e.data === YT.PlayerState.ENDED){
-          document.getElementById("videoSection").classList.add("hidden");
-          document.getElementById("claimSection").classList.remove("hidden");
-        }
-      }
+    if (!email || !refCode || !parrain) {
+        alert("Veuillez remplir tous les champs.");
+        return;
     }
-  });
-}
 
-// ================== CLAIM ==================
-async function claim(){
-  // TODO: récupérer données utilisateur depuis Supabase
+    try {
+        // Enregistrement dans la table 'users'
+        const { data, error } = await _supabase
+            .from('users')
+            .insert([
+                { 
+                    email: email, 
+                    ref_code: refCode, 
+                    referred_by: parrain 
+                }
+            ]);
 
-  // Simulation temporaire
-  const data = {
-    expiresAt: Date.now() + 1000,
-    hasClaimed: false,
-    refCode: "demo123"
-  };
-
-  if(Date.now() > data.expiresAt){
-    notify("Compte expiré", "error");
-    return;
-  }
-
-  if(data.hasClaimed){
-    notify("Déjà utilisé", "error");
-    return;
-  }
-
-  // TODO: update Supabase (hasClaimed = true)
-
-  const link = "https://tonsite.com/?ref=" + data.refCode;
-
-  window.open(link, "_blank");
-
-  document.getElementById("claimSection").classList.add("hidden");
-  document.getElementById("generateSection").classList.remove("hidden");
-}
-
-// ================== GENERATE ==================
-async function generate(){
-  const val = linkInput.value;
-  if(!val) return notify("Lien vide", "error");
-
-  // TODO: récupérer refCode depuis Supabase
-  const code = "demo123";
-
-  const finalLink = location.origin + "?ref=" + code;
-
-  document.getElementById("result").innerText = finalLink;
+        if (error) {
+            // Affiche l'erreur (ex: si le parrain n'existe pas ou email déjà pris)
+            alert("Erreur d'inscription : " + error.message);
+        } else {
+            alert("Inscription réussie ! Redirection vers la formation...");
+            
+            // REMPLACER PAR LE LIEN DE VOTRE VIDÉO YOUTUBE
+            window.location.href = "https://www.youtube.com/watch?v=VOTRE_ID_VIDEO";
+        }
+    } catch (err) {
+        console.error("Erreur inattendue:", err);
+        alert("Une erreur est survenue lors de la connexion.");
+    }
 }
