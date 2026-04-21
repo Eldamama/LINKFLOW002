@@ -1,42 +1,40 @@
-// Configuration de la connexion Supabase
 const SUPABASE_URL = "https://xkyynzbbatglctgdtqyu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_pcrDzFZ9rkilVlw12_0uvw_2CcdtvLB";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// 1. Détecter le parrain au chargement de la page
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const parrainDetecte = urlParams.get('ref');
+    
+    if (parrainDetecte) {
+        document.getElementById('parrain_code').value = parrainDetecte;
+        document.getElementById('welcome-area').innerText = "Invité par : " + parrainDetecte;
+    } else {
+        document.getElementById('welcome-area').innerText = "Bienvenue sur LINKFLOW";
+        document.getElementById('parrain_code').readOnly = false; // Permet de le taper si pas de lien
+    }
+};
+
+// 2. Fonction d'inscription
 async function inscription() {
     const email = document.getElementById('email').value;
     const refCode = document.getElementById('ref_code').value;
     const parrain = document.getElementById('parrain_code').value;
 
-    // Vérification que les champs ne sont pas vides
     if (!email || !refCode || !parrain) {
-        alert("Veuillez remplir tous les champs pour rejoindre l'aventure.");
+        alert("Remplis tous les champs !");
         return;
     }
 
-    try {
-        // Enregistrement de l'utilisateur dans la table 'users'
-        const { data, error } = await _supabase
-            .from('users')
-            .insert([
-                { 
-                    email: email, 
-                    ref_code: refCode, 
-                    referred_by: parrain 
-                }
-            ]);
+    const { data, error } = await _supabase
+        .from('users')
+        .insert([{ email: email, ref_code: refCode, referred_by: parrain }]);
 
-        if (error) {
-            // Gestion des erreurs (ex: parrain inexistant ou email déjà utilisé)
-            alert("Erreur d'inscription : " + error.message);
-        } else {
-            alert("Félicitations ! Inscription réussie. Vous allez être redirigé vers la vidéo de formation.");
-            
-            // Redirection vers ta vidéo YouTube mise à jour
-            window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
-        }
-    } catch (err) {
-        console.error("Erreur critique :", err);
-        alert("Une erreur technique est survenue.");
+    if (error) {
+        alert("Erreur : " + error.message);
+    } else {
+        alert("Inscription réussie !");
+        window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
     }
 }
