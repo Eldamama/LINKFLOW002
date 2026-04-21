@@ -1,47 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LINK FLOW</title>
-
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<!-- YouTube API -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKFLOW - Inscription</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f9; }
+        .form-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #333; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #24b47e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #1f9d6d; }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
-<h2 id="appName">LINK FLOW</h2>
-
-<div id="notification"></div>
-
-<div id="authSection">
-<input type="email" id="emailInput" placeholder="Email">
-<input type="password" id="mdpInput" placeholder="Mot de passe">
-<button onclick="login()">Connexion</button>
-<button onclick="register()">Créer compte</button>
-</div>
-
-<div id="videoSection" class="hidden">
-<div id="player"></div>
-</div>
-
-<div id="claimSection" class="hidden">
-<button onclick="claim()">Récupérer lien</button>
-</div>
-
-<div id="generateSection" class="hidden">
-<input id="linkInput" placeholder="Ton lien">
-<button onclick="generate()">Générer</button>
-<p id="result"></p>
-</div>
-
+<div class="form-card">
+    <h2>Rejoindre LINKFLOW</h2>
+    <p style="font-size: 0.9em; color: #666;">Inscrivez-vous pour accéder à la formation et activer votre réseau.</p>
+    
+    <input type="email" id="email" placeholder="Votre adresse email" required>
+    <input type="text" id="ref_code" placeholder="Créez votre code (ex: MOI2026)" required>
+    <input type="text" id="parrain_code" placeholder="Code de votre parrain" required>
+    
+    <button onclick="inscription()">S'inscrire et voir la vidéo</button>
 </div>
 
 <script src="app.js"></script>
