@@ -15,9 +15,7 @@
         .btn { display: block; width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 16px; transition: 0.3s; }
         .btn-yt { background: #ef4444; color: white; }
         .btn-next { background: #0ea5e9; color: white; }
-        .btn-next:hover { background: #0284c7; transform: scale(1.02); }
         input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: white; box-sizing: border-box; }
-        .success-box { background: #064e3b; color: #34d399; padding: 20px; border-radius: 10px; border: 1px solid #059669; }
     </style>
 </head>
 <body>
@@ -25,29 +23,28 @@
 <div class="box">
     <div id="step1" class="step active">
         <h2>🚀 Propulse ton Business</h2>
-        
         <div class="viral-notice">
             <b>Pourquoi Liker et Commenter ?</b><br>
             YouTube surveille ton interaction. Si tu likes et commentes, l'algorithme reçoit un <b>"Signal de Feu"</b> 🔥.<br><br>
-            Résultat : La vidéo devient <b>virale</b> et est montrée à des milliers de personnes. Ces nouveaux arrivants s'inscrivent <u>en dessous de toi</u> dans la matrice !
+            Résultat : La vidéo devient <b>virale</b>. Ces nouveaux arrivants s'inscrivent <u>en dessous de toi</u> dans la matrice !
         </div>
-
-        <p>As-tu bien envoyé ce signal à l'algorithme ?</p>
+        <p>As-tu envoyé ce signal à l'algorithme ?</p>
         <button class="btn btn-next" onclick="nextStep(2)">OUI, j'ai propulsé la vidéo !</button>
         <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-yt">Action : Like & Commente ici</a>
     </div>
 
     <div id="step2" class="step">
         <h2>Activation du Lien</h2>
-        <p>Entre tes informations pour générer ton lien personnel.</p>
-        <input type="text" id="my_code" placeholder="Ton Code LinkFlow (ex: ben001)">
-        <input type="url" id="v_link" placeholder="Ton Lien Victory Automatic">
-        <button class="btn btn-next" onclick="activer()">Générer mon lien de recrutement</button>
+        <p>Entre ton code d'inscription (ex: ben001) :</p>
+        <input type="text" id="my_code" placeholder="Ton Code LinkFlow">
+        <p>Colle ton lien Victory Automatic (Généalogie OKONINGANA) :</p>
+        <input type="url" id="v_link" placeholder="https://victoryautomatic.com/...">
+        <button class="btn btn-next" onclick="activer()">Vérifier et Générer mon lien</button>
     </div>
 
     <div id="step3" class="step">
-        <div class="success-box">
-            <h3>C'est parti ! 🎉</h3>
+        <div style="background: #064e3b; color: #34d399; padding: 20px; border-radius: 10px;">
+            <h3>C'est validé ! 🎉</h3>
             <p>Ton lien est prêt. Plus la vidéo monte, plus tu gagnes.</p>
             <div id="final_url" style="background: #0f172a; padding: 15px; border-radius: 8px; word-break: break-all; font-weight: bold; color: #38bdf8;"></div>
         </div>
@@ -55,6 +52,7 @@
 </div>
 
 <script>
+    // Connexion Supabase
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
 
     function nextStep(s) {
@@ -65,11 +63,24 @@
     async function activer() {
         const code = document.getElementById('my_code').value.trim();
         const link = document.getElementById('v_link').value.trim();
-        if(!code || !link) { alert("Remplis les champs !"); return; }
+        
+        // --- LA SÉCURITÉ ---
+        const racineOk = "okoningana";
 
+        if(!code || !link) { alert("Remplis tous les champs !"); return; }
+
+        // Vérification si le lien appartient bien à ta racine
+        if (!link.includes(racineOk)) {
+            alert("❌ ERREUR : Ce lien ne fait pas partie de la généalogie officielle LINKFLOW (Racine : " + racineOk + ").");
+            return;
+        }
+
+        // Mise à jour Supabase
         const { error } = await _supabase.from('users').update({ victory_link: link, is_active: true }).eq('ref_code', code);
-        if (error) { alert("Erreur : Code LinkFlow introuvable."); } 
-        else {
+        
+        if (error) { 
+            alert("Code LinkFlow introuvable. Es-tu bien inscrit ?"); 
+        } else {
             document.getElementById('final_url').innerText = "https://eldamama.github.io/LINKFLOW002/?ref=" + code;
             nextStep(3);
         }
