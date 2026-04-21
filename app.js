@@ -1,4 +1,4 @@
-// Configuration de la connexion
+// Configuration de la connexion Supabase
 const SUPABASE_URL = "https://xkyynzbbatglctgdtqyu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_pcrDzFZ9rkilVlw12_0uvw_2CcdtvLB";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -8,13 +8,14 @@ async function inscription() {
     const refCode = document.getElementById('ref_code').value;
     const parrain = document.getElementById('parrain_code').value;
 
+    // Vérification que les champs ne sont pas vides
     if (!email || !refCode || !parrain) {
-        alert("Veuillez remplir tous les champs.");
+        alert("Veuillez remplir tous les champs pour rejoindre l'aventure.");
         return;
     }
 
     try {
-        // Enregistrement dans la table 'users'
+        // Enregistrement de l'utilisateur dans la table 'users'
         const { data, error } = await _supabase
             .from('users')
             .insert([
@@ -26,16 +27,16 @@ async function inscription() {
             ]);
 
         if (error) {
-            // Affiche l'erreur (ex: si le parrain n'existe pas ou email déjà pris)
+            // Gestion des erreurs (ex: parrain inexistant ou email déjà utilisé)
             alert("Erreur d'inscription : " + error.message);
         } else {
-            alert("Inscription réussie ! Redirection vers la formation...");
+            alert("Félicitations ! Inscription réussie. Vous allez être redirigé vers la vidéo de formation.");
             
-            // REMPLACER PAR LE LIEN DE VOTRE VIDÉO YOUTUBE
-            window.location.href = "https://www.youtube.com/watch?v=VOTRE_ID_VIDEO";
+            // Redirection vers ta vidéo YouTube mise à jour
+            window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
         }
     } catch (err) {
-        console.error("Erreur inattendue:", err);
-        alert("Une erreur est survenue lors de la connexion.");
+        console.error("Erreur critique :", err);
+        alert("Une erreur technique est survenue.");
     }
 }
