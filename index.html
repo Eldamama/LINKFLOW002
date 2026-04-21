@@ -8,23 +8,23 @@
     <style>
         body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f9; }
         .form-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { color: #333; text-align: center; }
+        h2 { color: #333; text-align: center; margin-bottom: 5px; }
+        .welcome-msg { text-align: center; color: #007bff; font-weight: bold; margin-bottom: 15px; font-size: 0.9em; }
         input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #24b47e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #1f9d6d; }
+        button { width: 100%; padding: 12px; background-color: #24b47e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="form-card">
-    <h2>Rejoindre LINKFLOW</h2>
-    <p style="font-size: 0.9em; color: #666;">Inscrivez-vous pour accéder à la formation et activer votre réseau.</p>
+    <h2>LINKFLOW</h2>
+    <div id="welcome-area" class="welcome-msg">Détection du parrain...</div>
     
-    <input type="email" id="email" placeholder="Votre adresse email" required>
-    <input type="text" id="ref_code" placeholder="Créez votre code (ex: MOI2026)" required>
-    <input type="text" id="parrain_code" placeholder="Code de votre parrain" required>
+    <input type="email" id="email" placeholder="Ton adresse email" required>
+    <input type="text" id="ref_code" placeholder="Crée ton code perso (ex: ben001)" required>
+    <input type="text" id="parrain_code" placeholder="Code du parrain" readonly>
     
-    <button onclick="inscription()">S'inscrire et voir la vidéo</button>
+    <button onclick="inscription()">S'inscrire et voir la formation</button>
 </div>
 
 <script src="app.js"></script>
