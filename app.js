@@ -1,34 +1,31 @@
-// Configuration de la connexion Supabase
+// Connexion à Supabase avec la clé JWT brute
 const SUPABASE_URL = "https://xkyynzbbatglctgdtqyu.supabase.co";
-// Cle corrigee : rkilVlw12 (avec un L minuscule)
-const SUPABASE_KEY = "sb_publishable_pcrDzFZ9rkilVlw12_0uvw_2CcdtvLB";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc";
+
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 1. Détecter le parrain au chargement de la page via l'URL (?ref=...)
+// Gestion du parrain automatique via l'URL
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const parrainDetecte = urlParams.get('ref');
     
-    const welcomeArea = document.getElementById('welcome-area');
-    const parrainInput = document.getElementById('parrain_code');
-    
     if (parrainDetecte) {
-        parrainInput.value = parrainDetecte;
-        welcomeArea.innerText = "Invité par : " + parrainDetecte;
+        document.getElementById('parrain_code').value = parrainDetecte;
+        document.getElementById('welcome-area').innerText = "Invité par : " + parrainDetecte;
     } else {
-        welcomeArea.innerText = "Bienvenue sur LINKFLOW";
-        parrainInput.readOnly = false;
+        document.getElementById('welcome-area').innerText = "Bienvenue sur LINKFLOW";
+        document.getElementById('parrain_code').readOnly = false;
     }
 };
 
-// 2. Fonction d'inscription
+// Fonction d'inscription
 async function inscription() {
     const email = document.getElementById('email').value.trim();
     const refCode = document.getElementById('ref_code').value.trim();
     const parrain = document.getElementById('parrain_code').value.trim();
 
     if (!email || !refCode || !parrain) {
-        alert("Veuillez remplir tous les champs.");
+        alert("Attention : Tous les champs sont obligatoires.");
         return;
     }
 
@@ -42,14 +39,13 @@ async function inscription() {
             }]);
 
         if (error) {
-            // Si l'erreur est "Invalid API key", cela s'affichera ici
-            alert("Erreur : " + error.message);
+            alert("Erreur système : " + error.message);
         } else {
-            alert("Inscription réussie !");
+            alert("Inscription validée avec succès !");
+            // Redirection vers ta formation
             window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
         }
     } catch (err) {
-        console.error("Erreur technique:", err);
-        alert("Une erreur de connexion est survenue.");
+        alert("Une erreur technique est survenue lors de la connexion.");
     }
 }
