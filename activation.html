@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKFLOW - Activation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .box { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; text-align: center; border: 1px solid #334155; }
+        .step { display: none; }
+        .step.active { display: block; }
+        h2 { color: #38bdf8; }
+        .viral-notice { background: #0c4a6e; border-left: 4px solid #38bdf8; padding: 15px; text-align: left; margin: 20px 0; font-size: 0.9em; }
+        .btn { display: block; width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 16px; }
+        .btn-yt { background: #ef4444; color: white; }
+        .btn-next { background: #0ea5e9; color: white; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: white; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <div id="step1" class="step active">
+        <h2>🚀 Propulse ton Business</h2>
+        <div class="viral-notice">
+            <b>Pourquoi Liker et Commenter ?</b><br>
+            YouTube surveille ton interaction. Si tu likes et commentes, l'algorithme reçoit un <b>"Signal de Feu"</b> 🔥.<br><br>
+            Résultat : La vidéo devient virale et les nouveaux s'inscrivent <b>en dessous de toi</b> !
+        </div>
+        <button class="btn btn-next" onclick="nextStep(2)">OUI, j'ai propulsé la vidéo !</button>
+        <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-yt">Action : Like & Commente ici</a>
+    </div>
+
+    <div id="step2" class="step">
+        <h2>Finalise ton Activation</h2>
+        <p>Entre ton nom d'utilisateur utilisé à l'inscription :</p>
+        <input type="text" id="my_user" placeholder="Ton nom d'utilisateur">
+        <p>Colle ton lien Victory Automatic (Généalogie OKONINGANA) :</p>
+        <input type="url" id="v_link" placeholder="https://victoryautomatic.com/...">
+        <button class="btn btn-next" onclick="activer()">Activer mon lien LinkFlow</button>
+    </div>
+
+    <div id="step3" class="step">
+        <div style="background: #064e3b; color: #34d399; padding: 20px; border-radius: 10px;">
+            <h3>C'est validé ! 🎉</h3>
+            <p>Ton lien de recrutement personnel :</p>
+            <div id="final_url" style="background: #0f172a; padding: 15px; border-radius: 8px; word-break: break-all; font-weight: bold; color: #38bdf8;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
+
+    function nextStep(s) {
+        document.querySelectorAll('.step').forEach(div => div.classList.remove('active'));
+        document.getElementById('step' + s).classList.add('active');
+    }
+
+    async function activer() {
+        const user = document.getElementById('my_user').value.trim().toLowerCase().replace(/\s/g, '');
+        const link = document.getElementById('v_link').value.trim();
+        const racineOk = "okoningana";
+
+        if(!user || !link) { alert("Remplis tout !"); return; }
+        if(!link.includes(racineOk)) { alert("❌ Lien non conforme à la racine " + racineOk); return; }
+
+        const { error } = await _supabase.from('users').update({ victory_link: link, is_active: true }).eq('ref_code', user);
+        
+        if (error) { alert("Utilisateur inconnu."); } 
+        else {
+            document.getElementById('final_url').innerText = "https://eldamama.github.io/LINKFLOW002/?ref=" + user;
+            nextStep(3);
+        }
+    }
+</script>
+</body>
+</html>
