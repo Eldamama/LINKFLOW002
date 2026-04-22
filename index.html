@@ -8,27 +8,30 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
-        h2 { color: #38bdf8; }
+        .logo { width: 120px; height: auto; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h1 { color: #38bdf8; font-size: 22px; margin-bottom: 20px; letter-spacing: 1px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn:hover { background: #0284c7; }
+        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background: #0284c7; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🔗 Inscription LINKFLOW</h2>
-    <p>Rejoins la matrice racine</p>
+    <img src="logo.jpg" alt="LINKFLOW" class="logo">
+    <h1>LINKFLOW SYSTEM</h1>
+    <p style="font-size: 0.9em; color: #94a3b8;">Rejoins la matrice racine</p>
+    
     <input type="text" id="username" placeholder="Nom d'utilisateur">
     <input type="email" id="email" placeholder="Ton Email">
     <input type="text" id="ref_code" placeholder="Code de parrainage" readonly>
+    
     <button class="btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
 </div>
 
 <script>
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
 
-    // Récupérer le code ref dans l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const parrain = urlParams.get('ref') || "okoningana";
     document.getElementById('ref_code').value = parrain;
@@ -44,14 +47,13 @@
             username: user, 
             email: mail, 
             referred_by: ref,
-            ref_code: user.toLowerCase().replace(/\s/g, '') // Crée un code auto
+            ref_code: user.toLowerCase().replace(/\s/g, '')
         }]);
 
         if (error) {
             alert("Erreur ou email déjà utilisé.");
         } else {
-            alert("Inscription réussie ! Direction YouTube pour activer ton lien.");
-            // REDIRECTION VERS YOUTUBE
+            alert("Inscription réussie ! Direction YouTube pour le signal de feu.");
             window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
         }
     }
