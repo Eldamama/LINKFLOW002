@@ -3,59 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKFLOW - Inscription</title>
+    <title>LINKFLOW - Global</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
-        .logo { width: 120px; height: auto; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h1 { color: #38bdf8; font-size: 22px; margin-bottom: 20px; letter-spacing: 1px; }
+        .logo { width: 100px; height: auto; border-radius: 15px; margin-bottom: 15px; }
+        select { width: 100%; padding: 10px; margin-bottom: 20px; border-radius: 8px; background: #334155; color: white; border: 1px solid #38bdf8; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn:hover { background: #0284c7; transform: translateY(-2px); }
+        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <img src="logo.jpg" alt="LINKFLOW" class="logo">
-    <h1>LINKFLOW SYSTEM</h1>
-    <p style="font-size: 0.9em; color: #94a3b8;">Rejoins la matrice racine</p>
+    
+    <label>🌍 Language / Langue / Monoko</label>
+    <select id="langSelect" onchange="changeLang()">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+        <option value="sw">Swahili</option>
+        <option value="ln">Lingala</option>
+    </select>
+
+    <h1 id="t-title">🔗 Inscription LINKFLOW</h1>
+    <p id="t-subtitle" style="color: #94a3b8;">Rejoins la matrice racine</p>
     
     <input type="text" id="username" placeholder="Nom d'utilisateur">
-    <input type="email" id="email" placeholder="Ton Email">
-    <input type="text" id="ref_code" placeholder="Code de parrainage" readonly>
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="ref_code" readonly>
     
-    <button class="btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
+    <button class="btn" id="t-btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
 </div>
 
 <script>
+    const translations = {
+        fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT" },
+        en: { title: "🔗 LINKFLOW Registration", sub: "Join the root matrix", btn: "REGISTER NOW" },
+        es: { title: "🔗 Registro LINKFLOW", sub: "Únete a la matriz raíz", btn: "REGISTRARSE AHORA" },
+        pt: { title: "🔗 Registro LINKFLOW", sub: "Junte-se à matriz raiz", btn: "REGISTRE-SE AGORA" },
+        sw: { title: "🔗 Usajili wa LINKFLOW", sub: "Jiunge na tumbo la mizizi", btn: "JISAJILI SASA" },
+        ln: { title: "🔗 Kokoma nkombo LINKFLOW", sub: "Kota na kati ya mobu", btn: "KOMISA NKOMBO SASA" }
+    };
+
+    function changeLang() {
+        const l = document.getElementById('langSelect').value;
+        localStorage.setItem('linkflow_lang', l);
+        document.getElementById('t-title').innerText = translations[l].title;
+        document.getElementById('t-subtitle').innerText = translations[l].sub;
+        document.getElementById('t-btn').innerText = translations[l].btn;
+    }
+
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
 
     const urlParams = new URLSearchParams(window.location.search);
-    const parrain = urlParams.get('ref') || "okoningana";
-    document.getElementById('ref_code').value = parrain;
+    document.getElementById('ref_code').value = urlParams.get('ref') || "okoningana";
 
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
         const mail = document.getElementById('email').value.trim();
         const ref = document.getElementById('ref_code').value;
 
-        if(!user || !mail) { alert("Remplis tout !"); return; }
-
         const { error } = await _supabase.from('users').insert([{ 
-            username: user, 
-            email: mail, 
-            referred_by: ref,
+            username: user, email: mail, referred_by: ref,
             ref_code: user.toLowerCase().replace(/\s/g, '')
         }]);
 
-        if (error) {
-            alert("Erreur ou email déjà utilisé.");
-        } else {
-            alert("Inscription réussie ! Direction YouTube pour le signal de feu.");
-            window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4";
-        }
+        if (error) { alert("Erreur / Error"); } 
+        else { window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4"; }
     }
 </script>
 </body>
