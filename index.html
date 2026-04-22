@@ -13,6 +13,8 @@
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .btn:hover { background: #0284c7; }
+        .login-link { margin-top: 20px; font-size: 0.85em; color: #94a3b8; }
+        .login-link a { color: #38bdf8; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -20,7 +22,6 @@
 <div class="container">
     <img src="logo.jpg" alt="LINKFLOW" class="logo">
     
-    <label style="display:block; margin-bottom: 8px; font-size: 0.8em; color: #94a3b8;">🌍 Choisissez votre langue / Choose Language</label>
     <select id="langSelect" onchange="changeLang()">
         <option value="fr">Français</option>
         <option value="en">English</option>
@@ -38,16 +39,21 @@
     <input type="text" id="ref_code" readonly style="color: #38bdf8; font-weight: bold;">
     
     <button class="btn" id="t-btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
+
+    <p class="login-link">
+        <span id="t-already">Déjà inscrit ?</span> 
+        <a href="activation.html" id="t-login">Se connecter</a>
+    </p>
 </div>
 
 <script>
     const translations = {
-        fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT", wait: "Veuillez patienter..." },
-        en: { title: "🔗 LINKFLOW Registration", sub: "Join the root matrix", btn: "REGISTER NOW", wait: "Please wait..." },
-        sw: { title: "🔗 Usajili wa LINKFLOW", sub: "Jiunge na tumbo la mizizi", btn: "JISAJILI SASA", wait: "Tafadhali subiri..." },
-        ln: { title: "🔗 Kokoma nkombo LINKFLOW", sub: "Kota na kati ya mobu", btn: "KOMISA NKOMBO SASA", wait: "Zela moke..." },
-        es: { title: "🔗 Registro LINKFLOW", sub: "Únete a la matriz raíz", btn: "REGISTRARSE AHORA", wait: "Espere por favor..." },
-        pt: { title: "🔗 Registro LINKFLOW", sub: "Junte-se à matriz raiz", btn: "REGISTRE-SE AGORA", wait: "Por favor aguarde..." }
+        fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT", wait: "Patientez...", already: "Déjà inscrit ?", login: "Se connecter" },
+        en: { title: "🔗 LINKFLOW Registration", sub: "Join the root matrix", btn: "REGISTER NOW", wait: "Wait...", already: "Already registered?", login: "Login" },
+        sw: { title: "🔗 Usajili wa LINKFLOW", sub: "Jiunge na tumbo la mizizi", btn: "JISAJILI SASA", wait: "Subiri...", already: "Umejisajili tayari?", login: "Ingia" },
+        ln: { title: "🔗 Kokoma nkombo LINKFLOW", sub: "Kota na kati ya mobu", btn: "KOMISA NKOMBO SASA", wait: "Zela...", already: "Okomisaki nkombo ?", login: "Kota awa" },
+        es: { title: "🔗 Registro LINKFLOW", sub: "Únete a la matriz raíz", btn: "REGISTRARSE AHORA", wait: "Espere...", already: "¿Ya estás registrado?", login: "Iniciar sesión" },
+        pt: { title: "🔗 Registro LINKFLOW", sub: "Junte-se à matriz raiz", btn: "REGISTRE-SE AGORA", wait: "Aguarde...", already: "Já tem conta?", login: "Entrar" }
     };
 
     function changeLang() {
@@ -56,6 +62,8 @@
         document.getElementById('t-title').innerText = translations[l].title;
         document.getElementById('t-subtitle').innerText = translations[l].sub;
         document.getElementById('t-btn').innerText = translations[l].btn;
+        document.getElementById('t-already').innerText = translations[l].already;
+        document.getElementById('t-login').innerText = translations[l].login;
     }
 
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
@@ -67,28 +75,19 @@
         const user = document.getElementById('username').value.trim();
         const mail = document.getElementById('email').value.trim();
         const ref = document.getElementById('ref_code').value;
-        const currentLang = document.getElementById('langSelect').value;
+        const l = document.getElementById('langSelect').value;
 
-        if(!user || !mail) { alert("Error: Field empty"); return; }
-
-        document.getElementById('t-btn').innerText = translations[currentLang].wait;
+        if(!user || !mail) { alert("Champs vides / Empty fields"); return; }
+        document.getElementById('t-btn').innerText = translations[l].wait;
 
         const { error } = await _supabase.from('users').insert([{ 
-            username: user, 
-            email: mail, 
-            referred_by: ref,
+            username: user, email: mail, referred_by: ref,
             ref_code: user.toLowerCase().replace(/\s/g, '')
         }]);
 
-        if (error) { 
-            alert("Erreur: Email déjà utilisé ou problème réseau."); 
-            document.getElementById('t-btn').innerText = translations[currentLang].btn;
-        } else { 
-            window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4"; 
-        }
+        if (error) { alert("Erreur / Error"); document.getElementById('t-btn').innerText = translations[l].btn; } 
+        else { window.location.href = "https://www.youtube.com/watch?v=9uPybhkqYw4"; }
     }
-    
-    // Initialisation
     changeLang();
 </script>
 </body>
