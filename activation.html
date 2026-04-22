@@ -8,13 +8,13 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .box { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; text-align: center; border: 1px solid #334155; }
-        .logo-small { width: 60px; margin-bottom: 10px; }
+        .logo-small { width: 70px; height: auto; border-radius: 10px; margin-bottom: 15px; }
         .step { display: none; } .step.active { display: block; }
-        .viral-notice { background: #0c4a6e; border-left: 4px solid #38bdf8; padding: 15px; text-align: left; margin: 20px 0; font-size: 0.85em; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .viral-notice { background: #0c4a6e; border-left: 4px solid #38bdf8; padding: 15px; text-align: left; margin: 20px 0; font-size: 0.9em; line-height: 1.4; }
+        .btn { display: block; width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 16px; transition: 0.3s; }
         .btn-yt { background: #ef4444; color: white; }
         .btn-next { background: #0ea5e9; color: white; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; box-sizing: border-box; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: white; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -27,29 +27,36 @@
         <div id="t-notice" class="viral-notice">
             YouTube surveille ton interaction. Like et commente pour le <b>"Signal de Feu"</b> 🔥. La vidéo deviendra virale pour toi !
         </div>
-        <button class="btn btn-next" id="t-btn-next" onclick="nextStep(2)">OUI, j'ai propulsé !</button>
-        <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-yt" id="t-btn-yt">Action : Like & Commente</a>
+        <button class="btn btn-next" id="t-btn-next" onclick="nextStep(2)">OUI, j'ai propulsé la vidéo !</button>
+        <a href="https://www.youtube.com/watch?v=9uPybhkqYw4" target="_blank" class="btn btn-yt" id="t-btn-yt">Action : Like & Commente ici</a>
     </div>
 
     <div id="step2" class="step">
         <h2 id="t-final">Finalise ton Activation</h2>
+        <p id="t-user-label">Entre ton nom d'utilisateur :</p>
         <input type="text" id="my_user" placeholder="User Name">
-        <input type="url" id="v_link" placeholder="Lien Victory Automatic">
-        <button class="btn btn-next" id="t-btn-act" onclick="activer()">Activer mon lien</button>
+        <p id="t-link-label">Lien Victory (Généalogie OKONINGANA) :</p>
+        <input type="url" id="v_link" placeholder="https://victoryautomatic.com/...">
+        <button class="btn btn-next" id="t-btn-act" onclick="activer()">Activer mon lien LinkFlow</button>
     </div>
 
     <div id="step3" class="step">
-        <h3 id="t-valid">C'est validé ! 🎉</h3>
-        <div id="final_url" style="background: #0f172a; padding: 15px; border-radius: 8px; word-break: break-all; color: #38bdf8; font-weight: bold;"></div>
+        <div style="background: #064e3b; color: #34d399; padding: 20px; border-radius: 10px;">
+            <h3 id="t-valid">C'est validé ! 🎉</h3>
+            <p id="t-share">Ton lien de recrutement personnel :</p>
+            <div id="final_url" style="background: #0f172a; padding: 15px; border-radius: 8px; word-break: break-all; font-weight: bold; color: #38bdf8;"></div>
+        </div>
     </div>
 </div>
 
 <script>
     const trans = {
-        fr: { propulse: "🚀 Propulse ton Business", notice: "YouTube surveille ton interaction. Like et commente pour le Signal de Feu 🔥.", next: "OUI, j'ai propulsé !", yt: "Action : Like & Commente", final: "Finalise ton Activation", act: "Activer mon lien", valid: "C'est validé ! 🎉" },
-        ln: { propulse: "🚀 Tombola Business na yo", notice: "YouTube ezali kotala yo. Sala Like mpe Commente mpo na Signal ya Moto 🔥.", next: "IYO, nasali yango !", yt: "Action : Sala Like na Commente", final: "Silisa Activation na yo", act: "Fungola lien na ngai", valid: "Esimbi mpenza ! 🎉" },
-        en: { propulse: "🚀 Boost your Business", notice: "YouTube tracks interaction. Like and comment for the Fire Signal 🔥.", next: "YES, I boosted it!", yt: "Action: Like & Comment", final: "Finalize Activation", act: "Activate my link", valid: "It's validated! 🎉" }
-        // On peut ajouter es, pt, sw ici sur le même modèle
+        fr: { propulse: "🚀 Propulse ton Business", notice: "YouTube surveille ton interaction. Like et commente pour le Signal de Feu 🔥. La vidéo deviendra virale !", next: "OUI, j'ai propulsé la vidéo !", yt: "Action : Like & Commente ici", final: "Finalise ton Activation", user: "Entre ton nom d'utilisateur :", link: "Lien Victory (Racine OKONINGANA) :", act: "Activer mon lien LinkFlow", valid: "C'est validé ! 🎉", share: "Ton lien de recrutement :" },
+        en: { propulse: "🚀 Boost your Business", notice: "YouTube tracks your interaction. Like and comment for the Fire Signal 🔥. The video will go viral for you!", next: "YES, I boosted the video!", yt: "Action: Like & Comment here", final: "Finalize Activation", user: "Enter your username:", link: "Victory Link (OKONINGANA Root):", act: "Activate my LinkFlow link", valid: "Validated! 🎉", share: "Your recruitment link:" },
+        sw: { propulse: "🚀 Imarisha Biashara Yako", notice: "YouTube inafuatilia mwingiliano wako. Like na ucomment kwa Signal ya Moto 🔥.", next: "NDIYO, nimeimarisha!", yt: "Hatua: Like & Comment hapa", final: "Kamilisha Uwezeshaji", user: "Ingiza jina lako la mtumiaji:", link: "Kiungo cha Victory (Mzizi wa OKONINGANA):", act: "Washa kiungo changu cha LinkFlow", valid: "Imethibitishwa! 🎉", share: "Kiungo chako cha kuajiri:" },
+        ln: { propulse: "🚀 Tombola Business na yo", notice: "YouTube ezali kotala yo. Sala Like mpe Commente mpo na Signal ya Moto 🔥.", next: "IYO, nasali yango !", yt: "Action : Sala Like na Commente awa", final: "Silisa Activation na yo", user: "Tia nkombo na yo ya mosali:", link: "Lien Victory (Mobu OKONINGANA):", act: "Fungola lien na ngai LinkFlow", valid: "Esimbi mpenza ! 🎉", share: "Lien na yo ya recrutement :" },
+        es: { propulse: "🚀 Impulsa tu Negocio", notice: "YouTube rastrea tu interacción. Dale like y comenta para la Señal de Fuego 🔥.", next: "¡SÍ, impulsé el video!", yt: "Acción: Like y Comentar aquí", final: "Finalizar Activación", user: "Tu nombre de usuario:", link: "Enlace Victory (Raíz OKONINGANA):", act: "Activar mi enlace LinkFlow", valid: "¡Validado! 🎉", share: "Tu enlace de reclutamiento:" },
+        pt: { propulse: "🚀 Impulsione seu Negócio", notice: "O YouTube rastreia sua interação. Curta e comente para o Sinal de Fogo 🔥.", next: "SIM, eu impulsionei o vídeo!", yt: "Ação: Curtir e Comentar aqui", final: "Finalizar Ativação", user: "Seu nome de usuário:", link: "Link Victory (Raiz OKONINGANA):", act: "Ativar meu link LinkFlow", valid: "Validado! 🎉", share: "Seu link de recrutamento:" }
     };
 
     const userLang = localStorage.getItem('linkflow_lang') || 'fr';
@@ -60,8 +67,11 @@
     document.getElementById('t-btn-next').innerText = text.next;
     document.getElementById('t-btn-yt').innerText = text.yt;
     document.getElementById('t-final').innerText = text.final;
+    document.getElementById('t-user-label').innerText = text.user;
+    document.getElementById('t-link-label').innerText = text.link;
     document.getElementById('t-btn-act').innerText = text.act;
     document.getElementById('t-valid').innerText = text.valid;
+    document.getElementById('t-share').innerText = text.share;
 
     function nextStep(s) {
         document.querySelectorAll('.step').forEach(div => div.classList.remove('active'));
@@ -71,13 +81,18 @@
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
 
     async function activer() {
-        const user = document.getElementById('my_user').value.trim().toLowerCase();
+        const user = document.getElementById('my_user').value.trim().toLowerCase().replace(/\s/g, '');
         const link = document.getElementById('v_link').value.trim();
-        if(!link.includes("okoningana")) { alert("Lien non valide"); return; }
+        if(!user || !link) { alert("Fill all fields"); return; }
+        if(!link.includes("okoningana")) { alert("❌ Root mismatch / Racine incorrecte"); return; }
         
-        await _supabase.from('users').update({ victory_link: link, is_active: true }).eq('ref_code', user);
-        document.getElementById('final_url').innerText = "https://eldamama.github.io/LINKFLOW002/?ref=" + user;
-        nextStep(3);
+        const { error } = await _supabase.from('users').update({ victory_link: link, is_active: true }).eq('ref_code', user);
+        
+        if (error) { alert("User not found / Utilisateur inconnu"); } 
+        else {
+            document.getElementById('final_url').innerText = "https://eldamama.github.io/LINKFLOW002/?ref=" + user;
+            nextStep(3);
+        }
     }
 </script>
 </body>
