@@ -1,16 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKFLOW - Système</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* DESIGN GLOBAL */
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { background: #0284c7; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+        
+        .hidden { display: none; }
+
+        /* CADRE ROUGE CLIGNOTANT */
+        .flash-frame {
+            border: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            animation: blinker 0.6s infinite alternate;
+        }
+        @keyframes blinker {
+            from { border-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+            to { border-color: transparent; }
+        }
+
+        #timer-display { font-size: 1.8em; font-weight: bold; color: #fbbf24; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
 <div class="container">
     <div id="step-registration">
         <h2>🔗 Inscription LINKFLOW</h2>
-        <input type="text" id="username" placeholder="Pseudo">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="ref_code" readonly>
-        <button class="btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
+        <input type="text" id="username" placeholder="Votre Pseudo">
+        <input type="email" id="email" placeholder="Votre Email">
+        <input type="text" id="ref_code" value="okoningana" readonly style="color: #94a3b8;">
+        <button class="btn" id="btn-reg" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
     </div>
 
     <div id="step-youtube" class="hidden">
         <div class="flash-frame">
-            <h3 style="color: #ef4444;">COMPTE CRÉÉ AVEC SUCCÈS !</h3>
-            <p>Imprégnez-vous de cette opportunité...</p>
+            <h3 style="color: #ef4444; margin: 0;">COMPTE CRÉÉ AVEC SUCCÈS !</h3>
+            <p>Imprégnez-vous de cette opportunité pendant 10s...</p>
         </div>
         
         <button id="btn-video" class="btn hidden" onclick="handleYoutube()">VOIR LA VIDÉO (3 min)</button>
@@ -19,8 +56,78 @@
 
     <div id="step-victory" class="hidden">
         <h3>✅ Temps Écoulé</h3>
-        <button class="btn" onclick="openVictory()">S'INSCRIRE SUR VICTORY</button>
-        <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory ici">
+        <p>Inscrivez-vous sur Victory via votre parrain :</p>
+        <button class="btn" onclick="openVictory()" style="background: #22c55e;">S'INSCRIRE SUR VICTORY</button>
+        <hr style="margin: 20px 0; border: 0.5px solid #334155;">
+        <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory complet ici">
         <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
     </div>
 </div>
+
+<script>
+    // Configuration Supabase
+    const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
+    const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
+    let timeLeft = 180;
+
+    async function sinscrire() {
+        const user = document.getElementById('username').value.trim();
+        const mail = document.getElementById('email').value.trim();
+        const parrain = document.getElementById('ref_code').value;
+
+        if(!user || !mail) { alert("Veuillez remplir les champs."); return; }
+
+        document.getElementById('btn-reg').innerText = "Chargement...";
+
+        const { error } = await _supabase.from('users').insert([{ 
+            username: user, email: mail, referred_by: parrain, ref_code: "TEMP_" + user 
+        }]);
+
+        if (error) {
+            alert("Erreur: " + error.message);
+            document.getElementById('btn-reg').innerText = "S'INSCRIRE MAINTENANT";
+        } else {
+            document.getElementById('step-registration').classList.add('hidden');
+            document.getElementById('step-youtube').classList.remove('hidden');
+
+            // Délai de 10 secondes pour le cadre rouge avant d'afficher le bouton vidéo
+            setTimeout(() => {
+                document.getElementById('btn-video').classList.remove('hidden');
+            }, 10000);
+        }
+    }
+
+    function handleYoutube() {
+        window.open(LIEN_VIDEO, "_blank");
+        
+        const btn = document.getElementById('btn-video');
+        const display = document.getElementById('timer-display');
+        
+        btn.disabled = true;
+        btn.innerText = "Soutien en cours...";
+        display.classList.remove('hidden');
+
+        const chrono = setInterval(() => {
+            timeLeft--;
+            display.innerText = timeLeft + "s";
+            if(timeLeft <= 0) {
+                clearInterval(chrono);
+                document.getElementById('step-youtube').classList.add('hidden');
+                document.getElementById('step-victory').classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    function openVictory() {
+        const parrain = document.getElementById('ref_code').value;
+        window.open(`https://victory-automatic.com/register/${parrain}`, "_blank");
+    }
+
+    async function activerMonLien() {
+        // Logique d'activation à compléter selon vos besoins Supabase
+        alert("Lien Victory enregistré !");
+    }
+</script>
+
+</body>
+</html>
