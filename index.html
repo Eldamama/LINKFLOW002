@@ -1,24 +1,159 @@
-<div id="step-youtube" class="hidden">
-    <div class="flash-frame" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
-        <h3 style="color: #ef4444; margin-bottom: 15px;">🔥 ACTION REQUISE 🔥</h3>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINKFLOW - Activation Matrix</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* DESIGN GLOBAL DARK MODE */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         
-        <p style="font-size: 1.1em; line-height: 1.5; margin-bottom: 10px;">
-            Pour obtenir votre lien, interagissez avec la vidéo (Like + Commentaire).
-        </p>
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; }
+        .btn:hover { background: #0284c7; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
         
-        <p style="font-size: 0.95em; color: #cbd5e1; font-style: italic;">
-            Votre interaction force l'algorithme YouTube à <strong>propulser</strong> cette vidéo. 
-            Une vidéo virale attire des milliers de nouveaux adhérents dans <strong>votre</strong> matrice.
-        </p>
+        .hidden { display: none; }
 
-        <div style="background: #ef4444; color: white; padding: 5px; margin-top: 15px; font-weight: bold; border-radius: 5px;">
-            Vidéo Virale = Croissance Explosive pour TOUS !
-        </div>
+        /* LE CARRÉ CLIGNOTANT (FOND BLANC / TEXTE NOIR) */
+        .flash-frame-white {
+            background-color: white; 
+            color: black;            
+            border: 5px solid #ef4444; 
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            animation: blink-border 0.6s infinite alternate;
+        }
+
+        @keyframes blink-border {
+            from { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+            to { border-color: transparent; box-shadow: 0 0 0px transparent; }
+        }
+
+        .highlight-red { color: #ef4444; font-weight: bold; text-transform: uppercase; margin-top: 0; }
+        #timer-display { font-size: 2.5em; font-weight: bold; color: #fbbf24; margin: 15px 0; }
+        #wait-message { color: #94a3b8; font-style: italic; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-registration">
+        <h2>🔗 Inscription LINKFLOW</h2>
+        <input type="text" id="username" placeholder="Pseudo">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.7;">
+        <button class="btn" id="btn-reg" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
     </div>
-    
-    <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">
-        J'AI COMPRIS, VOIR LA VIDÉO
-    </button>
-    
-    <div id="timer-display" class="hidden">180s</div>
+
+    <div id="step-youtube" class="hidden">
+        <div class="flash-frame-white">
+            <h3 class="highlight-red">🔥 Action Requise 🔥</h3>
+            
+            <p style="font-size: 1.05em; margin-bottom: 15px;">
+                Interagissez avec la vidéo pour obtenir votre lien. 
+            </p>
+            
+            <p style="font-size: 0.9em; line-height: 1.4;">
+                L'interaction incite l'algorithme YouTube à <strong>propulser</strong> la vidéo. 
+                Une vidéo <strong>virale</strong> signifie des nouveaux adhérents en masse pour vous !
+            </p>
+
+            <div style="margin-top: 12px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; color: #ef4444;">
+                VIRALITÉ = SUCCÈS COLLECTIF
+            </div>
+        </div>
+        
+        <p id="wait-message">Veuillez lire attentivement... (10s)</p>
+        
+        <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">
+            J'AI COMPRIS, VOIR LA VIDÉO
+        </button>
+        
+        <div id="timer-display" class="hidden">180s</div>
+    </div>
+
+    <div id="step-victory" class="hidden">
+        <h3 style="color: #22c55e;">✅ Soutien Validé</h3>
+        <p>Inscrivez-vous maintenant sur Victory :</p>
+        <button class="btn" onclick="openVictory()" style="background: #16a34a;">S'INSCRIRE SUR VICTORY</button>
+        <hr style="margin: 25px 0; border: 0.1px solid #334155;">
+        <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory ici">
+        <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
+    </div>
 </div>
+
+<script>
+    // Configuration Supabase
+    const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
+    const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
+    let timeLeft = 180;
+
+    async function sinscrire() {
+        const user = document.getElementById('username').value.trim();
+        const mail = document.getElementById('email').value.trim();
+        const parrain = document.getElementById('ref_code').value;
+
+        if(!user || !mail) { alert("Champs vides !"); return; }
+        document.getElementById('btn-reg').innerText = "Création du compte...";
+
+        const { error } = await _supabase.from('users').insert([{ 
+            username: user, email: mail, referred_by: parrain, ref_code: "TEMP_" + user 
+        }]);
+
+        if (error) {
+            alert("Erreur : " + error.message);
+            document.getElementById('btn-reg').innerText = "S'INSCRIRE MAINTENANT";
+        } else {
+            // Afficher le message d'attente
+            document.getElementById('step-registration').classList.add('hidden');
+            document.getElementById('step-youtube').classList.remove('hidden');
+
+            // Délai de 10 secondes avant d'afficher le bouton YouTube
+            setTimeout(() => {
+                document.getElementById('btn-video').classList.remove('hidden');
+                document.getElementById('wait-message').classList.add('hidden');
+            }, 10000);
+        }
+    }
+
+    function handleYoutube() {
+        window.open(LIEN_VIDEO, "_blank");
+        
+        const btn = document.getElementById('btn-video');
+        const display = document.getElementById('timer-display');
+        
+        btn.disabled = true;
+        btn.innerText = "Analyse de l'interaction...";
+        display.classList.remove('hidden');
+
+        const chrono = setInterval(() => {
+            timeLeft--;
+            display.innerText = timeLeft + "s";
+            if(timeLeft <= 0) {
+                clearInterval(chrono);
+                document.getElementById('step-youtube').classList.add('hidden');
+                document.getElementById('step-victory').classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    function openVictory() {
+        const parrain = document.getElementById('ref_code').value;
+        window.open(`https://victory-automatic.com/register/${parrain}`, "_blank");
+    }
+
+    async function activerMonLien() {
+        const link = document.getElementById('victory-link-input').value.trim();
+        if(!link) return alert("Veuillez coller votre lien Victory");
+        alert("Système LinkFlow activé !");
+        // Ici vous pouvez ajouter la redirection vers l'étape de partage
+    }
+</script>
+
+</body>
+</html>
