@@ -10,10 +10,9 @@
         .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
-        .btn:disabled { background: #475569; cursor: not-allowed; }
         .hidden { display: none; }
 
-        /* MESSAGE : NOIR / JAUNE / ROUGE VERTICAL */
+        /* DESIGN DEMANDÉ : NOIR / JAUNE / ROUGE VERTICAL */
         .msg-container {
             background-color: black; color: #fbbf24;
             border-left: 8px solid #ef4444; border-right: 8px solid #ef4444;
@@ -50,9 +49,13 @@
 
     <div id="step-victory" class="hidden">
         <h3 style="color: #22c55e;">✅ SOUTIEN TERMINÉ</h3>
-        <button class="btn" onclick="openVictory()" style="background: #16a34a;">J'OBTIENS MON LIEN VICTORY</button>
-        <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory ici" style="margin-top:20px;">
-        <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
+        <p>Cliquez sur le bouton vert pour créer votre compte Victory :</p>
+        <button class="btn" id="btn-victory-link" onclick="openVictory()" style="background: #16a34a;">J'OBTIENS MON LIEN VICTORY</button>
+        
+        <div style="margin-top: 25px; border-top: 1px dashed #475569; padding-top: 15px;">
+            <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory ici">
+            <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
+        </div>
     </div>
 </div>
 
@@ -63,11 +66,8 @@
 
     window.onload = function() {
         const step = localStorage.getItem('lf_step');
-        if (step === 'youtube') {
-            checkChronoPersistence();
-        } else if (step === 'victory') {
-            showStep('step-victory');
-        }
+        if (step === 'youtube') { startChronoLogic(); } 
+        else if (step === 'victory') { showStep('step-victory'); }
     };
 
     function showStep(id) {
@@ -79,20 +79,23 @@
 
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
-        if(!user) return alert("Pseudo requis");
-        const { error } = await _supabase.from('users').insert([{ username: user, email: document.getElementById('email').value, referred_by: document.getElementById('ref_code').value, ref_code: "TEMP_" + user }]);
+        const mail = document.getElementById('email').value.trim();
+        const parrain = document.getElementById('ref_code').value;
+        if(!user || !mail) return alert("Champs vides !");
+
+        const { error } = await _supabase.from('users').insert([{ username: user, email: mail, referred_by: parrain, ref_code: "TEMP_" + user }]);
 
         if (!error) {
+            localStorage.setItem('lf_parrain', parrain); // ON SAUVEGARDE LE PARRAIN ICI
             localStorage.setItem('lf_step', 'wait');
             showStep('step-youtube');
             setTimeout(() => { document.getElementById('btn-video').classList.remove('hidden'); }, 10000);
-        } else { alert("Pseudo déjà pris ou erreur réseau."); }
+        } else { alert("Erreur d'inscription."); }
     }
 
     function handleYoutube() {
         window.open(LIEN_VIDEO, "_blank");
-        const startTime = Date.now();
-        localStorage.setItem('lf_start_time', startTime);
+        localStorage.setItem('lf_start_time', Date.now());
         localStorage.setItem('lf_step', 'youtube');
         startChronoLogic();
     }
@@ -100,13 +103,10 @@
     function startChronoLogic() {
         showStep('step-youtube');
         document.getElementById('btn-video').disabled = true;
-        document.getElementById('btn-video').innerText = "Vidéo en cours...";
         document.getElementById('timer-display').classList.remove('hidden');
 
         chrono = setInterval(() => {
-            const now = Date.now();
-            const start = localStorage.getItem('lf_start_time');
-            const elapsed = Math.floor((now - start) / 1000);
+            const elapsed = Math.floor((Date.now() - localStorage.getItem('lf_start_time')) / 1000);
             const timeLeft = 180 - elapsed;
 
             if (timeLeft <= 0) {
@@ -119,21 +119,19 @@
         }, 1000);
     }
 
-    function checkChronoPersistence() {
-        const start = localStorage.getItem('lf_start_time');
-        if (start) {
-            const now = Date.now();
-            const elapsed = Math.floor((now - start) / 1000);
-            if (elapsed < 180) {
-                startChronoLogic();
-            } else {
-                localStorage.setItem('lf_step', 'victory');
-                showStep('step-victory');
-            }
-        }
+    // --- LA FONCTION CRITIQUE QUI CAUSAIT L'ERREUR ---
+    function openVictory() {
+        // On récupère le parrain depuis la mémoire locale pour être sûr qu'il n'est pas vide
+        const parrain = localStorage.getItem('lf_parrain') || "okoningana";
+        
+        // Construction ultra-sécurisée de l'URL
+        const baseUrl = "https://victory-automatic.com/register/";
+        const finalUrl = baseUrl + parrain.trim();
+        
+        console.log("Tentative d'ouverture de : " + finalUrl);
+        window.open(finalUrl, "_blank");
     }
 
-    function openVictory() { window.open(`https://victory-automatic.com/register/${document.getElementById('ref_code').value}`, "_blank"); }
     function activerMonLien() { alert("Système activé !"); }
 </script>
 </body>
