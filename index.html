@@ -6,25 +6,24 @@
     <title>LINKFLOW - Activation</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; flex-direction: column; }
+        .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
-        .btn-login { background: transparent; color: #94a3b8; border: 1px solid #334155; margin-top: 15px; font-size: 14px; }
-        .btn-login:hover { color: white; border-color: #0ea5e9; }
         
+        /* BOUTON CONNEXION / DECONNEXION */
+        .btn-alt { background: transparent; color: #94a3b8; border: 1px solid #334155; margin-top: 15px; font-size: 13px; cursor: pointer; padding: 8px; border-radius: 5px; }
+
         .hidden { display: none; }
 
-        /* MESSAGE : FOND NOIR, TEXTE JAUNE, CADRE VERTICAL ROUGE */
+        /* MESSAGE DESIGN JAUNE/NOIR/ROUGE */
         .msg-container {
             background-color: black; color: #fbbf24;
             border-left: 8px solid #ef4444; border-right: 8px solid #ef4444;
-            padding: 20px; border-radius: 8px; margin: 20px 0;
-            text-align: left;
+            padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;
             animation: blink-border-vert 0.7s infinite alternate;
         }
-
         @keyframes blink-border-vert {
             from { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
             to { border-color: transparent; }
@@ -42,15 +41,14 @@
         <input type="email" id="email" placeholder="Email">
         <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.6;">
         <button class="btn" id="btn-reg" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
-        
-        <button class="btn btn-login" onclick="toggleLogin()">DÉJÀ INSCRIT ? SE CONNECTER</button>
+        <button class="btn-alt" onclick="toggleLogin()">DÉJÀ INSCRIT ? SE CONNECTER</button>
     </div>
 
     <div id="step-youtube" class="hidden">
         <div class="msg-container">
-            <h3 style="color: #ef4444; margin-top: 0;">🔥 Action Requise 🔥</h3>
-            <p>Interagissez avec la vidéo (Like + Commentaire) pour propulser le système.</p>
-            <p style="font-size: 0.9em; font-style: italic;">Une vidéo virale attire des nouveaux adhérents pour VOUS !</p>
+            <h3 style="color: #ef4444; margin-top: 0;">🔥 ACTION REQUISE 🔥</h3>
+            <p>Interagissez avec la vidéo pour propulser le système.</p>
+            <p style="font-size: 0.9em; font-style: italic;">Une vidéo virale = nouveaux adhérents pour VOUS !</p>
         </div>
         <p id="wait-message" style="color:#94a3b8;">Lecture du protocole... (10s)</p>
         <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">VOIR LA VIDÉO ET DÉMARRER</button>
@@ -64,6 +62,7 @@
             <input type="text" id="victory-link-input" placeholder="Lien Victory complet ici">
             <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
         </div>
+        <button class="btn-alt" onclick="logout()">RETOUR / DÉCONNEXION</button>
     </div>
 </div>
 
@@ -73,6 +72,7 @@
     let timeLeft = parseInt(localStorage.getItem('lf_timer')) || 180;
     let chrono;
 
+    // --- VERIFICATION AU CHARGEMENT ---
     window.onload = function() {
         const step = localStorage.getItem('lf_step');
         if (step === 'youtube') {
@@ -80,11 +80,15 @@
             startChronoLogic();
         } else if (step === 'victory') {
             showStep('step-victory');
+        } else {
+            showStep('step-registration');
         }
     };
 
     function showStep(id) {
-        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById('step-registration').classList.add('hidden');
+        document.getElementById('step-youtube').classList.add('hidden');
+        document.getElementById('step-victory').classList.add('hidden');
         document.getElementById(id).classList.remove('hidden');
     }
 
@@ -105,16 +109,18 @@
                 document.getElementById('btn-video').classList.remove('hidden');
                 document.getElementById('wait-message').classList.add('hidden');
             }, 10000);
-        } else { alert(error.message); }
+        } else { alert("Erreur: Ce pseudo existe déjà."); }
     }
 
-    function toggleLogin() {
-        const user = prompt("Entrez votre pseudo pour vous connecter :");
-        if(user) {
+    async function toggleLogin() {
+        const user = prompt("Votre pseudo :");
+        if(!user) return;
+        const { data } = await _supabase.from('users').select('*').eq('username', user).single();
+        if(data) {
             localStorage.setItem('lf_user', user);
-            localStorage.setItem('lf_step', 'victory'); // On suppose qu'il a déjà fait la vidéo
+            localStorage.setItem('lf_step', 'victory');
             showStep('step-victory');
-        }
+        } else { alert("Pseudo inconnu."); }
     }
 
     function handleYoutube() {
@@ -126,6 +132,7 @@
     }
 
     function startChronoLogic() {
+        document.getElementById('timer-display').classList.remove('hidden');
         chrono = setInterval(() => {
             timeLeft--;
             document.getElementById('timer-display').innerText = timeLeft + "s";
@@ -138,8 +145,15 @@
         }, 1000);
     }
 
+    function logout() {
+        if(confirm("Voulez-vous vraiment vous déconnecter ?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
     function openVictory() { window.open(`https://victory-automatic.com/register/${document.getElementById('ref_code').value}`, "_blank"); }
-    function activerMonLien() { alert("Lien Victory enregistré !"); }
+    function activerMonLien() { alert("Lien validé !"); }
 </script>
 </body>
 </html>
