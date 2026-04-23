@@ -1,80 +1,9 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKFLOW - Global</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; position: relative; }
-        .logo { width: 100px; height: auto; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; background: #334155; color: white; border: 1px solid #38bdf8; cursor: pointer; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-        .btn:hover { background: #0284c7; }
-        .btn:disabled { background: #475569; cursor: not-allowed; }
-        .hidden { display: none; }
-        .login-link { margin-top: 20px; font-size: 0.85em; color: #94a3b8; }
-        #toast { position: fixed; top: 20px; background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    </style>
-</head>
-<body>
-
-<div id="toast"></div>
-
-<div class="container">
-    <img src="logo.jpg" alt="LINKFLOW" class="logo">
-    
-    <select id="langSelect" onchange="changeLang()">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-        <option value="sw">Swahili</option>
-        <option value="ln">Lingala</option>
-        <option value="es">Español</option>
-        <option value="pt">Português</option>
-    </select>
-
-    <div id="step-registration">
-        <h1 id="t-title">🔗 Inscription LINKFLOW</h1>
-        <p id="t-subtitle" style="color: #94a3b8; font-size: 0.9em;">Rejoins la matrice racine</p>
-        <input type="text" id="username" placeholder="Nom d'utilisateur">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="ref_code" readonly style="color: #38bdf8; font-weight: bold;">
-        <button class="btn" id="t-btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
-        <p class="login-link"><span id="t-already">Déjà inscrit ?</span> <a href="activation.html" style="color:#38bdf8">Se connecter</a></p>
-    </div>
-
-    <div id="step-youtube" class="hidden">
-        <h1 id="t-support">📺 Soutien Organique</h1>
-        <p style="color: #94a3b8; font-size: 0.9em;">Regardez la vidéo pour activer votre accès.</p>
-        <button class="btn" id="btn-video" onclick="handleYoutube()">VOIR LA VIDÉO (3 min)</button>
-        <p id="countdown" style="font-size: 1.2em; margin-top: 15px; color: #38bdf8; font-weight: bold;"></p>
-    </div>
-
-    <div id="step-victory" class="hidden">
-        <h1 style="color: #10b981;">✅ Félicitations</h1>
-        <p>Inscrivez-vous via votre parrain :</p>
-        <button class="btn" onclick="openVictory()">S'INSCRIRE SUR VICTORY</button>
-        
-        <div id="final-setup" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #334155;">
-            <p style="font-size: 0.85em; color: #94a3b8;">Une fois inscrit, collez votre LIEN Victory complet ici :</p>
-            <input type="text" id="victory-link-input" placeholder="https://victory-automatic.com/register/...">
-            <button class="btn" style="background: #10b981;" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
-        </div>
-    </div>
-
-    <div id="step-share" class="hidden">
-        <h1 style="color: #10b981;">🚀 SYSTÈME ACTIF</h1>
-        <p>Votre lien personnalisé est prêt :</p>
-        <button class="btn" onclick="shareLink()">PARTAGER MON LIEN</button>
-    </div>
-</div>
-
 <script>
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
     const MON_LIEN_RACINE = "okoningana";
     const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
+
+    let timeLeft = 180; // On définit le temps ici pour qu'il soit accessible partout
 
     const translations = {
         fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT", wait: "Patientez...", support: "📺 Soutien Organique", already: "Déjà inscrit ?" },
@@ -95,6 +24,23 @@
     const parrainID = urlParams.get('ref') || MON_LIEN_RACINE;
     document.getElementById('ref_code').value = parrainID;
 
+    // --- 1. FONCTION DU COMPTEUR ---
+    function demarrerCompteur() {
+        const countDisplay = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            timeLeft--;
+            if(countDisplay) countDisplay.innerText = timeLeft + "s";
+            
+            if(timeLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById('step-youtube').classList.add('hidden');
+                document.getElementById('step-victory').classList.remove('hidden');
+                showToast("Soutien validé !");
+            }
+        }, 1000);
+    }
+
+    // --- 2. INSCRIPTION ASYNC ---
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
         const mail = document.getElementById('email').value.trim();
@@ -112,31 +58,28 @@
             alert("Erreur : " + error.message); 
             document.getElementById('t-btn').innerText = translations[l].btn;
         } else {
-            showToast("Inscription réussie !");
+            // NOTIFICATION DE CRÉATION RÉUSSIE
+            showToast("Compte créé avec succès ! ✅");
+
+            // ON CACHE L'INSCRIPTION ET ON MONTRE LA VIDÉO
             document.getElementById('step-registration').classList.add('hidden');
             document.getElementById('step-youtube').classList.remove('hidden');
+
+            // LE CHRONO DÉMARRE TOUT DE SUITE APRÈS L'INSCRIPTION
+            demarrerCompteur();
         }
     }
 
+    // --- 3. GESTION YOUTUBE (SIMPLE OUVERTURE) ---
     function handleYoutube() {
         window.open(LIEN_VIDEO, "_blank");
-        let timeLeft = 180;
         const btn = document.getElementById('btn-video');
-        const countDisplay = document.getElementById('countdown');
+        btn.innerText = "VIDÉO OUVERTE ✅";
         btn.disabled = true;
-
-        const timer = setInterval(() => {
-            timeLeft--;
-            countDisplay.innerText = timeLeft + "s";
-            if(timeLeft <= 0) {
-                clearInterval(timer);
-                document.getElementById('step-youtube').classList.add('hidden');
-                document.getElementById('step-victory').classList.remove('hidden');
-                showToast("Soutien validé !");
-            }
-        }, 1000);
+        // Le chrono tourne déjà depuis l'inscription !
     }
 
+    // --- 4. VICTORY & ACTIVATION ---
     function openVictory() {
         window.open(`https://victory-automatic.com/register/${parrainID}`, "_blank");
     }
@@ -182,5 +125,3 @@
     
     changeLang();
 </script>
-</body>
-</html>
