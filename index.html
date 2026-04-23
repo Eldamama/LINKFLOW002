@@ -11,23 +11,26 @@
         
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
-        .btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn-login { background: transparent; color: #94a3b8; border: 1px solid #334155; margin-top: 15px; font-size: 14px; }
+        .btn-login:hover { color: white; border-color: #0ea5e9; }
         
         .hidden { display: none; }
 
-        /* CADRE BLANC CLIGNOTANT ROUGE */
-        .flash-frame-white {
-            background-color: white; color: black; border: 5px solid #ef4444; 
-            padding: 20px; border-radius: 12px; margin: 20px 0;
-            animation: blink-border 0.6s infinite alternate;
+        /* MESSAGE : FOND NOIR, TEXTE JAUNE, CADRE VERTICAL ROUGE */
+        .msg-container {
+            background-color: black; color: #fbbf24;
+            border-left: 8px solid #ef4444; border-right: 8px solid #ef4444;
+            padding: 20px; border-radius: 8px; margin: 20px 0;
+            text-align: left;
+            animation: blink-border-vert 0.7s infinite alternate;
         }
 
-        @keyframes blink-border {
-            from { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+        @keyframes blink-border-vert {
+            from { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
             to { border-color: transparent; }
         }
 
-        #timer-display { font-size: 3em; font-weight: bold; color: #fbbf24; margin: 20px 0; }
+        #timer-display { font-size: 3.5em; font-weight: bold; color: #fbbf24; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -39,37 +42,26 @@
         <input type="email" id="email" placeholder="Email">
         <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.6;">
         <button class="btn" id="btn-reg" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
+        
+        <button class="btn btn-login" onclick="toggleLogin()">DÉJÀ INSCRIT ? SE CONNECTER</button>
     </div>
 
     <div id="step-youtube" class="hidden">
-        <div class="flash-frame-white">
-            <h3 style="color: #ef4444; margin: 0;">🔥 ACTION REQUISE 🔥</h3>
-            <p style="font-size: 0.95em; line-height: 1.4; margin: 15px 0;">
-                Interagissez avec la vidéo (Like + Commentaire) pour propulser le système. 
-                Une vidéo <strong>virale</strong> = des nouveaux adhérents pour <strong>VOUS</strong> !
-            </p>
-            <div style="font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; color: #ef4444;">
-                VIRALITÉ = SUCCÈS COLLECTIF
-            </div>
+        <div class="msg-container">
+            <h3 style="color: #ef4444; margin-top: 0;">🔥 Action Requise 🔥</h3>
+            <p>Interagissez avec la vidéo (Like + Commentaire) pour propulser le système.</p>
+            <p style="font-size: 0.9em; font-style: italic;">Une vidéo virale attire des nouveaux adhérents pour VOUS !</p>
         </div>
-        
-        <p id="wait-message" style="color: #94a3b8;">Lecture du protocole... (10s)</p>
-        
-        <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">
-            VOIR LA VIDÉO ET DÉMARRER
-        </button>
-        
+        <p id="wait-message" style="color:#94a3b8;">Lecture du protocole... (10s)</p>
+        <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">VOIR LA VIDÉO ET DÉMARRER</button>
         <div id="timer-display" class="hidden">180s</div>
     </div>
 
     <div id="step-victory" class="hidden">
         <h3 style="color: #22c55e;">✅ SOUTIEN TERMINÉ</h3>
-        <p>Cliquez ci-dessous pour obtenir votre lien Victory Automatic :</p>
         <button class="btn" onclick="openVictory()" style="background: #16a34a;">J'OBTIENS MON LIEN VICTORY</button>
-        
-        <div style="margin-top: 30px; border-top: 1px dashed #475569; pt: 20px;">
-            <p style="font-size: 0.8em; color: #94a3b8;">Une fois votre lien Victory créé, collez-le ici :</p>
-            <input type="text" id="victory-link-input" placeholder="https://victory-automatic.com/register/...">
+        <div style="margin-top: 30px; border-top: 1px dashed #475569; padding-top: 20px;">
+            <input type="text" id="victory-link-input" placeholder="Lien Victory complet ici">
             <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
         </div>
     </div>
@@ -78,65 +70,76 @@
 <script>
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
     const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
-    let timeLeft = 180;
+    let timeLeft = parseInt(localStorage.getItem('lf_timer')) || 180;
+    let chrono;
+
+    window.onload = function() {
+        const step = localStorage.getItem('lf_step');
+        if (step === 'youtube') {
+            showStep('step-youtube');
+            startChronoLogic();
+        } else if (step === 'victory') {
+            showStep('step-victory');
+        }
+    };
+
+    function showStep(id) {
+        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
 
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
-        const mail = document.getElementById('email').value.trim();
-        if(!user || !mail) return alert("Champs vides !");
-
+        if(!user) return alert("Pseudo requis");
+        
         const { error } = await _supabase.from('users').insert([{ 
-            username: user, email: mail, referred_by: document.getElementById('ref_code').value, ref_code: "TEMP_" + user 
+            username: user, email: document.getElementById('email').value, 
+            referred_by: document.getElementById('ref_code').value, ref_code: "TEMP_" + user 
         }]);
 
         if (!error) {
-            document.getElementById('step-registration').classList.add('hidden');
-            document.getElementById('step-youtube').classList.remove('hidden');
-
-            // APPARITION DU BOUTON APRÈS 10 SECONDES
+            localStorage.setItem('lf_user', user);
+            localStorage.setItem('lf_step', 'wait');
+            showStep('step-youtube');
             setTimeout(() => {
                 document.getElementById('btn-video').classList.remove('hidden');
                 document.getElementById('wait-message').classList.add('hidden');
             }, 10000);
-        } else {
-            alert("Erreur : " + error.message);
+        } else { alert(error.message); }
+    }
+
+    function toggleLogin() {
+        const user = prompt("Entrez votre pseudo pour vous connecter :");
+        if(user) {
+            localStorage.setItem('lf_user', user);
+            localStorage.setItem('lf_step', 'victory'); // On suppose qu'il a déjà fait la vidéo
+            showStep('step-victory');
         }
     }
 
     function handleYoutube() {
-        // 1. Ouvrir YouTube
         window.open(LIEN_VIDEO, "_blank");
-        
-        // 2. Lancer le chrono IMMÉDIATEMENT au clic
-        const btn = document.getElementById('btn-video');
-        const display = document.getElementById('timer-display');
-        
-        btn.disabled = true;
-        btn.innerText = "ANALYSE EN COURS...";
-        display.classList.remove('hidden');
+        localStorage.setItem('lf_step', 'youtube');
+        document.getElementById('btn-video').disabled = true;
+        document.getElementById('timer-display').classList.remove('hidden');
+        startChronoLogic();
+    }
 
-        const chrono = setInterval(() => {
+    function startChronoLogic() {
+        chrono = setInterval(() => {
             timeLeft--;
-            display.innerText = timeLeft + "s";
-            
+            document.getElementById('timer-display').innerText = timeLeft + "s";
+            localStorage.setItem('lf_timer', timeLeft);
             if(timeLeft <= 0) {
                 clearInterval(chrono);
-                // 3. Afficher l'étape Victory quand le chrono finit
-                document.getElementById('step-youtube').classList.add('hidden');
-                document.getElementById('step-victory').classList.remove('hidden');
+                localStorage.setItem('lf_step', 'victory');
+                showStep('step-victory');
             }
         }, 1000);
     }
 
-    function openVictory() {
-        const parrain = document.getElementById('ref_code').value;
-        window.open(`https://victory-automatic.com/register/${parrain}`, "_blank");
-    }
-
-    function activerMonLien() {
-        alert("Lien en cours de validation...");
-    }
+    function openVictory() { window.open(`https://victory-automatic.com/register/${document.getElementById('ref_code').value}`, "_blank"); }
+    function activerMonLien() { alert("Lien Victory enregistré !"); }
 </script>
-
 </body>
 </html>
