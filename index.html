@@ -7,15 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
+        .container { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; position: relative; }
         .logo { width: 100px; height: auto; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; background: #334155; color: white; border: 1px solid #38bdf8; cursor: pointer; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { background: #0284c7; }
         .btn:disabled { background: #475569; cursor: not-allowed; }
         .hidden { display: none; }
-        .status-active { color: #10b981; font-weight: bold; }
-        #toast { position: fixed; top: 20px; background: #0ea5e9; padding: 10px 20px; border-radius: 8px; display: none; z-index: 100; }
+        .login-link { margin-top: 20px; font-size: 0.85em; color: #94a3b8; }
+        #toast { position: fixed; top: 20px; background: #0ea5e9; color: white; padding: 10px 20px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -41,44 +42,47 @@
         <input type="email" id="email" placeholder="Email">
         <input type="text" id="ref_code" readonly style="color: #38bdf8; font-weight: bold;">
         <button class="btn" id="t-btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
+        <p class="login-link"><span id="t-already">Déjà inscrit ?</span> <a href="activation.html" style="color:#38bdf8">Se connecter</a></p>
     </div>
 
     <div id="step-youtube" class="hidden">
-        <h1 id="t-step2">📺 Soutien Organique</h1>
-        <p>Regardez la vidéo pour activer votre accès</p>
+        <h1 id="t-support">📺 Soutien Organique</h1>
+        <p style="color: #94a3b8; font-size: 0.9em;">Regardez la vidéo pour activer votre accès.</p>
         <button class="btn" id="btn-video" onclick="handleYoutube()">VOIR LA VIDÉO (3 min)</button>
-        <p id="countdown" style="font-size: 1.2em; margin-top: 10px; color: #38bdf8;"></p>
+        <p id="countdown" style="font-size: 1.2em; margin-top: 15px; color: #38bdf8; font-weight: bold;"></p>
     </div>
 
     <div id="step-victory" class="hidden">
-        <h1>✅ Étape Finale</h1>
+        <h1 style="color: #10b981;">✅ Félicitations</h1>
+        <p>Inscrivez-vous via votre parrain :</p>
         <button class="btn" onclick="openVictory()">S'INSCRIRE SUR VICTORY</button>
         
-        <div id="final-setup" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #334155;">
-            <p style="font-size: 0.8em; color: #94a3b8;">Collez votre LIEN Victory complet ici :</p>
-            <input type="text" id="victory-link-input" placeholder="https://victory-automatic.com/...">
+        <div id="final-setup" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #334155;">
+            <p style="font-size: 0.85em; color: #94a3b8;">Une fois inscrit, collez votre LIEN Victory complet ici :</p>
+            <input type="text" id="victory-link-input" placeholder="https://victory-automatic.com/register/...">
             <button class="btn" style="background: #10b981;" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
         </div>
     </div>
 
     <div id="step-share" class="hidden">
         <h1 style="color: #10b981;">🚀 SYSTÈME ACTIF</h1>
-        <p>Partagez votre lien personnalisé :</p>
+        <p>Votre lien personnalisé est prêt :</p>
         <button class="btn" onclick="shareLink()">PARTAGER MON LIEN</button>
     </div>
-
 </div>
 
 <script>
-    // --- CONFIGURATION ---
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
     const MON_LIEN_RACINE = "okoningana";
     const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
 
     const translations = {
-        fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT", wait: "Patientez..." },
-        en: { title: "🔗 LINKFLOW Registration", sub: "Join the root matrix", btn: "REGISTER NOW", wait: "Wait..." },
-        // ... garde tes autres traductions ici ...
+        fr: { title: "🔗 Inscription LINKFLOW", sub: "Rejoins la matrice racine", btn: "S'INSCRIRE MAINTENANT", wait: "Patientez...", support: "📺 Soutien Organique", already: "Déjà inscrit ?" },
+        en: { title: "🔗 LINKFLOW Registration", sub: "Join the root matrix", btn: "REGISTER NOW", wait: "Wait...", support: "📺 Organic Support", already: "Already registered?" },
+        sw: { title: "🔗 Usajili wa LINKFLOW", sub: "Jiunge na tumbo la mizizi", btn: "JISAJILI SASA", wait: "Subiri...", support: "📺 Msaada wa Kikaboni", already: "Umejisajili tayari?" },
+        ln: { title: "🔗 Kokoma nkombo LINKFLOW", sub: "Kota na kati ya mobu", btn: "KOMISA NKOMBO SASA", wait: "Zela...", support: "📺 Lisungi ya Mobu", already: "Okomisaki nkombo ?" },
+        es: { title: "🔗 Registro LINKFLOW", sub: "Únete a la matriz raíz", btn: "REGISTRARSE AHORA", wait: "Espere...", support: "📺 Soporte Orgánico", already: "¿Ya estás registrado?" },
+        pt: { title: "🔗 Registro LINKFLOW", sub: "Junte-se à matriz raiz", btn: "REGISTRE-SE AGORA", wait: "Aguarde...", support: "📺 Suporte Orgânico", already: "Já tem conta?" }
     };
 
     function showToast(msg) {
@@ -91,45 +95,48 @@
     const parrainID = urlParams.get('ref') || MON_LIEN_RACINE;
     document.getElementById('ref_code').value = parrainID;
 
-    // --- LOGIQUE INSCRIPTION ---
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
         const mail = document.getElementById('email').value.trim();
         if(!user || !mail) { alert("Champs vides"); return; }
-
-        // Vérification généalogie (optionnel mais recommandé)
-        showToast("Vérification...");
+        
+        const l = document.getElementById('langSelect').value;
+        document.getElementById('t-btn').innerText = translations[l].wait;
 
         const { error } = await _supabase.from('users').insert([{ 
             username: user, email: mail, referred_by: parrainID,
-            ref_code: "TEMP_" + user.toLowerCase()
+            ref_code: "TEMP_" + user.toLowerCase().replace(/\s/g, '')
         }]);
 
-        if (error) { alert("Erreur d'inscription"); } 
-        else {
+        if (error) { 
+            alert("Erreur : " + error.message); 
+            document.getElementById('t-btn').innerText = translations[l].btn;
+        } else {
+            showToast("Inscription réussie !");
             document.getElementById('step-registration').classList.add('hidden');
             document.getElementById('step-youtube').classList.remove('hidden');
         }
     }
 
-    // --- LOGIQUE YOUTUBE ---
     function handleYoutube() {
         window.open(LIEN_VIDEO, "_blank");
         let timeLeft = 180;
         const btn = document.getElementById('btn-video');
+        const countDisplay = document.getElementById('countdown');
         btn.disabled = true;
+
         const timer = setInterval(() => {
             timeLeft--;
-            btn.innerText = "Validation... " + timeLeft + "s";
+            countDisplay.innerText = timeLeft + "s";
             if(timeLeft <= 0) {
                 clearInterval(timer);
                 document.getElementById('step-youtube').classList.add('hidden');
                 document.getElementById('step-victory').classList.remove('hidden');
+                showToast("Soutien validé !");
             }
         }, 1000);
     }
 
-    // --- LOGIQUE VICTORY ---
     function openVictory() {
         window.open(`https://victory-automatic.com/register/${parrainID}`, "_blank");
     }
@@ -137,7 +144,7 @@
     async function activerMonLien() {
         const user = document.getElementById('username').value;
         const link = document.getElementById('victory-link-input').value.trim();
-        if(!link) return;
+        if(!link) { alert("Veuillez coller votre lien Victory"); return; }
 
         const parties = link.split('/');
         const finalID = parties[parties.length - 1] || parties[parties.length - 2];
@@ -145,9 +152,12 @@
         const { error } = await _supabase.from('users').update({ ref_code: finalID }).eq('username', user);
 
         if(!error) {
+            showToast("Système activé !");
             document.getElementById('step-victory').classList.add('hidden');
             document.getElementById('step-share').classList.remove('hidden');
             document.getElementById('step-share').setAttribute('data-my-id', finalID);
+        } else {
+            alert("Erreur activation : " + error.message);
         }
     }
 
@@ -157,11 +167,20 @@
         if (navigator.share) {
             navigator.share({ title: 'LINKFLOW', text: 'Rejoignez mon équipe !', url: link });
         } else {
-            alert("Copiez votre lien : " + link);
+            alert("Lien à copier : " + link);
         }
     }
 
-    function changeLang() { /* Ta fonction de traduction actuelle */ }
+    function changeLang() {
+        const l = document.getElementById('langSelect').value;
+        document.getElementById('t-title').innerText = translations[l].title;
+        document.getElementById('t-subtitle').innerText = translations[l].sub;
+        document.getElementById('t-btn').innerText = translations[l].btn;
+        document.getElementById('t-support').innerText = translations[l].support;
+        document.getElementById('t-already').innerText = translations[l].already;
+    }
+    
+    changeLang();
 </script>
 </body>
 </html>
