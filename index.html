@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKFLOW - Final Fix</title>
+    <title>LINKFLOW - Correction Finale</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #1e293b; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #334155; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         
-        /* DESIGN MESSAGE DEMANDÉ */
+        /* DESIGN DEMANDÉ : NOIR / JAUNE / ROUGE VERTICAL */
         .msg-container {
             background-color: black; color: #fbbf24;
             border-left: 8px solid #ef4444; border-right: 8px solid #ef4444;
-            padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;
-            animation: blink-border-vert 0.7s infinite alternate;
+            padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;
         }
-        @keyframes blink-border-vert { from { border-color: #ef4444; } to { border-color: transparent; } }
 
-        .btn-alt { background: transparent; color: #94a3b8; border: 1px solid #334155; margin-top: 15px; font-size: 13px; cursor: pointer; padding: 8px; border-radius: 5px; width: 100%; }
+        .btn-alt { background: #334155; color: #94a3b8; border: none; margin-top: 20px; font-size: 12px; cursor: pointer; padding: 10px; border-radius: 5px; width: 100%; }
         .hidden { display: none; }
-        #timer-display { font-size: 3.5em; font-weight: bold; color: #fbbf24; margin: 10px 0; }
+        #timer-display { font-size: 3em; font-weight: bold; color: #fbbf24; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -30,9 +28,8 @@
 <div class="container">
     <div id="step-registration">
         <h2>🔗 Inscription LINKFLOW</h2>
-        <input type="text" id="username" placeholder="Pseudo">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.6;">
+        <input type="text" id="username" placeholder="Votre Pseudo">
+        <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.5;">
         <button class="btn" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
         <button class="btn-alt" onclick="toggleLogin()">SE CONNECTER</button>
     </div>
@@ -42,26 +39,24 @@
             <h3 style="color: #ef4444; margin: 0;">🔥 ACTION REQUISE 🔥</h3>
             <p>Interagissez avec la vidéo pour propulser le système.</p>
         </div>
-        <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">VOIR LA VIDÉO ET DÉMARRER</button>
+        <button id="btn-video" class="btn" onclick="handleYoutube()" style="background: #ef4444;">VOIR LA VIDÉO</button>
         <div id="timer-display" class="hidden">180s</div>
     </div>
 
     <div id="step-victory" class="hidden">
         <h3 style="color: #22c55e;">✅ SOUTIEN TERMINÉ</h3>
         <button class="btn" onclick="openVictory()" style="background: #16a34a;">J'OBTIENS MON LIEN VICTORY</button>
-        <input type="text" id="victory-link-input" placeholder="Lien Victory ici" style="margin-top:20px;">
-        <button class="btn" onclick="alert('Activé !')">ACTIVER MON SYSTÈME</button>
-        <button class="btn-alt" onclick="logout()">SE DÉCONNECTER / RECOMMENCER</button>
+        <button class="btn-alt" onclick="logout()">⚠️ DÉCONNEXION (REOMMENCER)</button>
     </div>
 </div>
 
 <script>
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
-    const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
-
+    
+    // Vérification immédiate au chargement
     window.onload = function() {
         const step = localStorage.getItem('lf_step');
-        if (step === 'youtube') { startChronoLogic(); } 
+        if (step === 'youtube') { showStep('step-youtube'); startChrono(); } 
         else if (step === 'victory') { showStep('step-victory'); }
     };
 
@@ -74,55 +69,50 @@
 
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
-        const parrain = document.getElementById('ref_code').value;
-        const { error } = await _supabase.from('users').insert([{ username: user, email: document.getElementById('email').value, referred_by: parrain, ref_code: "TEMP_" + user }]);
+        const parrain = "okoningana";
+        const { error } = await _supabase.from('users').insert([{ username: user, referred_by: parrain }]);
         if (!error) {
-            localStorage.setItem('lf_parrain', parrain);
-            localStorage.setItem('lf_step', 'wait');
+            localStorage.setItem('lf_step', 'youtube');
+            localStorage.setItem('lf_start', Date.now());
             showStep('step-youtube');
-            setTimeout(() => { document.getElementById('btn-video').classList.remove('hidden'); }, 10000);
-        } else { alert("Erreur ou pseudo déjà pris."); }
-    }
-
-    function toggleLogin() {
-        const user = prompt("Pseudo :");
-        if(user) { 
-            localStorage.setItem('lf_step', 'victory'); 
-            localStorage.setItem('lf_parrain', 'okoningana');
-            showStep('step-victory'); 
-        }
+            startChrono();
+        } else { alert("Pseudo déjà utilisé !"); }
     }
 
     function handleYoutube() {
-        window.open(LIEN_VIDEO, "_blank");
-        localStorage.setItem('lf_start_time', Date.now());
-        localStorage.setItem('lf_step', 'youtube');
-        startChronoLogic();
-    }
-
-    function startChronoLogic() {
-        showStep('step-youtube');
+        window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
         document.getElementById('btn-video').classList.add('hidden');
         document.getElementById('timer-display').classList.remove('hidden');
-        const chrono = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - localStorage.getItem('lf_start_time')) / 1000);
-            const timeLeft = 180 - elapsed;
-            if (timeLeft <= 0) {
-                clearInterval(chrono);
+    }
+
+    function startChrono() {
+        document.getElementById('timer-display').classList.remove('hidden');
+        const timer = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - localStorage.getItem('lf_start')) / 1000);
+            const left = 180 - elapsed;
+            if (left <= 0) {
+                clearInterval(timer);
                 localStorage.setItem('lf_step', 'victory');
                 showStep('step-victory');
-            } else { document.getElementById('timer-display').innerText = timeLeft + "s"; }
+            } else {
+                document.getElementById('timer-display').innerText = left + "s";
+            }
         }, 1000);
     }
 
     function openVictory() {
-        const parrain = localStorage.getItem('lf_parrain') || "okoningana";
-        window.location.href = "https://victory-automatic.com/register/" + parrain.trim();
+        // Redirection forcée vers l'URL propre
+        window.location.replace("https://victory-automatic.com/register/okoningana");
     }
 
     function logout() {
         localStorage.clear();
         window.location.reload();
+    }
+
+    function toggleLogin() {
+        const u = prompt("Pseudo :");
+        if(u) { localStorage.setItem('lf_step', 'victory'); showStep('step-victory'); }
     }
 </script>
 </body>
