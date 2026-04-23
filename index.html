@@ -6,18 +6,14 @@
     <title>LINKFLOW - Activation</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; flex-direction: column; }
-        .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #334155; }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: #0ea5e9; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
-        
-        /* BOUTON CONNEXION / DECONNEXION */
-        .btn-alt { background: transparent; color: #94a3b8; border: 1px solid #334155; margin-top: 15px; font-size: 13px; cursor: pointer; padding: 8px; border-radius: 5px; }
-
+        .btn:disabled { background: #475569; cursor: not-allowed; }
         .hidden { display: none; }
 
-        /* MESSAGE DESIGN JAUNE/NOIR/ROUGE */
+        /* MESSAGE : NOIR / JAUNE / ROUGE VERTICAL */
         .msg-container {
             background-color: black; color: #fbbf24;
             border-left: 8px solid #ef4444; border-right: 8px solid #ef4444;
@@ -28,7 +24,6 @@
             from { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
             to { border-color: transparent; }
         }
-
         #timer-display { font-size: 3.5em; font-weight: bold; color: #fbbf24; margin: 20px 0; }
     </style>
 </head>
@@ -41,7 +36,6 @@
         <input type="email" id="email" placeholder="Email">
         <input type="text" id="ref_code" value="okoningana" readonly style="opacity: 0.6;">
         <button class="btn" id="btn-reg" onclick="sinscrire()">S'INSCRIRE MAINTENANT</button>
-        <button class="btn-alt" onclick="toggleLogin()">DÉJÀ INSCRIT ? SE CONNECTER</button>
     </div>
 
     <div id="step-youtube" class="hidden">
@@ -50,7 +44,6 @@
             <p>Interagissez avec la vidéo pour propulser le système.</p>
             <p style="font-size: 0.9em; font-style: italic;">Une vidéo virale = nouveaux adhérents pour VOUS !</p>
         </div>
-        <p id="wait-message" style="color:#94a3b8;">Lecture du protocole... (10s)</p>
         <button id="btn-video" class="btn hidden" onclick="handleYoutube()" style="background: #ef4444;">VOIR LA VIDÉO ET DÉMARRER</button>
         <div id="timer-display" class="hidden">180s</div>
     </div>
@@ -58,30 +51,22 @@
     <div id="step-victory" class="hidden">
         <h3 style="color: #22c55e;">✅ SOUTIEN TERMINÉ</h3>
         <button class="btn" onclick="openVictory()" style="background: #16a34a;">J'OBTIENS MON LIEN VICTORY</button>
-        <div style="margin-top: 30px; border-top: 1px dashed #475569; padding-top: 20px;">
-            <input type="text" id="victory-link-input" placeholder="Lien Victory complet ici">
-            <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
-        </div>
-        <button class="btn-alt" onclick="logout()">RETOUR / DÉCONNEXION</button>
+        <input type="text" id="victory-link-input" placeholder="Collez votre lien Victory ici" style="margin-top:20px;">
+        <button class="btn" onclick="activerMonLien()">ACTIVER MON SYSTÈME</button>
     </div>
 </div>
 
 <script>
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
     const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
-    let timeLeft = parseInt(localStorage.getItem('lf_timer')) || 180;
     let chrono;
 
-    // --- VERIFICATION AU CHARGEMENT ---
     window.onload = function() {
         const step = localStorage.getItem('lf_step');
         if (step === 'youtube') {
-            showStep('step-youtube');
-            startChronoLogic();
+            checkChronoPersistence();
         } else if (step === 'victory') {
             showStep('step-victory');
-        } else {
-            showStep('step-registration');
         }
     };
 
@@ -95,65 +80,61 @@
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
         if(!user) return alert("Pseudo requis");
-        
-        const { error } = await _supabase.from('users').insert([{ 
-            username: user, email: document.getElementById('email').value, 
-            referred_by: document.getElementById('ref_code').value, ref_code: "TEMP_" + user 
-        }]);
+        const { error } = await _supabase.from('users').insert([{ username: user, email: document.getElementById('email').value, referred_by: document.getElementById('ref_code').value, ref_code: "TEMP_" + user }]);
 
         if (!error) {
-            localStorage.setItem('lf_user', user);
             localStorage.setItem('lf_step', 'wait');
             showStep('step-youtube');
-            setTimeout(() => {
-                document.getElementById('btn-video').classList.remove('hidden');
-                document.getElementById('wait-message').classList.add('hidden');
-            }, 10000);
-        } else { alert("Erreur: Ce pseudo existe déjà."); }
-    }
-
-    async function toggleLogin() {
-        const user = prompt("Votre pseudo :");
-        if(!user) return;
-        const { data } = await _supabase.from('users').select('*').eq('username', user).single();
-        if(data) {
-            localStorage.setItem('lf_user', user);
-            localStorage.setItem('lf_step', 'victory');
-            showStep('step-victory');
-        } else { alert("Pseudo inconnu."); }
+            setTimeout(() => { document.getElementById('btn-video').classList.remove('hidden'); }, 10000);
+        } else { alert("Pseudo déjà pris ou erreur réseau."); }
     }
 
     function handleYoutube() {
         window.open(LIEN_VIDEO, "_blank");
+        const startTime = Date.now();
+        localStorage.setItem('lf_start_time', startTime);
         localStorage.setItem('lf_step', 'youtube');
-        document.getElementById('btn-video').disabled = true;
-        document.getElementById('timer-display').classList.remove('hidden');
         startChronoLogic();
     }
 
     function startChronoLogic() {
+        showStep('step-youtube');
+        document.getElementById('btn-video').disabled = true;
+        document.getElementById('btn-video').innerText = "Vidéo en cours...";
         document.getElementById('timer-display').classList.remove('hidden');
+
         chrono = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer-display').innerText = timeLeft + "s";
-            localStorage.setItem('lf_timer', timeLeft);
-            if(timeLeft <= 0) {
+            const now = Date.now();
+            const start = localStorage.getItem('lf_start_time');
+            const elapsed = Math.floor((now - start) / 1000);
+            const timeLeft = 180 - elapsed;
+
+            if (timeLeft <= 0) {
                 clearInterval(chrono);
                 localStorage.setItem('lf_step', 'victory');
                 showStep('step-victory');
+            } else {
+                document.getElementById('timer-display').innerText = timeLeft + "s";
             }
         }, 1000);
     }
 
-    function logout() {
-        if(confirm("Voulez-vous vraiment vous déconnecter ?")) {
-            localStorage.clear();
-            location.reload();
+    function checkChronoPersistence() {
+        const start = localStorage.getItem('lf_start_time');
+        if (start) {
+            const now = Date.now();
+            const elapsed = Math.floor((now - start) / 1000);
+            if (elapsed < 180) {
+                startChronoLogic();
+            } else {
+                localStorage.setItem('lf_step', 'victory');
+                showStep('step-victory');
+            }
         }
     }
 
     function openVictory() { window.open(`https://victory-automatic.com/register/${document.getElementById('ref_code').value}`, "_blank"); }
-    function activerMonLien() { alert("Lien validé !"); }
+    function activerMonLien() { alert("Système activé !"); }
 </script>
 </body>
 </html>
