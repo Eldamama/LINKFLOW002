@@ -1,245 +1,78 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINKFLOW - Authentification</title>
-
-    <!-- Supabase client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #0f172a;
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background: #1e293b;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid #334155;
-            box-sizing: border-box;
-        }
-
-        .logo-small {
-            width: 70px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-
-        .password-container {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #38bdf8;
-            font-size: 18px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #0ea5e9;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #334155;
-            color: white;
-        }
-
-        .notice {
-            background: #0c4a6e;
-            border-left: 4px solid #38bdf8;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        #user-info {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            background: #064e3b;
-            color: #d1fae5;
-        }
-
-        .forgot {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .forgot a {
-            color: #38bdf8;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINKFLOW - Authentification</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div class="container">
+  <img src="logo.jpg" class="logo-small" alt="Logo">
+  <h2>🚀 Activation LINKFLOW</h2>
 
-    <img src="logo.jpg" class="logo-small" alt="Logo">
+  <div class="notice">
+    Crée un compte ou connecte-toi avant de poursuivre vers l'activation.
+  </div>
 
-    <h2>🚀 Activation LINKFLOW</h2>
+  <input type="text" id="username" placeholder="Pseudo utilisateur">
+  <input type="email" id="email" placeholder="Adresse email">
 
-    <div class="notice">
-        Crée un compte ou connecte-toi avant de poursuivre vers l'activation.
-    </div>
+  <div class="password-container">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+  </div>
 
-    <input type="text" id="username" placeholder="Pseudo utilisateur">
-    <input type="email" id="email" placeholder="Adresse email">
+  <button class="btn btn-primary" onclick="sinscrire()">Inscription</button>
+  <button class="btn btn-secondary" onclick="connexion()">Connexion</button>
+  <button class="btn btn-secondary" onclick="logout()">Déconnexion</button>
 
-    <div class="password-container">
-        <input type="password" id="password" placeholder="Mot de passe">
-        <span class="toggle-password" onclick="togglePassword()">👁️</span>
-    </div>
+  <div class="forgot">
+    <a onclick="resetPassword()">Mot de passe oublié ?</a>
+  </div>
 
-    <button class="btn btn-primary" onclick="sinscrire()">
-        Inscription
-    </button>
-
-    <button class="btn btn-secondary" onclick="connexion()">
-        Connexion
-    </button>
-
-    <button class="btn btn-secondary" onclick="logout()">
-        Déconnexion
-    </button>
-
-    <div class="forgot">
-        <a onclick="resetPassword()">Mot de passe oublié ?</a>
-    </div>
-
-    <div id="user-info" class="hidden"></div>
-
+  <div id="user-info" class="hidden"></div>
 </div>
 
-<script>
-const _supabase = supabase.createClient(
-    "https://xkyynzbbatglctgdtqyu.supabase.co",
-    "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
-);
+<!-- Pop-up explicatif -->
+<div id="popup" class="hidden">
+  <div class="popup-content">
+    <h3>🎥 Pourquoi interagir avec la vidéo ?</h3>
+    <p>
+      Ton interaction (s’abonner, liker, commenter) incite l’algorithme YouTube à propulser la vidéo.<br>
+      Une vidéo virale attire de nombreux nouveaux adhérents sous la vidéo, ce qui renforce notre réseau.<br>
+      👉 En participant, tu contribues directement à la croissance collective et à la visibilité de LINKFLOW.
+    </p>
+    <button class="btn btn-primary" onclick="fermerPopup()">Compris, je continue</button>
+  </div>
+</div>
 
-function togglePassword() {
-    const pwd = document.getElementById('password');
-    pwd.type = pwd.type === "password" ? "text" : "password";
-}
+<!-- Étape vidéo -->
+<div id="video-step" class="hidden">
+  <h3>🎥 Étape vidéo obligatoire</h3>
+  <iframe width="100%" height="250"
+          src="https://www.youtube.com/embed/9uPybhkqYw4"
+          frameborder="0" allowfullscreen></iframe>
+  <button class="btn btn-primary" onclick="validerVideo()">J’ai regardé</button>
+</div>
 
-async function sinscrire() {
-    const username = document.getElementById('username').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+<!-- Lien Victory Automatic -->
+<div id="victory-link" class="hidden">
+  <h3>🔗 Lien Victory Automatic</h3>
+  <a href="https://victoryautomatic.com/user/register/okoningana"
+     target="_blank" class="btn btn-secondary">Accéder à Victory Automatic</a>
 
-    if (!username || !email || !password) {
-        alert('Tous les champs sont obligatoires');
-        return;
-    }
+  <div style="margin-top:15px;">
+    <input type="text" id="retour-lien" placeholder="Colle ton lien de retour ici">
+    <button class="btn btn-primary" onclick="collerLien()">Valider le lien</button>
+  </div>
+</div>
 
-    const { data, error } = await _supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-            data: { username: username }
-        }
-    });
+<!-- Lien final généré -->
+<div id="lien-final" class="hidden"></div>
 
-    if (error) {
-        alert("Erreur : " + error.message);
-        return;
-    }
-
-    alert('Inscription réussie. Vérifie ton email pour confirmer.');
-}
-
-async function connexion() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-
-    const { data, error } = await _supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
-
-    if (error) {
-        alert("Erreur : " + error.message);
-        return;
-    }
-
-    const userInfo = document.getElementById('user-info');
-    userInfo.classList.remove('hidden');
-    userInfo.innerHTML = `Connecté : ${data.user.email}`;
-}
-
-async function logout() {
-    await _supabase.auth.signOut();
-
-    const userInfo = document.getElementById('user-info');
-    userInfo.classList.add('hidden');
-    userInfo.innerHTML = '';
-
-    alert('Déconnecté');
-}
-
-async function resetPassword() {
-    const email = document.getElementById('email').value.trim();
-    if (!email) {
-        alert("Entre ton email pour réinitialiser ton mot de passe.");
-        return;
-    }
-
-    const { error } = await _supabase.auth.resetPasswordForEmail(email);
-
-    if (error) {
-        alert("Erreur : " + error.message);
-        return;
-    }
-
-    alert("Un email de réinitialisation a été envoyé !");
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
