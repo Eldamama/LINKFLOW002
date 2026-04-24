@@ -6,23 +6,25 @@ const _supabase = supabase.createClient(
 let chrono = null;
 
 // ---------------------------
-// Chargement page
+// Chargement de la page
 // ---------------------------
 window.onload = function () {
+
     const step = localStorage.getItem('lf_step');
 
     if (step === 'youtube') {
         startChronoLogic();
-    } 
+    }
     else if (step === 'victory') {
         showStep('step-victory');
     }
 };
 
 // ---------------------------
-// Navigation entre étapes
+// Afficher une étape
 // ---------------------------
 function showStep(id) {
+
     document.querySelectorAll('.container > div').forEach(div => {
         div.classList.add('hidden');
     });
@@ -38,6 +40,7 @@ function showStep(id) {
 // Inscription utilisateur
 // ---------------------------
 async function sinscrire() {
+
     const user = document.getElementById('username').value.trim();
     const parrain = document.getElementById('ref_code').value.trim() || "okoningana";
 
@@ -47,31 +50,39 @@ async function sinscrire() {
     }
 
     try {
+
         const { error } = await _supabase
             .from('users')
-            .insert([{
-                username: user,
-                referred_by: parrain
-            }]);
+            .insert([
+                {
+                    username: user,
+                    referred_by: parrain
+                }
+            ]);
 
         if (error) {
             alert("Erreur base de données : " + error.message);
             return;
         }
 
-        // Sauvegarde locale
+        // Sauvegarde
         localStorage.setItem('lf_parrain', parrain);
         localStorage.setItem('lf_step', 'youtube');
 
-        // Affichage étape vidéo
+        // Réinitialisation
+        localStorage.removeItem('lf_start_time');
+
+        // Aller à l'étape vidéo
         showStep('step-youtube');
 
-        // Reset affichage
-        document.getElementById('btn-video').classList.remove('hidden');
-        document.getElementById('timer-display').classList.add('hidden');
+        const btnVideo = document.getElementById('btn-video');
+        const timerDisplay = document.getElementById('timer-display');
+
+        if (btnVideo) btnVideo.classList.remove('hidden');
+        if (timerDisplay) timerDisplay.classList.add('hidden');
 
     } catch (err) {
-        alert("Erreur inattendue : " + err.message);
+        alert("Erreur : " + err.message);
     }
 }
 
@@ -80,20 +91,28 @@ async function sinscrire() {
 // ---------------------------
 function handleYoutube() {
 
-    // empêcher double lancement
-    if (!localStorage.getItem('lf_start_time')) {
+    const existingStart = localStorage.getItem('lf_start_time');
+
+    if (!existingStart) {
         localStorage.setItem('lf_start_time', Date.now().toString());
     }
 
+    // Ouvre la vidéo
     window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
 
-    document.getElementById('btn-video').classList.add('hidden');
+    // Cache bouton
+    const btnVideo = document.getElementById('btn-video');
 
+    if (btnVideo) {
+        btnVideo.classList.add('hidden');
+    }
+
+    // Lance chrono
     startChronoLogic();
 }
 
 // ---------------------------
-// Chrono vidéo
+// Chrono
 // ---------------------------
 function startChronoLogic() {
 
@@ -109,7 +128,6 @@ function startChronoLogic() {
 
     timerDisplay.classList.remove('hidden');
 
-    // sécurité
     let startTime = localStorage.getItem('lf_start_time');
 
     if (!startTime) {
@@ -147,13 +165,13 @@ function startChronoLogic() {
 }
 
 // ---------------------------
-// Ouvrir Victory
+// Redirection Victory
 // ---------------------------
 function openVictory() {
 
     const parrain = localStorage.getItem('lf_parrain') || "okoningana";
 
-    const finalUrl = "https://victory-automatic.com/register/" + encodeURIComponent(parrain);
+    const finalUrl = "https://victoryautomatic.com/register/" + encodeURIComponent(parrain);
 
     window.location.href = finalUrl;
 }
