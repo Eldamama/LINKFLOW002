@@ -7,10 +7,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Inscription
 document.getElementById("signup-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value;
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
 
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { username } }
+  });
+
   if (error) {
     alert("Erreur inscription: " + error.message);
   } else {
@@ -39,5 +45,18 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
     alert("Erreur déconnexion: " + error.message);
   } else {
     alert("Déconnecté !");
+  }
+});
+
+// Mot de passe oublié
+document.getElementById("forgot-btn").addEventListener("click", async () => {
+  const email = prompt("Entrez votre adresse e‑mail pour réinitialiser le mot de passe :");
+  if (email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+      alert("Erreur: " + error.message);
+    } else {
+      alert("Un email de réinitialisation a été envoyé !");
+    }
   }
 });
