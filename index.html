@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LINKFLOW - Authentification</title>
 
+    <!-- Supabase client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -124,14 +125,12 @@
 </div>
 
 <script>
-
 const _supabase = supabase.createClient(
     "https://xkyynzbbatglctgdtqyu.supabase.co",
-    "VOTRE_ANON_KEY"
+    "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
 );
 
 async function sinscrire() {
-
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -145,22 +144,19 @@ async function sinscrire() {
         email: email,
         password: password,
         options: {
-            data: {
-                username: username
-            }
+            data: { username: username }
         }
     });
 
     if (error) {
-        alert(error.message);
+        alert("Erreur : " + error.message);
         return;
     }
 
-    alert('Inscription réussie. Vérifie ton email.');
+    alert('Inscription réussie. Vérifie ton email pour confirmer.');
 }
 
 async function connexion() {
-
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
@@ -170,28 +166,24 @@ async function connexion() {
     });
 
     if (error) {
-        alert(error.message);
+        alert("Erreur : " + error.message);
         return;
     }
 
     const userInfo = document.getElementById('user-info');
-
     userInfo.classList.remove('hidden');
     userInfo.innerHTML = `Connecté : ${data.user.email}`;
 }
 
 async function logout() {
-
     await _supabase.auth.signOut();
 
     const userInfo = document.getElementById('user-info');
-
     userInfo.classList.add('hidden');
     userInfo.innerHTML = '';
 
     alert('Déconnecté');
 }
-
 </script>
 
 </body>
