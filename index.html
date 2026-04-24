@@ -1,25 +1,17 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINKFLOW - Authentification</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-
-<div class="container">
-  <img src="logo.jpg" class="logo-small" alt="Logo">
+<div class="form-box">
   <h2>🚀 Activation LINKFLOW</h2>
 
   <div class="notice">
     Crée un compte ou connecte-toi avant de poursuivre vers l'activation.
   </div>
 
-  <input type="text" id="username" placeholder="Pseudo utilisateur">
-  <input type="email" id="email" placeholder="Adresse email">
+  <label for="username">Pseudo utilisateur</label>
+  <input type="text" id="username" placeholder="Entrez votre pseudo">
 
+  <label for="email">Adresse email</label>
+  <input type="email" id="email" placeholder="Entrez votre email">
+
+  <label for="password">Mot de passe</label>
   <div class="password-container">
     <input type="password" id="password" placeholder="Mot de passe">
     <span class="toggle-password" onclick="togglePassword()">👁️</span>
@@ -35,44 +27,3 @@
 
   <div id="user-info" class="hidden"></div>
 </div>
-
-<!-- Pop-up explicatif -->
-<div id="popup" class="hidden">
-  <div class="popup-content">
-    <h3>🎥 Pourquoi interagir avec la vidéo ?</h3>
-    <p>
-      Ton interaction (s’abonner, liker, commenter) incite l’algorithme YouTube à propulser la vidéo.<br>
-      Une vidéo virale attire de nombreux nouveaux adhérents sous la vidéo, ce qui renforce notre réseau.<br>
-      👉 En participant, tu contribues directement à la croissance collective et à la visibilité de LINKFLOW.
-    </p>
-    <button class="btn btn-primary" onclick="fermerPopup()">Compris, je continue</button>
-  </div>
-</div>
-
-<!-- Étape vidéo -->
-<div id="video-step" class="hidden">
-  <h3>🎥 Étape vidéo obligatoire</h3>
-  <iframe width="100%" height="250"
-          src="https://www.youtube.com/embed/9uPybhkqYw4"
-          frameborder="0" allowfullscreen></iframe>
-  <button class="btn btn-primary" onclick="validerVideo()">J’ai regardé</button>
-</div>
-
-<!-- Lien Victory Automatic -->
-<div id="victory-link" class="hidden">
-  <h3>🔗 Lien Victory Automatic</h3>
-  <a href="https://victoryautomatic.com/user/register/okoningana"
-     target="_blank" class="btn btn-secondary">Accéder à Victory Automatic</a>
-
-  <div style="margin-top:15px;">
-    <input type="text" id="retour-lien" placeholder="Colle ton lien de retour ici">
-    <button class="btn btn-primary" onclick="collerLien()">Valider le lien</button>
-  </div>
-</div>
-
-<!-- Lien final généré -->
-<div id="lien-final" class="hidden"></div>
-
-<script src="script.js"></script>
-</body>
-</html>
