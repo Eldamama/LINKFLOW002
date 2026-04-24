@@ -1,58 +1,44 @@
 <script>
-    // Configuration Supabase
     const _supabase = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhreXluemJiYXRnbGN0Z2R0cXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDI0NDEsImV4cCI6MjA5MjIxODQ0MX0.yUJc7P2zkYCb1ub2IPwKPUM1duIaVwGsBmfa4TVIvPc");
-    const LIEN_VIDEO = "https://www.youtube.com/watch?v=9uPybhkqYw4";
 
     window.onload = function() {
         const step = localStorage.getItem('lf_step');
-        if (step === 'youtube') { 
-            startChronoLogic(); 
-        } else if (step === 'victory') { 
-            showStep('step-victory'); 
-        }
+        if (step === 'youtube') { startChronoLogic(); } 
+        else if (step === 'victory') { showStep('step-victory'); }
     };
 
     function showStep(id) {
-        document.getElementById('step-registration').classList.add('hidden');
-        document.getElementById('step-youtube').classList.add('hidden');
-        document.getElementById('step-victory').classList.add('hidden');
+        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
     }
 
-    // --- LOGIQUE INSCRIPTION (Correction Pseudo déjà utilisé) ---
     async function sinscrire() {
         const user = document.getElementById('username').value.trim();
-        const parrain = document.getElementById('ref_code').value;
+        const parrain = document.getElementById('ref_code').value || "okoningana";
         
         if(!user) return alert("Pseudo requis");
 
-        // Génération d'un email temporaire pour éviter les erreurs de champ vide dans Supabase
-        const fakeEmail = user + "@linkflow.com";
-
+        // On insère uniquement le pseudo et le parrain pour éviter les erreurs de colonnes vides
         const { error } = await _supabase.from('users').insert([{ 
             username: user, 
-            email: fakeEmail,
-            referred_by: parrain,
-            ref_code: "LF-" + user // Assure un code de parrainage unique
+            referred_by: parrain 
         }]);
 
         if (!error) {
             localStorage.setItem('lf_parrain', parrain);
-            localStorage.setItem('lf_step', 'wait');
+            localStorage.setItem('lf_step', 'youtube');
+            localStorage.setItem('lf_start_time', Date.now());
             showStep('step-youtube');
-            setTimeout(() => { 
-                document.getElementById('btn-video').classList.remove('hidden'); 
-            }, 10000);
+            startChronoLogic();
         } else { 
-            alert("Erreur d'inscription : " + error.message); 
+            alert("Erreur base de données : " + error.message); 
         }
     }
 
     function handleYoutube() {
-        window.open(LIEN_VIDEO, "_blank");
-        localStorage.setItem('lf_start_time', Date.now());
-        localStorage.setItem('lf_step', 'youtube');
-        startChronoLogic();
+        window.open("https://www.youtube.com/watch?v=9uPybhkqYw4", "_blank");
+        document.getElementById('btn-video').classList.add('hidden');
+        document.getElementById('timer-display').classList.remove('hidden');
     }
 
     function startChronoLogic() {
@@ -74,18 +60,13 @@
         }, 1000);
     }
 
-    // --- REDIRECTION VICTORY (Correction Adresse Introuvable) ---
     function openVictory() {
         const parrain = localStorage.getItem('lf_parrain') || "okoningana";
-        // Nettoyage des espaces pour éviter l'erreur DNS sur mobile
-        const cleanParrain = parrain.replace(/\s/g, '');
-        const finalUrl = "https://victory-automatic.com/register/" + cleanParrain;
-        
-        // Redirection forcée dans l'onglet actuel pour plus de stabilité
-        window.location.replace(finalUrl);
+        // On utilise l'URL la plus simple possible sans fioritures
+        const finalUrl = "https://victory-automatic.com/register/" + parrain.trim();
+        window.location.href = finalUrl;
     }
 
-    // --- DÉCONNEXION (Crucial pour vider les erreurs) ---
     function logout() {
         localStorage.clear();
         window.location.reload();
