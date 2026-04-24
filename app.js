@@ -1,62 +1,75 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-const supabaseUrl = "SUPABASE_URL";
-const supabaseKey = "SUPABASE_KEY";
+// --- CONFIGURATION ---
+// J'ai intégré ta clé publique ici. Pense à vérifier ton URL de projet dans Supabase.
+const supabaseUrl = "https://votre-projet-id.supabase.co"; 
+const supabaseKey = "Sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Inscription
+// --- LOGIQUE DE L'ŒIL MAGIQUE ---
+document.querySelectorAll('.toggle-password').forEach(eye => {
+  eye.addEventListener('click', function() {
+    const targetId = this.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    
+    if (input.type === "password") {
+      input.type = "text";
+      this.classList.remove('fa-eye');
+      this.classList.add('fa-eye-slash');
+    } else {
+      input.type = "password";
+      this.classList.remove('fa-eye-slash');
+      this.classList.add('fa-eye');
+    }
+  });
+});
+
+// --- INSCRIPTION ---
 document.getElementById("signup-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = document.getElementById("username").value;
   const email = document.getElementById("signup-email").value;
   const password = document.getElementById("signup-password").value;
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { username } }
+    options: { data: { display_name: username } }
   });
 
   if (error) {
-    alert("Erreur inscription: " + error.message);
+    alert("Erreur inscription : " + error.message);
   } else {
-    alert("Inscription réussie !");
+    alert("Inscription réussie ! Vérifiez vos mails.");
   }
 });
 
-// Connexion
+// --- CONNEXION ---
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
   if (error) {
-    alert("Erreur connexion: " + error.message);
+    alert("Erreur connexion : " + error.message);
   } else {
     alert("Connexion réussie !");
   }
 });
 
-// Déconnexion
+// --- DÉCONNEXION ---
 document.getElementById("logout-btn").addEventListener("click", async () => {
   const { error } = await supabase.auth.signOut();
-  if (error) {
-    alert("Erreur déconnexion: " + error.message);
-  } else {
-    alert("Déconnecté !");
-  }
+  if (!error) alert("Déconnecté !");
 });
 
-// Mot de passe oublié
+// --- MOT DE PASSE OUBLIÉ ---
 document.getElementById("forgot-btn").addEventListener("click", async () => {
-  const email = prompt("Entrez votre adresse e‑mail pour réinitialiser le mot de passe :");
+  const email = prompt("E-mail pour réinitialisation :");
   if (email) {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) {
-      alert("Erreur: " + error.message);
-    } else {
-      alert("Un email de réinitialisation a été envoyé !");
-    }
+    alert(error ? "Erreur : " + error.message : "Email envoyé !");
   }
 });
