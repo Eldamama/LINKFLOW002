@@ -1,68 +1,80 @@
-// app.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Structure</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid #ccc; padding: 20px; background: white; }
+        #videoSection { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Sign Up</h1>
+    <form id="signUpForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <button type="submit">Sign Up</button>
+    </form>
 
-// Email confirmation trigger function
-function triggerEmailConfirmation(userEmail) {
-    // Logic for sending confirmation email
-    console.log(`Sending confirmation email to ${userEmail}`);
-}
+    <div id="popup">
+        <p>Email confirmed! Watch the introductory video.</p>
+        <button id="watchVideo">Watch Video</button>
+    </div>
 
-// Function to display a modal for 10 seconds
-function showModal() {
-    const modal = document.getElementById('popupModal');
-    modal.style.display = 'block';
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 10000);
-}
+    <div id="videoSection">
+        <h2>Introductory Video</h2>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+        <div id="timer">Time remaining: <span id="timeRemaining">180</span> seconds</div>
+        <button id="getLink" disabled>Get Link</button>
+    </div>
 
-// Video viewer functionality
-let videoPlaying = false;
-function playVideo(videoId) {
-    const videoElement = document.getElementById(videoId);
-    videoElement.play();
-    videoPlaying = true;
-    startVideoTimer();
-}
+    <h2>Victory Link Validator</h2>
+    <form id="victoryLinkForm">
+        <input type="text" id="victoryLink" placeholder="Paste Victory Link" required />
+        <button type="submit">Validate Link</button>
+    </form>
+    <div id="validationResult"></div>
 
-// Start a 180-second timer after video starts
-function startVideoTimer() {
-    setTimeout(() => {
-        console.log('180 seconds have passed since the video started.');
-        // Logic after timer
-    }, 180000);
-}
+    <script>
+        const popUp = document.getElementById('popup');
+        const watchVideoButton = document.getElementById('watchVideo');
+        const videoSection = document.getElementById('videoSection');
+        const timerDisplay = document.getElementById('timeRemaining');
+        const getLinkButton = document.getElementById('getLink');
+        let timer;
 
-// Victory link validation against genealogy database
-async function validateVictoryLink(victoryLink) {
-    // Simulated fetch request
-    const response = await fetch(`https://genealogy-database.com/validate?link=${victoryLink}`);
-    return response.ok;
-}
+        document.getElementById('signUpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Imagine email confirmation process here
+            popUp.style.display = 'block';
+            setTimeout(() => { popUp.style.display = 'none'; }, 10000);
+        });
 
-// Sponsor link determination function
-function determineSponsorLink(userId) {
-    // Logic to determine sponsor link or fallback
-    console.log(`Determining sponsor link for user: ${userId}`);
-}
+        watchVideoButton.addEventListener('click', function() {
+            popUp.style.display = 'none';
+            videoSection.style.display = 'block';
+            startTimer();
+        });
 
-// State management for tracking user progress
-let userProgress = {
-    signUpComplete: false,
-    videoConfirmed: false,
-    linkGenerated: false
-};
+        function startTimer() {
+            let timeRemaining = 180;
+            timer = setInterval(() => {
+                timeRemaining--;
+                timerDisplay.textContent = timeRemaining;
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    getLinkButton.disabled = false;
+                }
+            }, 1000);
+        }
 
-function updateUserProgress(step) {
-    userProgress[step] = true;
-    console.log(`User progress updated: ${step}`);
-}
-
-// Expose functions as needed
-export {
-    triggerEmailConfirmation,
-    showModal,
-    playVideo,
-    validateVictoryLink,
-    determineSponsorLink,
-    updateUserProgress
-};
+        document.getElementById('victoryLinkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const victoryLink = document.getElementById('victoryLink').value;
+            // Validate victoryLink here and show result
+            document.getElementById('validationResult').textContent = 'Validation result here';
+        });
+    </script>
+</body>
+</html>
