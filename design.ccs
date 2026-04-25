@@ -1,53 +1,99 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f9;
-  margin: 0;
-  padding: 0;
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.container {
-  max-width: 400px;
-  margin: 30px auto;
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
   padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 1px solid #888;
+  width: 80%;
+  animation: slideIn 0.5s;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 15px;
+@keyframes slideIn {
+  from {transform: translateY(-100%);}
+  to {transform: translateY(0);}
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
 }
 
-label {
-  margin-bottom: 5px;
-  font-weight: bold;
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
-input {
+.timer {
+  font-size: 2em;
+  color: #ff0000;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.link-validation {
+  border: 2px solid #ccc;
   padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-button {
-  padding: 12px;
-  background: #007bff;
-  color: #fff;
+.link-validation:valid {
+  border-color: green;
+}
+
+.link-validation:invalid {
+  border-color: red;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.responsive-layout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.signup-button {
+  background-color: #4CAF50;
   border: none;
-  border-radius: 5px;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
   font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 10px;
+  transition: background-color 0.3s;
 }
 
-button:hover {
-  background: #0056b3;
+.signup-button:hover {
+  background-color: #45a049;
 }
