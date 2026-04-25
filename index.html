@@ -1,42 +1,78 @@
-<h2>LINKFLOW002</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINKFLOW002</title>
+  <link rel="stylesheet" href="style.css">
 
-<!-- INSCRIPTION -->
-<h3>Inscription</h3>
-<div class="form">
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+</head>
+<body>
 
-  <input id="username" placeholder="Nom d'utilisateur">
+<div class="container">
+  <h1>LINKFLOW002</h1>
 
-  <input id="email" type="email" placeholder="Adresse email">
+  <h3>Inscription</h3>
+  <form class="form" onsubmit="event.preventDefault(); signup();">
+    <input id="username" placeholder="Nom d'utilisateur" required>
+    <input id="email" type="email" placeholder="Adresse mail" required>
+    <div class="password-box">
+      <input id="password" type="password" placeholder="Mot de passe" required>
+      <span class="eye" onclick="togglePassword()">👁</span>
+    </div>
+    <button type="submit">Inscription</button>
+  </form>
 
-  <div style="position:relative; flex:1;">
-    <input id="password" type="password" placeholder="Mot de passe" style="width:100%;">
-    <span onclick="toggle()" style="position:absolute; right:10px; top:10px; cursor:pointer;">👁</span>
+  <h3>Connexion</h3>
+  <form class="form" onsubmit="event.preventDefault(); login();">
+    <input id="loginEmail" type="email" placeholder="Adresse mail" required>
+    <input id="loginPassword" type="password" placeholder="Mot de passe" required>
+    <button type="submit">Connexion</button>
+  </form>
+
+  <div class="form actions">
+    <button onclick="logout()">Déconnexion</button>
+    <button onclick="resetPassword()">Mot de passe oublié</button>
   </div>
 
-  <button onclick="signup()">S'inscrire</button>
+  <div class="popup" id="popup">
+    <h3>Compte créé avec succès</h3>
+    <p>
+      Regardez la vidéo pour étendre votre réseau.<br>
+      Le chrono démarre dès que la vidéo est lancée.<br>
+      Si la vidéo est interrompue, le chrono revient à zéro.
+    </p>
+  </div>
 
+  <div id="videoBox">
+    <h2>Regarder la vidéo</h2>
+    <div id="player"></div>
+    <div class="timer">
+      Temps restant : <span id="time">180</span> secondes
+    </div>
+    <button id="claimBtn" disabled onclick="claim()">
+      J'obtiens le lien Victory Automatic
+    </button>
+  </div>
+
+  <div id="linkZone"></div>
 </div>
 
-<hr>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="script.js"></script>
 
-<!-- CONNEXION -->
-<h3>Connexion</h3>
-<div class="form">
+<!-- Enregistrement du Service Worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service Worker enregistré"))
+    .catch(err => console.error("Erreur SW:", err));
+}
+</script>
 
-  <input id="loginEmail" type="email" placeholder="Email">
-
-  <input id="loginPassword" type="password" placeholder="Mot de passe">
-
-  <button onclick="login()">Se connecter</button>
-
-</div>
-
-<hr>
-
-<!-- ACTIONS -->
-<div class="form">
-
-  <button onclick="logout()">Déconnexion</button>
-  <button onclick="reset()">Mot de passe oublié</button>
-
-</div>
+</body>
+</html>
