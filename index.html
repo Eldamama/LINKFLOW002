@@ -1,29 +1,13 @@
-// À ajouter dans ta fonction login() après le succès de la connexion :
-function onLoginSuccess() {
-  document.getElementById('section-video').style.display = 'block';
-  // Cache le formulaire d'inscription si tu veux
-}
-
-// Modifie la fonction claimReward pour afficher le lien au lieu d'une simple alerte
-async function claimReward() {
-  const sessionId = localStorage.getItem("current_session_id");
-  if (!sessionId) return alert("Lancez la vidéo d'abord.");
-
-  try {
-    const response = await fetch("https://xkyynzbbatglctgdtqyu.supabase.co/functions/v1/dynamic-handler", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId })
-    });
-
-    if (response.ok) {
-      // SI VALIDE : On affiche le lien sacré !
-      document.getElementById('lien-victory').style.display = 'block';
-      alert("✅ Vidéo validée ! Votre lien est disponible ci-dessous.");
-    } else {
-      alert("❌ Vous n'avez pas encore fini le visionnage requis.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
+<div id="section-video" style="display: none;">
+  <hr>
+  <h3>Étape finale : Activez votre lien Victory</h3>
+  <p>Regardez cette vidéo de présentation (3 min) pour débloquer votre lien d'invitation.</p>
+  
+  <button onclick="startVideo()" style="background-color: #2ecc71;">Commencer le visionnage</button>
+  <button onclick="claimReward()" style="background-color: #f1c40f; color: black;">Obtenir mon lien Victory</button>
+  
+  <div id="lien-victory" style="display: none; margin-top: 20px; padding: 10px; border: 2px solid green;">
+    <strong>Félicitations ! Voici votre lien :</strong><br>
+    <a href="https://votre-lien-victory.com" target="_blank">Cliquez ici pour accéder au système</a>
+  </div>
+</div>
