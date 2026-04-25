@@ -1,98 +1,94 @@
-.modal {
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form input {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+.password-box {
+  display: flex;
+  align-items: center;
+}
+
+.password-box input {
+  flex: 1;
+}
+
+.eye {
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.popup {
   display: none;
   position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
   padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  animation: slideIn 0.5s;
+  border: 3px solid red;
+  border-radius: 10px;
+  z-index: 999;
 }
 
-@keyframes slideIn {
-  from {transform: translateY(-100%);}
-  to {transform: translateY(0);}
-}
-
-.video-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
-  height: 0;
-  overflow: hidden;
-}
-
-.video-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+#videoBox {
+  display: none;
+  margin-top: 30px;
 }
 
 .timer {
-  font-size: 2em;
-  color: #ff0000;
-  animation: blink 1s infinite;
+  font-size: 24px;
+  margin: 20px 0;
 }
 
-@keyframes blink {
-  50% { opacity: 0; }
+#linkZone {
+  margin-top: 20px;
 }
 
-.link-validation {
-  border: 2px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
+.actions {
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
 }
 
-.link-validation:valid {
-  border-color: green;
-}
-
-.link-validation:invalid {
-  border-color: red;
-}
-
-.success-message {
-  color: green;
-  font-weight: bold;
-  animation: fadeIn 1s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.responsive-layout {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-
-.signup-button {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.signup-button:hover {
-  background-color: #45a049;
+@media (display-mode: standalone) {
+  .form {
+    flex-direction: column !important;
+  }
 }
