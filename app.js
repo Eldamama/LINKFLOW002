@@ -1,23 +1,35 @@
-async function claim() {
+const CACHE_NAME = "linkflow-cache-v1";
+const urlsToCache = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js",
+  "/manifest.json"
+];
 
-  const res = await fetch("https://xkyynzbbatglctgdtqyu.supabase.co/functions/v1/dynamic-handler", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      session_id: sessionId
-    })
-  });
+// Installation du service worker
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
+});
 
-  if (res.ok) {
+// Activation et nettoyage
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      )
+    )
+  );
+});
 
-    document.getElementById("linkZone").innerHTML = `
-      <input id="victoryLink" placeholder="Coller lien Victory">
-      <button onclick="validateLink()">Valider</button>
-    `;
-
-  } else {
-    alert("180 secondes non validées");
-  }
-}
+// Interception des requêtes
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(response =>
+      response || fetch(event.request)
+    )
+  );
+});
