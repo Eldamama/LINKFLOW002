@@ -1,80 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Structure</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid #ccc; padding: 20px; background: white; }
-        #videoSection { display: none; }
-    </style>
-</head>
-<body>
-    <h1>Sign Up</h1>
-    <form id="signUpForm">
-        <input type="email" id="email" placeholder="Email" required />
-        <button type="submit">Sign Up</button>
-    </form>
+<h2>LINKFLOW002</h2>
 
-    <div id="popup">
-        <p>Email confirmed! Watch the introductory video.</p>
-        <button id="watchVideo">Watch Video</button>
-    </div>
+<!-- INSCRIPTION -->
+<h3>Inscription</h3>
+<div class="form">
 
-    <div id="videoSection">
-        <h2>Introductory Video</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
-        <div id="timer">Time remaining: <span id="timeRemaining">180</span> seconds</div>
-        <button id="getLink" disabled>Get Link</button>
-    </div>
+  <input id="username" placeholder="Nom d'utilisateur">
 
-    <h2>Victory Link Validator</h2>
-    <form id="victoryLinkForm">
-        <input type="text" id="victoryLink" placeholder="Paste Victory Link" required />
-        <button type="submit">Validate Link</button>
-    </form>
-    <div id="validationResult"></div>
+  <input id="email" type="email" placeholder="Adresse email">
 
-    <script>
-        const popUp = document.getElementById('popup');
-        const watchVideoButton = document.getElementById('watchVideo');
-        const videoSection = document.getElementById('videoSection');
-        const timerDisplay = document.getElementById('timeRemaining');
-        const getLinkButton = document.getElementById('getLink');
-        let timer;
+  <div style="position:relative; flex:1;">
+    <input id="password" type="password" placeholder="Mot de passe" style="width:100%;">
+    <span onclick="toggle()" style="position:absolute; right:10px; top:10px; cursor:pointer;">👁</span>
+  </div>
 
-        document.getElementById('signUpForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Imagine email confirmation process here
-            popUp.style.display = 'block';
-            setTimeout(() => { popUp.style.display = 'none'; }, 10000);
-        });
+  <button onclick="signup()">S'inscrire</button>
 
-        watchVideoButton.addEventListener('click', function() {
-            popUp.style.display = 'none';
-            videoSection.style.display = 'block';
-            startTimer();
-        });
+</div>
 
-        function startTimer() {
-            let timeRemaining = 180;
-            timer = setInterval(() => {
-                timeRemaining--;
-                timerDisplay.textContent = timeRemaining;
-                if (timeRemaining <= 0) {
-                    clearInterval(timer);
-                    getLinkButton.disabled = false;
-                }
-            }, 1000);
-        }
+<hr>
 
-        document.getElementById('victoryLinkForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const victoryLink = document.getElementById('victoryLink').value;
-            // Validate victoryLink here and show result
-            document.getElementById('validationResult').textContent = 'Validation result here';
-        });
-    </script>
-</body>
-</html>
+<!-- CONNEXION -->
+<h3>Connexion</h3>
+<div class="form">
+
+  <input id="loginEmail" type="email" placeholder="Email">
+
+  <input id="loginPassword" type="password" placeholder="Mot de passe">
+
+  <button onclick="login()">Se connecter</button>
+
+</div>
+
+<hr>
+
+<!-- ACTIONS -->
+<div class="form">
+
+  <button onclick="logout()">Déconnexion</button>
+  <button onclick="reset()">Mot de passe oublié</button>
+
+</div>
