@@ -1,67 +1,207 @@
-// app.js
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-// Email confirmation trigger function
-function triggerEmailConfirmation(userEmail) {
-    // Logic for sending confirmation email
-    console.log(`Sending confirmation email to ${userEmail}`);
+const supabase = createClient("SUPABASE_URL", "SUPABASE_ANON_KEY");
+
+let sessionId = null;
+let timer = 180;
+let interval = null;
+let player = null;
+
+/* =========================
+   AUTH
+========================= */
+
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) return alert(error.message);
+
+  await createProfile(data.user.id);
+
+  showPopup();
 }
 
-// Function to display a modal for 10 seconds
-function showModal() {
-    const modal = document.getElementById('popupModal');
-    modal.style.display = 'block';
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 10000);
+async function login() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) return alert(error.message);
+
+  document.getElementById("videoBox").style.display = "block";
 }
 
-// Video viewer functionality
-let videoPlaying = false;
-function playVideo(videoId) {
-    const videoElement = document.getElementById(videoId);
-    videoElement.play();
-    videoPlaying = true;
-    startVideoTimer();
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
 }
 
-// Start a 180-second timer after video starts
-function startVideoTimer() {
-    setTimeout(() => {
-        console.log('180 seconds have passed since the video started.');
-        // Logic after timer
-    }, 180000);
+async function reset() {
+  const email = document.getElementById("loginEmail").value;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+  if (error) return alert(error.message);
+
+  alert("Email de récupération envoyé");
 }
 
-// Victory link validation against genealogy database
-async function validateVictoryLink(victoryLink) {
-    // Simulated fetch request
-    const response = await fetch(`https://genealogy-database.com/validate?link=${victoryLink}`);
-    return response.ok;
+/* =========================
+   PROFIL (username)
+========================= */
+
+async function createProfile(userId) {
+  const username = document.getElementById("username").value;
+
+  await supabase.from("profiles").insert({
+    id: userId,
+    username: username
+  });
 }
 
-// Sponsor link determination function
-function determineSponsorLink(userId) {
-    // Logic to determine sponsor link or fallback
-    console.log(`Determining sponsor link for user: ${userId}`);
+/* =========================
+   POPUP 10 SECONDES
+========================= */
+
+function showPopup() {
+  const popup = document.getElementById("popup");
+  popup.style.display = "block";
+
+  setTimeout(() => {
+    popup.style.display = "none";
+    document.getElementById("videoBox").style.display = "block";
+
+    startVideoSession();
+  }, 10000);
 }
 
-// State management for tracking user progress
-let userProgress = {
-    signUpComplete: false,
-    videoConfirmed: false,
-    linkGenerated: false
-};
+/* =========================
+   VIDEO SESSION SUPABASE
+========================= */
 
-function updateUserProgress(step) {
-    userProgress[step] = true;
-    console.log(`User progress updated: ${step}`);
+async function startVideoSession() {
+  const { data: user } = await supabase.auth.getUser();
+
+  const { data } = await supabase
+    .from("video_sessions")
+    .insert({
+      user_id: user.user.id,
+      started_at: new Date(),
+      status: "active"
+    })
+    .select()
+    .single();
+
+  sessionId = data.id;
 }
 
-// Expose functions as needed
-export {
-    triggerEmailConfirmation,
-    showModal,
-    playVideo,
-    validateVictoryLink,
-    determineSponsorLink,
-    updateUserProgress
+/* =========================
+   TIMER 180s (RESET TOTAL)
+========================= */
+
+function startTimer() {
+  clearInterval(interval);
+  timer = 180;
+
+  document.getElementById("claim").disabled = true;
+
+  interval = setInterval(() => {
+    timer--;
+    document.getElementById("t").innerText = timer;
+
+    if (timer <= 0) {
+      clearInterval(interval);
+      document.getElementById("claim").disabled = false;
+    }
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(interval);
+  timer = 180;
+  document.getElementById("t").innerText = timer;
+  document.getElementById("claim").disabled = true;
+}
+
+/* =========================
+   CLAIM LINK
+========================= */
+
+function claim() {
+  document.getElementById("linkZone").innerHTML = `
+    <input id="victoryLink" placeholder="Coller lien Victory">
+    <button onclick="validateLink()">Valider</button>
+  `;
+}
+
+/* =========================
+   VALIDATION LINK
+========================= */
+
+function validateLink() {
+  const link = document.getElementById("victoryLink").value;
+
+  if (!link) return alert("Lien requis");
+
+  alert("Lien enregistré. Vérification en cours...");
+
+  // ici tu peux envoyer vers Supabase
+}
+
+/* =========================
+   YOUTUBE PLAYER
+========================= */
+
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player("player", {
+    videoId: "VIDEO_ID",
+    events: {
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+/* =========================
+   LOGIQUE VIDÉO
+========================= */
+
+function onPlayerStateChange(event) {
+  const state = event.data;
+
+  // PLAY
+  if (state === 1) {
+    startTimer();
+  }
+
+  // PAUSE => RESET TOTAL
+  if (state === 2) {
+    resetTimer();
+  }
+
+  // FIN VIDÉO
+  if (state === 0) {
+    document.getElementById("claim").disabled = false;
+  }
+}
+
+/* =========================
+   EXPOSITION GLOBALE
+========================= */
+
+window.signup = signup;
+window.login = login;
+window.logout = logout;
+window.reset = reset;
+window.claim = claim;
+window.validateLink = validateLink;
+window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
