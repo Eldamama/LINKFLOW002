@@ -1,3 +1,5 @@
+// app.js
+
 // Email confirmation trigger function
 function triggerEmailConfirmation(userEmail) {
     // Logic for sending confirmation email
@@ -63,4 +65,3 @@ export {
     validateVictoryLink,
     determineSponsorLink,
     updateUserProgress
-};
