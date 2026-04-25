@@ -1,13 +1,42 @@
-<div id="section-video" style="display: none;">
-  <hr>
-  <h3>Étape finale : Activez votre lien Victory</h3>
-  <p>Regardez cette vidéo de présentation (3 min) pour débloquer votre lien d'invitation.</p>
-  
-  <button onclick="startVideo()" style="background-color: #2ecc71;">Commencer le visionnage</button>
-  <button onclick="claimReward()" style="background-color: #f1c40f; color: black;">Obtenir mon lien Victory</button>
-  
-  <div id="lien-victory" style="display: none; margin-top: 20px; padding: 10px; border: 2px solid green;">
-    <strong>Félicitations ! Voici votre lien :</strong><br>
-    <a href="https://votre-lien-victory.com" target="_blank">Cliquez ici pour accéder au système</a>
+<h2>LINKFLOW002</h2>
+
+<!-- INSCRIPTION -->
+<h3>Inscription</h3>
+<div class="form">
+
+  <input id="username" placeholder="Nom d'utilisateur">
+
+  <input id="email" type="email" placeholder="Adresse email">
+
+  <div style="position:relative; flex:1;">
+    <input id="password" type="password" placeholder="Mot de passe" style="width:100%;">
+    <span onclick="toggle()" style="position:absolute; right:10px; top:10px; cursor:pointer;">👁</span>
   </div>
+
+  <button onclick="signup()">S'inscrire</button>
+
+</div>
+
+<hr>
+
+<!-- CONNEXION -->
+<h3>Connexion</h3>
+<div class="form">
+
+  <input id="loginEmail" type="email" placeholder="Email">
+
+  <input id="loginPassword" type="password" placeholder="Mot de passe">
+
+  <button onclick="login()">Se connecter</button>
+
+</div>
+
+<hr>
+
+<!-- ACTIONS -->
+<div class="form">
+
+  <button onclick="logout()">Déconnexion</button>
+  <button onclick="reset()">Mot de passe oublié</button>
+
 </div>
