@@ -1,42 +1,32 @@
+<script type="module" src="app.js"></script>
+
 <h2>LINKFLOW002</h2>
 
-<!-- INSCRIPTION -->
 <h3>Inscription</h3>
 <div class="form">
-
   <input id="username" placeholder="Nom d'utilisateur">
-
   <input id="email" type="email" placeholder="Adresse email">
 
   <div style="position:relative; flex:1;">
     <input id="password" type="password" placeholder="Mot de passe" style="width:100%;">
-    <span onclick="toggle()" style="position:absolute; right:10px; top:10px; cursor:pointer;">👁</span>
+    <span onclick="togglePassword()" style="position:absolute; right:10px; top:10px; cursor:pointer;">👁</span>
   </div>
 
   <button onclick="signup()">S'inscrire</button>
-
 </div>
 
 <hr>
 
-<!-- CONNEXION -->
 <h3>Connexion</h3>
 <div class="form">
-
   <input id="loginEmail" type="email" placeholder="Email">
-
   <input id="loginPassword" type="password" placeholder="Mot de passe">
-
   <button onclick="login()">Se connecter</button>
-
 </div>
 
 <hr>
 
-<!-- ACTIONS -->
 <div class="form">
-
   <button onclick="logout()">Déconnexion</button>
   <button onclick="reset()">Mot de passe oublié</button>
-
 </div>
