@@ -15,59 +15,18 @@
     .toggle-eye { margin-left: 8px; cursor: pointer; font-size: 18px; }
     button { margin-top: 15px; padding: 10px 15px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     #player { margin-top: 20px; }
-    #message { margin-top: 20px; padding: 10px; background: #e9f5ff; border: 1px solid #007bff; border-radius: 6px; }
-
-    /* POPUP IMPORTANT */
     #popup {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,1);
-      display: none;
-      justify-content: center;
-      align-items: center;
+      display: none; justify-content: center; align-items: center;
       z-index: 9999;
     }
-    .popup-content {
-      text-align: center;
-      color: yellow;
-      max-width: 90%;
-      padding: 20px;
-    }
-    .popup-title {
-      font-size: 32px;
-      font-weight: bold;
-      color: red;
-      text-transform: uppercase;
-      animation: clignote 1s infinite;
-    }
-    @keyframes clignote {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    #interact-btn {
-      margin-top: 20px;
-      padding: 15px 25px;
-      background: red;
-      color: #fff;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none;
-      font-size: 16px;
-    }
-    #get-link-btn {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: green;
-      color: #fff;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+    .popup-content { text-align: center; color: yellow; max-width: 90%; padding: 20px; }
+    .popup-title { font-size: 32px; font-weight: bold; color: red; text-transform: uppercase; animation: clignote 1s infinite; }
+    @keyframes clignote { 0%{opacity:1;}50%{opacity:0;}100%{opacity:1;} }
+    #interact-btn { margin-top: 20px; padding: 15px 25px; background: red; color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; display: none; font-size: 16px; }
+    #get-link-btn { margin-top: 20px; padding: 12px 20px; background: green; color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -78,11 +37,16 @@
     <h2>Inscription</h2>
     <label>Email :</label>
     <input type="email" id="signup-email" required />
+
+    <label>Nom d'utilisateur :</label>
+    <input type="text" id="signup-username" required />
+
     <label>Mot de passe :</label>
     <div class="password-container">
       <input type="password" id="signup-password" required />
       <span class="toggle-eye" onclick="togglePassword('signup-password')">👁️</span>
     </div>
+
     <button type="submit">S'inscrire</button>
   </form>
 
@@ -138,13 +102,11 @@
       "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
     );
 
-    // Fonction œil magique
     function togglePassword(fieldId) {
       const input = document.getElementById(fieldId);
       input.type = input.type === "password" ? "text" : "password";
     }
 
-    // Pop-up affiché après inscription
     function showPopup() {
       document.getElementById("popup").style.display = "flex";
       setTimeout(() => {
@@ -152,12 +114,19 @@
       }, 10000);
     }
 
-    // Gestion inscription
+    // Inscription avec username
     document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("signup-email").value;
+      const username = document.getElementById("signup-username").value;
       const password = document.getElementById("signup-password").value;
-      const { error } = await supabaseClient.auth.signUp({ email, password });
+
+      const { error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { username } } // stocke username dans user_metadata
+      });
+
       if (error) {
         alert("Erreur inscription: " + error.message);
       } else {
@@ -165,7 +134,7 @@
       }
     });
 
-    // Gestion connexion
+    // Connexion
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("login-email").value;
@@ -199,7 +168,7 @@
       alert("Déconnecté !");
     });
 
-    // Quand on clique sur "INTERAGISSEZ"
+    // Pop-up interaction
     document.getElementById("interact-btn").addEventListener("click", () => {
       document.getElementById("popup").style.display = "none";
     });
@@ -213,4 +182,10 @@
       });
     }
     function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED
+      if (event.data === YT.PlayerState.ENDED) {
+        document.getElementById("get-link-btn").disabled = false;
+      }
+    }
+
+    // Validation du lien Victory Automatic
+    document.getElementById("validate-link").addEventListener("click", async
