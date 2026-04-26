@@ -7,63 +7,60 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+    form { margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; }
+    .password-container { display: flex; align-items: center; }
+    .password-container input { flex: 1; }
+    .toggle-eye { margin-left: 8px; cursor: pointer; font-size: 18px; }
+    button { margin-top: 15px; padding: 10px 15px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    #player { margin-top: 20px; }
+    #message { margin-top: 20px; padding: 10px; background: #e9f5ff; border: 1px solid #007bff; border-radius: 6px; }
+
+    /* POPUP */
+    #popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
     }
-    form {
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    .popup-content {
+      text-align: center;
+      color: yellow;
+      max-width: 600px;
+      padding: 30px;
     }
-    label {
-      display: block;
-      margin-top: 10px;
+    .popup-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: red;
+      text-transform: uppercase;
+      animation: clignote 1s infinite;
     }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    @keyframes clignote {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
     }
-    button {
-      margin-top: 15px;
-      padding: 10px 15px;
-      background: #007bff;
+    #interact-btn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: red;
       color: #fff;
+      font-weight: bold;
       border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #player {
-      margin-top: 20px;
-    }
-    #message {
-      margin-top: 20px;
-      padding: 10px;
-      background: #e9f5ff;
-      border: 1px solid #007bff;
       border-radius: 6px;
+      cursor: pointer;
+      display: none;
     }
   </style>
 </head>
 <body>
   <h1>Bienvenue sur LINK FLOW</h1>
-
-  <!-- Sélecteur de langue -->
-  <label for="lang-select">Choisir la langue :</label>
-  <select id="lang-select">
-    <option value="fr">Français</option>
-    <option value="en">English</option>
-    <option value="es">Español</option>
-    <option value="pt">Português</option>
-    <option value="ln">Lingala</option>
-    <option value="sw">Swahili</option>
-  </select>
 
   <!-- Formulaire d'inscription -->
   <form id="signup-form">
@@ -71,7 +68,10 @@
     <label>Email :</label>
     <input type="email" id="signup-email" required />
     <label>Mot de passe :</label>
-    <input type="password" id="signup-password" required />
+    <div class="password-container">
+      <input type="password" id="signup-password" required />
+      <span class="toggle-eye" onclick="togglePassword('signup-password')">👁️</span>
+    </div>
     <button type="submit">S'inscrire</button>
   </form>
 
@@ -81,58 +81,66 @@
     <label>Email :</label>
     <input type="email" id="login-email" required />
     <label>Mot de passe :</label>
-    <input type="password" id="login-password" required />
+    <div class="password-container">
+      <input type="password" id="login-password" required />
+      <span class="toggle-eye" onclick="togglePassword('login-password')">👁️</span>
+    </div>
     <button type="submit">Se connecter</button>
+    <button type="button" id="forgot-btn">Mot de passe oublié ?</button>
   </form>
 
   <!-- Bouton de déconnexion -->
   <button id="logout-btn">Se déconnecter</button>
 
-  <!-- Message multilingue -->
-  <div id="message"></div>
-
   <!-- Vidéo YouTube -->
   <div id="player"></div>
 
+  <!-- POPUP -->
+  <div id="popup">
+    <div class="popup-content">
+      <h2 class="popup-title">COMPTE CRÉÉ</h2>
+      <p>
+        Avant d’accéder au lien, vous êtes appelé à interagir avec la vidéo.<br>
+        Vous devez la regarder entièrement, puis liker et commenter.<br>
+        Sans ces actions, le bouton <strong>J’OBTIENS LE LIEN</strong> reste bloqué.<br><br>
+        ✨ Votre engagement propulse la vidéo dans l’algorithme YouTube, la rend virale et attire de nouveaux adhérents.
+      </p>
+      <button id="interact-btn">INTERAGISSEZ AVEC LA VIDÉO POUR LA RENDRE VIRALE</button>
+    </div>
+  </div>
+
   <script>
-    // ✅ Supabase client avec ton vrai projet et ta clé anon publishable
+    // ✅ Supabase client
     const supabaseClient = supabase.createClient(
       "https://xkyynzbbatglctgdtqyu.supabase.co",
       "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
     );
 
-    // Dictionnaire multilingue
-    const translations = {
-      fr: "Pour accéder à la plateforme, vous devez regarder la vidéo, liker et commenter. Cela aide notre communauté à grandir.",
-      en: "To access the platform, you must watch the video, like and comment. This helps our community grow.",
-      es: "Para acceder a la plataforma, debes ver el video, dar me gusta y comentar. Esto ayuda a que nuestra comunidad crezca.",
-      pt: "Para acessar a plataforma, você deve assistir ao vídeo, curtir e comentar. Isso ajuda nossa comunidade a crescer.",
-      ln: "Pona kozwa accès na plateforme, tala vidéo, pesa like mpe commenter. Ekosalisa communauté na biso ekola.",
-      sw: "Ili kupata ufikiaji wa jukwaa, lazima utazame video, upende na utoe maoni. Hii inasaidia jamii yetu kukua."
-    };
-
-    // Affichage message selon langue
-    const langSelect = document.getElementById("lang-select");
-    const messageBox = document.getElementById("message");
-
-    function updateMessage() {
-      const lang = langSelect.value;
-      messageBox.textContent = translations[lang];
+    // Fonction œil magique
+    function togglePassword(fieldId) {
+      const input = document.getElementById(fieldId);
+      input.type = input.type === "password" ? "text" : "password";
     }
 
-    langSelect.addEventListener("change", updateMessage);
-    updateMessage(); // initial
+    // Affiche le pop-up après inscription
+    function showPopup() {
+      document.getElementById("popup").style.display = "flex";
+      // Après 10 secondes, afficher le bouton
+      setTimeout(() => {
+        document.getElementById("interact-btn").style.display = "inline-block";
+      }, 10000);
+    }
 
     // Gestion inscription
     document.getElementById("signup-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("signup-email").value;
       const password = document.getElementById("signup-password").value;
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      const { error } = await supabaseClient.auth.signUp({ email, password });
       if (error) {
         alert("Erreur inscription: " + error.message);
       } else {
-        alert("Inscription réussie, vérifie ton email !");
+        showPopup();
       }
     });
 
@@ -141,25 +149,46 @@
       e.preventDefault();
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         alert("Erreur connexion: " + error.message);
       } else {
-        alert("Connexion réussie !");
+        showPopup();
       }
     });
 
-    // Gestion déconnexion
+    // Mot de passe oublié
+    document.getElementById("forgot-btn").addEventListener("click", async () => {
+      const email = document.getElementById("login-email").value;
+      if (!email) {
+        alert("Veuillez entrer votre email pour réinitialiser le mot de passe.");
+        return;
+      }
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+      if (error) {
+        alert("Erreur: " + error.message);
+      } else {
+        alert("Un email de réinitialisation a été envoyé !");
+      }
+    });
+
+    // Déconnexion
     document.getElementById("logout-btn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
       alert("Déconnecté !");
     });
 
-    // ✅ YouTube Player avec ton vrai ID
+    // Bouton interact
+    document.getElementById("interact-btn").addEventListener("click", () => {
+      document.getElementById("popup").style.display = "none";
+      console.log("Chrono démarré, vidéo affichée");
+    });
+
+    // ✅ YouTube Player
     let player;
     function onYouTubeIframeAPIReady() {
       player = new YT.Player("player", {
-        videoId: "9uPybhkqYw4", // ID de ta vidéo YouTube
+        videoId: "9uPybhkqYw4",
         events: {
           onReady: () => console.log("Vidéo prête"),
           onStateChange: (event) => console.log("État vidéo:", event.data)
