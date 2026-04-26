@@ -1,79 +1,273 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINKFLOW002</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINKFLOW002</title>
 
-  <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2563eb">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+.eye {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: black;
+  padding: 30px;
+  border: 4px solid red;
+  border-radius: 12px;
+  z-index: 999;
+  width: 85%;
+  max-width: 700px;
+  box-shadow: 0 0 30px red;
+}
+
+#videoBox {
+  display: none;
+  margin-top: 30px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.timer {
+  font-size: 24px;
+  margin: 20px 0;
+}
+
+#linkZone {
+  margin-top: 20px;
+}
+
+@media (display-mode: standalone) {
+  .form {
+    flex-direction: row !important;
+  }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-  <h1>LINKFLOW002</h1>
 
-  <h3>Inscription</h3>
-  <form class="form" onsubmit="event.preventDefault(); signup();">
-    <input id="username" placeholder="Nom d'utilisateur" required>
-    <input id="email" type="email" placeholder="Adresse mail" required>
-    <div class="password-box">
-      <input id="password" type="password" placeholder="Mot de passe" required>
-      <span class="eye" onclick="togglePassword()">👁</span>
-    </div>
-    <button type="submit">Inscription</button>
-  </form>
+<h1>LINKFLOW002</h1>
 
-  <h3>Connexion</h3>
-  <form class="form" onsubmit="event.preventDefault(); login();">
-    <input id="loginEmail" type="email" placeholder="Adresse mail" required>
-    <input id="loginPassword" type="password" placeholder="Mot de passe" required>
-    <button type="submit">Connexion</button>
-  </form>
+<div class="form">
+  <select id="language" onchange="changeLanguage()" style="padding:12px; border-radius:8px; border:none;">
+    <option value="fr">Français</option>
+    <option value="en">English</option>
+    <option value="pt">Português</option>
+    <option value="es">Español</option>
+    <option value="sw">Swahili</option>
+    <option value="ln">Lingala</option>
+  </select>
+</div>
 
-  <div class="form actions">
-    <button onclick="logout()">Déconnexion</button>
-    <button onclick="resetPassword()">Mot de passe oublié</button>
+<h3>Inscription</h3>
+<div class="form">
+  <input id="username" placeholder="Nom d'utilisateur">
+  <input id="email" type="email" placeholder="Adresse mail">
+  <input id="password" type="password" placeholder="Mot de passe">
+  <span class="eye" onclick="togglePassword()">👁</span>
+  <button onclick="signup()">Inscription</button>
+</div>
+
+<h3>Connexion</h3>
+<div class="form">
+  <input id="loginEmail" type="email" placeholder="Adresse mail">
+  <input id="loginPassword" type="password" placeholder="Mot de passe">
+  <button onclick="login()">Connexion</button>
+</div>
+
+<div class="form">
+  <button onclick="logout()">Déconnexion</button>
+  <button onclick="resetPassword()">Mot de passe oublié</button>
+</div>
+
+<div class="popup" id="popup">
+  <h2 style="color:red; font-size:32px; animation: blink 1s infinite; text-transform:uppercase;">
+    IMPORTANT
+  </h2>
+
+  <p style="color:yellow; font-size:22px; line-height:1.7; font-weight:bold;">
+    Compte créé avec succès.<br><br>
+
+    Avant d'obtenir votre lien Victory Automatic, vous devez interagir avec la vidéo.
+    <br><br>
+
+    Ouvrez la vidéo sur YouTube, regardez-la jusqu'à la fin, puis participez activement :
+    <br>
+    • Likez la vidéo<br>
+    • Ajoutez un commentaire<br>
+    • Abonnez-vous si demandé
+    <br><br>
+
+    Toute interruption remet le chrono à zéro.
+    <br><br>
+
+    <span style="color:#7CFC00; font-size:24px;">
+      Vidéo virale = des milliers de nouveaux adhérents dans le réseau.
+    </span>
+  </p>
+</div>
+
+<div id="videoBox">
+  <h2>Regarder la vidéo</h2>
+
+  <div id="player"></div>
+
+  <div class="timer">
+    Temps restant : <span id="time">180</span> secondes
   </div>
 
-  <div class="popup" id="popup">
-    <h3>Compte créé avec succès</h3>
-    <p>
-      Regardez la vidéo pour étendre votre réseau.<br>
-      Le chrono démarre dès que la vidéo est lancée.<br>
-      Si la vidéo est interrompue, le chrono revient à zéro.
-    </p>
-  </div>
+  <button id="claimBtn" disabled onclick="claim()">
+    J'obtiens le lien Victory Automatic
+  </button>
+</div>
 
-  <div id="videoBox">
-    <h2>Regarder la vidéo</h2>
-    <div id="player"></div>
-    <div class="timer">
-      Temps restant : <span id="time">180</span> secondes
-    </div>
-    <button id="claimBtn" disabled onclick="claim()">
-      J'obtiens le lien Victory Automatic
-    </button>
-  </div>
+<div id="linkZone"></div>
 
-  <div id="linkZone"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
+/*
+  IMPORTANT :
+  - En local, garde SUPABASE_URL et SUPABASE_ANON_KEY dans un fichier .env
+  - Dans ce HTML, remplace seulement les placeholders si nécessaire
+  - Ne jamais mettre SERVICE_ROLE_KEY dans le frontend
+*/
+
 const supabaseClient = supabase.createClient(
-  "https://xkyynzbbatglctgdtqyu.supabase.co",
-  "sb_publishable_WdZlyuanXIGrg8RdcKcg_w_kN7YyO9a" // ✅ ta vraie Publishable anon key
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY"
 );
 
 let timer = 180;
 let interval = null;
 let player;
 let sessionId = null;
+let currentLanguage = "fr";
+
+const translations = {
+  fr: {
+    signup: "Inscription",
+    login: "Connexion",
+    logout: "Déconnexion",
+    forgot: "Mot de passe oublié",
+    watch: "Regarder la vidéo",
+    claim: "J'obtiens le lien Victory Automatic"
+  },
+  en: {
+    signup: "Sign Up",
+    login: "Login",
+    logout: "Logout",
+    forgot: "Forgot Password",
+    watch: "Watch Video",
+    claim: "Get Victory Link"
+  },
+  pt: {
+    signup: "Inscrição",
+    login: "Entrar",
+    logout: "Sair",
+    forgot: "Senha esquecida",
+    watch: "Assistir vídeo",
+    claim: "Obter link Victory"
+  },
+  es: {
+    signup: "Registro",
+    login: "Conexión",
+    logout: "Cerrar sesión",
+    forgot: "Olvidé mi contraseña",
+    watch: "Ver video",
+    claim: "Obtener enlace Victory"
+  },
+  sw: {
+    signup: "Usajili",
+    login: "Ingia",
+    logout: "Toka",
+    forgot: "Umesahau nenosiri",
+    watch: "Tazama video",
+    claim: "Pata link ya Victory"
+  },
+  ln: {
+    signup: "Komikomisa",
+    login: "Kokota",
+    logout: "Kobima",
+    forgot: "Nabosani mot de passe",
+    watch: "Talá video",
+    claim: "Zwá lien Victory"
+  }
+};
+
+function changeLanguage() {
+  currentLanguage = document.getElementById("language").value;
+
+  const lang = translations[currentLanguage];
+
+  document.querySelector("button[onclick='signup()']").innerText = lang.signup;
+  document.querySelector("button[onclick='login()']").innerText = lang.login;
+  document.querySelector("button[onclick='logout()']").innerText = lang.logout;
+  document.querySelector("button[onclick='resetPassword()']").innerText = lang.forgot;
+  document.getElementById("claimBtn").innerText = lang.claim;
+}
 
 function togglePassword() {
   const pass = document.getElementById("password");
@@ -85,10 +279,21 @@ async function signup() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) { alert(error.message); return; }
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
 
-  await supabaseClient.from("profiles").insert({ id: data.user.id, username });
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await supabaseClient.from("profiles").insert({
+    id: data.user.id,
+    username: username
+  });
+
   showPopup();
 }
 
@@ -96,8 +301,15 @@ async function login() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) { alert(error.message); return; }
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
 
   document.getElementById("videoBox").style.display = "block";
   createVideoSession();
@@ -110,7 +322,12 @@ async function logout() {
 
 async function resetPassword() {
   const email = document.getElementById("loginEmail").value;
-  if (!email) { alert("Entrez votre email de connexion"); return; }
+
+  if (!email) {
+    alert("Entrez votre email de connexion");
+    return;
+  }
+
   await supabaseClient.auth.resetPasswordForEmail(email);
   alert("Email envoyé");
 }
@@ -118,6 +335,7 @@ async function resetPassword() {
 function showPopup() {
   const popup = document.getElementById("popup");
   popup.style.display = "block";
+
   setTimeout(async () => {
     popup.style.display = "none";
     document.getElementById("videoBox").style.display = "block";
@@ -127,23 +345,30 @@ function showPopup() {
 
 async function createVideoSession() {
   const { data: authData } = await supabaseClient.auth.getUser();
+
   const { data } = await supabaseClient
     .from("video_sessions")
-    .insert({ user_id: authData.user.id, status: "active" })
+    .insert({
+      user_id: authData.user.id,
+      status: "active"
+    })
     .select()
     .single();
+
   sessionId = data.id;
 }
 
 function startTimer() {
   clearInterval(interval);
   timer = 180;
+
   document.getElementById("claimBtn").disabled = true;
   document.getElementById("time").innerText = timer;
 
   interval = setInterval(() => {
     timer--;
     document.getElementById("time").innerText = timer;
+
     if (timer <= 0) {
       clearInterval(interval);
       document.getElementById("claimBtn").disabled = false;
@@ -154,6 +379,7 @@ function startTimer() {
 function resetTimer() {
   clearInterval(interval);
   timer = 180;
+
   document.getElementById("time").innerText = timer;
   document.getElementById("claimBtn").disabled = true;
 }
@@ -163,8 +389,12 @@ async function claim() {
     "https://xkyynzbbatglctgdtqyu.supabase.co/functions/v1/dynamic-handler",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        session_id: sessionId
+      })
     }
   );
 
@@ -181,30 +411,34 @@ async function claim() {
 
 function validateVictoryLink() {
   const link = document.getElementById("victoryLink").value;
-  if (!link) { alert("Collez votre lien Victory"); return; }
+
+  if (!link) {
+    alert("Collez votre lien Victory");
+    return;
+  }
+
   alert("Lien enregistré. Vérification généalogique en cours.");
 }
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
-    videoId: "9uPybhkqYw4", // ✅ ta vidéo YouTube
-    events: { onStateChange: onPlayerStateChange }
+    videoId: "VIDEO_ID",
+    events: {
+      onStateChange: onPlayerStateChange
+    }
   });
 }
 
 function onPlayerStateChange(event) {
   const state = event.data;
-  if (state === 1) startTimer();
-  if (state === 2) resetTimer();
-}
-</script>
 
-<!-- Enregistrement du Service Worker -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
-    .then(() => console.log("Service Worker enregistré"))
-    .catch(err => console.error("Erreur SW:", err));
+  if (state === 1) {
+    startTimer();
+  }
+
+  if (state === 2) {
+    resetTimer();
+  }
 }
 </script>
 
