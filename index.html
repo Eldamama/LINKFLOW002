@@ -1,200 +1,107 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LINK FLOW - Auth & Vidéo</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-    form { margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; }
-    .password-container { display: flex; align-items: center; }
-    .password-container input { flex: 1; }
-    .toggle-eye { margin-left: 8px; cursor: pointer; font-size: 18px; }
-    button { margin-top: 15px; padding: 10px 15px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    #player { margin-top: 20px; }
-    #message { margin-top: 20px; padding: 10px; background: #e9f5ff; border: 1px solid #007bff; border-radius: 6px; }
-
-    /* POPUP */
-    #popup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .popup-content {
-      text-align: center;
-      color: yellow;
-      max-width: 600px;
-      padding: 30px;
-    }
-    .popup-title {
-      font-size: 28px;
-      font-weight: bold;
-      color: red;
-      text-transform: uppercase;
-      animation: clignote 1s infinite;
-    }
-    @keyframes clignote {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    #interact-btn {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: red;
-      color: #fff;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Bienvenue sur LINK FLOW</h1>
-
-  <!-- Formulaire d'inscription -->
-  <form id="signup-form">
-    <h2>Inscription</h2>
-    <label>Email :</label>
-    <input type="email" id="signup-email" required />
-    <label>Mot de passe :</label>
-    <div class="password-container">
-      <input type="password" id="signup-password" required />
-      <span class="toggle-eye" onclick="togglePassword('signup-password')">👁️</span>
-    </div>
-    <button type="submit">S'inscrire</button>
-  </form>
-
-  <!-- Formulaire de connexion -->
-  <form id="login-form">
-    <h2>Connexion</h2>
-    <label>Email :</label>
-    <input type="email" id="login-email" required />
-    <label>Mot de passe :</label>
-    <div class="password-container">
-      <input type="password" id="login-password" required />
-      <span class="toggle-eye" onclick="togglePassword('login-password')">👁️</span>
-    </div>
-    <button type="submit">Se connecter</button>
-    <button type="button" id="forgot-btn">Mot de passe oublié ?</button>
-  </form>
-
-  <!-- Bouton de déconnexion -->
-  <button id="logout-btn">Se déconnecter</button>
-
-  <!-- Vidéo YouTube -->
-  <div id="player"></div>
-
-  <!-- POPUP -->
-  <div id="popup">
-    <div class="popup-content">
-      <h2 class="popup-title">COMPTE CRÉÉ</h2>
-      <p>
-        Avant d’accéder au lien, vous êtes appelé à interagir avec la vidéo.<br>
-        Vous devez la regarder entièrement, puis liker et commenter.<br>
-        Sans ces actions, le bouton <strong>J’OBTIENS LE LIEN</strong> reste bloqué.<br><br>
-        ✨ Votre engagement propulse la vidéo dans l’algorithme YouTube, la rend virale et attire de nouveaux adhérents.
-      </p>
-      <button id="interact-btn">INTERAGISSEZ AVEC LA VIDÉO POUR LA RENDRE VIRALE</button>
-    </div>
+<!-- POPUP IMPORTANT -->
+<div id="popup">
+  <div class="popup-content">
+    <h2 class="popup-title">IMPORTANT</h2>
+    <p>
+      ✅ Compte créé !<br><br>
+      Avant d’accéder au lien, vous êtes appelé à interagir avec la vidéo.<br>
+      Vous devez la regarder entièrement, puis liker et commenter.<br>
+      Sans ces actions, le bouton <strong>J’OBTIENS LE LIEN</strong> reste bloqué.<br><br>
+      ✨ Votre engagement propulse la vidéo dans l’algorithme YouTube, la rend virale et attire de nouveaux adhérents.
+    </p>
+    <button id="interact-btn">INTERAGISSEZ AVEC LA VIDÉO POUR LA RENDRE VIRALE</button>
   </div>
+</div>
 
-  <script>
-    // ✅ Supabase client
-    const supabaseClient = supabase.createClient(
-      "https://xkyynzbbatglctgdtqyu.supabase.co",
-      "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
-    );
+<!-- Vidéo YouTube -->
+<div id="player"></div>
 
-    // Fonction œil magique
-    function togglePassword(fieldId) {
-      const input = document.getElementById(fieldId);
-      input.type = input.type === "password" ? "text" : "password";
-    }
+<!-- Bouton J'obtiens le lien -->
+<button id="get-link-btn" disabled>J'obtiens le lien</button>
 
-    // Affiche le pop-up après inscription
-    function showPopup() {
-      document.getElementById("popup").style.display = "flex";
-      // Après 10 secondes, afficher le bouton
-      setTimeout(() => {
-        document.getElementById("interact-btn").style.display = "inline-block";
-      }, 10000);
-    }
+<!-- Champ pour coller le lien Victory Automatic -->
+<div style="margin-top:20px;">
+  <label>Collez ici le lien Victory Automatic reçu après votre don :</label>
+  <input type="text" id="return-link" style="width:100%;padding:8px;" />
+  <button id="validate-link">Valider le lien</button>
+</div>
 
-    // Gestion inscription
-    document.getElementById("signup-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-      const { error } = await supabaseClient.auth.signUp({ email, password });
-      if (error) {
-        alert("Erreur inscription: " + error.message);
-      } else {
-        showPopup();
-      }
-    });
+<script>
+let videoFinished = false;
+let sponsorLink = null; // parrain ou racine
 
-    // Gestion connexion
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        alert("Erreur connexion: " + error.message);
-      } else {
-        showPopup();
-      }
-    });
+// Pop-up affiché après inscription
+function showPopup() {
+  document.getElementById("popup").style.display = "flex";
+  setTimeout(() => {
+    document.getElementById("interact-btn").style.display = "inline-block";
+  }, 10000);
+}
 
-    // Mot de passe oublié
-    document.getElementById("forgot-btn").addEventListener("click", async () => {
-      const email = document.getElementById("login-email").value;
-      if (!email) {
-        alert("Veuillez entrer votre email pour réinitialiser le mot de passe.");
-        return;
-      }
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-      if (error) {
-        alert("Erreur: " + error.message);
-      } else {
-        alert("Un email de réinitialisation a été envoyé !");
-      }
-    });
+// Quand on clique sur "INTERAGISSEZ"
+document.getElementById("interact-btn").addEventListener("click", () => {
+  document.getElementById("popup").style.display = "none";
+});
 
-    // Déconnexion
-    document.getElementById("logout-btn").addEventListener("click", async () => {
-      await supabaseClient.auth.signOut();
-      alert("Déconnecté !");
-    });
+// YouTube Player
+let player;
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player("player", {
+    videoId: "9uPybhkqYw4",
+    events: { onStateChange: onPlayerStateChange }
+  });
+}
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.ENDED) {
+    videoFinished = true;
+    document.getElementById("get-link-btn").disabled = false;
+  }
+}
 
-    // Bouton interact
-    document.getElementById("interact-btn").addEventListener("click", () => {
-      document.getElementById("popup").style.display = "none";
-      console.log("Chrono démarré, vidéo affichée");
-    });
+// Bouton J'obtiens le lien
+document.getElementById("get-link-btn").addEventListener("click", () => {
+  if (!videoFinished) {
+    alert("Vous devez regarder la vidéo entièrement avant d'obtenir le lien.");
+    return;
+  }
+  // Redirection vers Victory Automatic avec parrain ou racine
+  window.location.href = sponsorLink || "https://victoryautomatic.com/user/register/racine";
+});
 
-    // ✅ YouTube Player
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player("player", {
-        videoId: "9uPybhkqYw4",
-        events: {
-          onReady: () => console.log("Vidéo prête"),
-          onStateChange: (event) => console.log("État vidéo:", event.data)
-        }
-      });
-    }
-  </script>
-</body>
-</html>
+// Validation du lien Victory Automatic collé
+document.getElementById("validate-link").addEventListener("click", async () => {
+  const victoryLink = document.getElementById("return-link").value.trim();
+  if (!victoryLink) {
+    alert("Veuillez coller le lien Victory Automatic reçu après votre don.");
+    return;
+  }
+  if (!victoryLink.startsWith("https://victoryautomatic.com/user/register/")) {
+    alert("❌ Lien invalide. Seuls les liens Victory Automatic sont acceptés.");
+    return;
+  }
+  const sponsorId = extractSponsorId(victoryLink);
+
+  // Vérification dans Supabase
+  const { data, error } = await supabaseClient
+    .from("genealogie")
+    .select("id")
+    .eq("id", sponsorId)
+    .single();
+
+  if (error) {
+    alert("Erreur de vérification : " + error.message);
+    return;
+  }
+  if (data) {
+    alert("Lien accepté ✅. Génération du lien local en cours...");
+    // Générer le lien local final
+  } else {
+    alert("❌ Ce parrain n'existe pas dans la généalogie de la racine.");
+  }
+});
+
+function extractSponsorId(link) {
+  const parts = link.split("/");
+  return parts[parts.length - 1];
+}
+</script>
