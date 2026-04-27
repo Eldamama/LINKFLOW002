@@ -3,189 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LINK FLOW - Expérience Pro</title>
+  <title>LINK FLOW - Global Edition</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
-    :root { 
-      --primary: #007bff; 
-      --success: #28a745; 
-      --bg: #f8f9fa;
-    }
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; background: var(--bg); color: #333; }
+    :root { --primary: #007bff; --bg: #f8f9fa; --success: #28a745; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; background: var(--bg); }
     .container { max-width: 480px; margin: 0 auto; }
     
-    /* --- LOGO --- */
-    .brand-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
-    .logo-img { max-width: 180px; height: auto; display: block; margin: 0 auto; border-radius: 10px; }
-    .brand-tagline { font-size: 14px; color: #666; margin-top: 10px; font-weight: 600; }
-
-    /* Cartes & Forms */
-    .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid #eee; }
-    h2 { margin-top: 0; color: #2c3e50; font-size: 20px; text-align: center; }
-    
-    input { width: 100%; padding: 12px 15px; margin: 8px 0 18px; border: 1px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; background-color: #fcfcfc; }
-    input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-    
-    .password-wrapper { position: relative; }
-    .toggle-eye { position: absolute; right: 15px; top: 18px; cursor: pointer; font-size: 18px; user-select: none; }
-
-    button { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; transition: 0.2s; }
-    .btn-main { background-color: var(--primary); color: white; }
-    .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
-    
-    #auth-zone, #video-section, #validation-section, #logout-btn, #login-form-card { display: none; }
-    #player { margin-top: 20px; border-radius: 10px; overflow: hidden; border: 2px solid #eee; width: 100%; }
-
-    /* Popup */
-    #popup {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center;
-      z-index: 9999; color: white; text-align: center;
+    /* ÉCRAN DE LANGUE */
+    #lang-selection { 
+        position: fixed; inset: 0; background: white; z-index: 10000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
+    .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 90%; max-width: 400px; }
+    .lang-btn { 
+        padding: 15px; border: 2px solid #eee; border-radius: 10px; cursor: pointer; 
+        font-size: 16px; font-weight: bold; background: white; transition: 0.3s;
+    }
+    .lang-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+
+    /* UI ELEMENTS */
+    .brand-container { text-align: center; margin: 20px 0; }
+    .logo-img { max-width: 140px; border-radius: 10px; }
+    .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    h2 { margin-top: 0; font-size: 20px; text-align: center; color: #2c3e50; }
+    
+    input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    button { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+    .btn-main { background-color: var(--primary); color: white; }
+    .btn-main:hover { opacity: 0.9; }
+
+    #main-content, #auth-zone, #video-section, #validation-section, #login-form-card { display: none; }
+    .forgot-link { display: block; text-align: center; margin-top: 15px; font-size: 13px; color: #666; cursor: pointer; }
+    #player { border-radius: 10px; margin-top: 15px; }
+
+    #popup { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 9999; color: white; text-align: center; padding: 20px;}
   </style>
 </head>
 <body>
 
-<div class="container">
-  
+<div id="lang-selection">
+    <div class="brand-container">
+        <img src="https://raw.githubusercontent.com/votre-depot/logo.png" width="80" style="margin-bottom: 10px;" onerror="this.style.display='none'">
+        <p style="font-weight: bold; color: #555;">CHOOSE YOUR LANGUAGE</p>
+    </div>
+    <div class="lang-grid">
+        <button class="lang-btn" onclick="setLanguage('fr')">Français 🇫🇷</button>
+        <button class="lang-btn" onclick="setLanguage('en')">English 🇺🇸</button>
+        <button class="lang-btn" onclick="setLanguage('pt')">Português 🇵🇹</button>
+        <button class="lang-btn" onclick="setLanguage('es')">Español 🇪🇸</button>
+        <button class="lang-btn" onclick="setLanguage('sw')">Kiswahili 🇰🇪</button>
+        <button class="lang-btn" onclick="setLanguage('ln')">Lingala 🇨🇩</button>
+    </div>
+</div>
+
+<div class="container" id="main-content">
   <div class="brand-container">
-    <img src="https://raw.githubusercontent.com/ton-username/ton-repo/main/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195.png" alt="LinkFlow Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150?text=LINKFLOW'">
-    <div class="brand-tagline">FLUIDITÉ • ENGAGEMENT • SUCCÈS</div>
+    <img src="https://raw.githubusercontent.com/votre-depot/logo.png" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150?text=LINKFLOW'">
+    <div id="txt-tagline" class="brand-tagline" style="font-size: 13px; color:#666; margin-top:10px; font-weight:600; text-transform: uppercase;"></div>
   </div>
 
   <div id="auth-zone">
     <div class="card" id="signup-form-card">
-      <h2>Créer un compte</h2>
+      <h2 id="txt-signup-title"></h2>
       <form id="signup-form">
-        <input type="text" id="signup-username" placeholder="Nom d'utilisateur" required />
-        <input type="email" id="signup-email" placeholder="Email" required />
-        <div class="password-wrapper">
-          <input type="password" id="signup-password" placeholder="Mot de passe" required />
-          <span class="toggle-eye" onclick="togglePassword('signup-password', this)">👁️</span>
-        </div>
-        <button type="submit" class="btn-main">S'inscrire</button>
+        <input type="text" id="signup-username" required />
+        <input type="email" id="signup-email" required />
+        <input type="password" id="signup-password" required />
+        <button type="submit" class="btn-main" id="btn-signup"></button>
       </form>
-      <p style="text-align:center; font-size:14px; margin-top:15px;">Déjà membre ? <a href="#" onclick="showLoginForm()">Se connecter</a></p>
+      <p style="text-align:center; font-size:14px;"><span id="txt-have-account"></span> <a href="#" onclick="showLoginForm()" id="lnk-login"></a></p>
     </div>
 
     <div class="card" id="login-form-card">
-      <h2>Connexion</h2>
+      <h2 id="txt-login-title"></h2>
       <form id="login-form">
-        <input type="email" id="login-email" placeholder="Email" required />
-        <div class="password-wrapper">
-          <input type="password" id="login-password" placeholder="Mot de passe" required />
-          <span class="toggle-eye" onclick="togglePassword('login-password', this)">👁️</span>
-        </div>
-        <button type="submit" class="btn-main">Se connecter</button>
+        <input type="email" id="login-email" required />
+        <input type="password" id="login-password" required />
+        <button type="submit" class="btn-main" id="btn-login"></button>
+        <span class="forgot-link" id="lnk-forgot" onclick="handleForgotPassword()"></span>
       </form>
-      <p style="text-align:center; font-size:14px; margin-top:15px;">Nouveau ? <a href="#" onclick="showSignupForm()">Créer un compte</a></p>
+      <p style="text-align:center; font-size:14px;"><span id="txt-no-account"></span> <a href="#" onclick="showSignupForm()" id="lnk-signup"></a></p>
     </div>
   </div>
 
   <div id="video-section" class="card">
-    <h3 style="margin-top:0;">Étape 1 : Visionnage</h3>
-    <p style="color:#666; font-size:13px;">Regardez la vidéo pour débloquer le bouton de validation.</p>
+    <h3 id="txt-step1"></h3>
+    <p id="txt-step1-desc"></p>
     <div id="player"></div>
   </div>
 
   <div id="validation-section" class="card">
-    <h3 style="color: var(--success); margin-top:0;">Étape 2 : Votre Lien</h3>
-    <input type="text" id="return-link" placeholder="Collez votre lien Victory ici" />
-    <button id="validate-link" class="btn-main" style="background-color: var(--success);">Valider le lien</button>
+    <h3 id="txt-step2"></h3>
+    <input type="text" id="return-link" placeholder="Victory Link..." />
+    <button id="validate-link" class="btn-main" style="background: var(--success);"></button>
   </div>
-
-  <button id="logout-btn" onclick="handleLogout()" style="background:none; color:#999; border:1px solid #ddd; font-size:12px; margin-bottom: 20px;">Déconnexion</button>
 </div>
 
 <div id="popup">
-  <div style="padding: 30px;">
-    <h2 style="color: #ff4d4d;">IMPORTANT</h2>
-    <p>Compte créé !<br><br>Regardez la vidéo jusqu'au bout sans tricher pour débloquer l'accès.</p>
-    <button id="interact-btn" class="btn-main" style="display:none; background:red;">J'AI COMPRIS</button>
-  </div>
+    <div>
+        <h2 id="pop-title" style="color:#ff4d4d"></h2>
+        <p id="pop-text" style="font-size: 18px; line-height: 1.5;"></p>
+        <button id="interact-btn" class="btn-main" style="display:none; background:red; margin-top:20px;"></button>
+    </div>
 </div>
 
 <script>
-  // 1. INITIALISATION AVEC TES VRAIES INFOS
-  const supabaseClient = supabase.createClient(
-    "https://xkyynzbbatglctgdtqyu.supabase.co",
-    "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
-  );
+const translations = {
+    fr: { tagline: "FLUIDITÉ • ENGAGEMENT • SUCCÈS", signupTitle: "Créer un compte", loginTitle: "Connexion", userPh: "Nom d'utilisateur", passPh: "Mot de passe", signupBtn: "S'inscrire", loginBtn: "Se connecter", haveAcc: "Déjà membre ?", noAcc: "Nouveau ?", forgot: "Mot de passe oublié ?", step1: "Étape 1 : Visionnage", step1Desc: "Regardez la vidéo pour débloquer l'accès.", step2: "Étape 2 : Votre Lien", validBtn: "Valider le lien", popT: "IMPORTANT", popX: "Compte créé ! Regardez la vidéo jusqu'au bout sans tricher.", intBtn: "J'AI COMPRIS", errVid: "Regardez toute la vidéo." },
+    en: { tagline: "FLOW • ENGAGEMENT • SUCCESS", signupTitle: "Create Account", loginTitle: "Login", userPh: "Username", passPh: "Password", signupBtn: "Sign Up", loginBtn: "Login", haveAcc: "Already a member?", noAcc: "New here?", forgot: "Forgot password?", step1: "Step 1: Watch Video", step1Desc: "Watch the video to unlock access.", step2: "Step 2: Your Link", validBtn: "Validate Link", popT: "IMPORTANT", popX: "Account created! Watch the video until the end without cheating.", intBtn: "I UNDERSTAND", errVid: "Please watch the entire video." },
+    pt: { tagline: "FLUIDEZ • ENGAJAMENTO • SUCESSO", signupTitle: "Criar conta", loginTitle: "Entrar", userPh: "Nome de usuário", passPh: "Senha", signupBtn: "Inscrever-se", loginBtn: "Entrar", haveAcc: "Já é membro?", noAcc: "Novo aqui?", forgot: "Esqueceu a senha?", step1: "Passo 1: Assistir", step1Desc: "Assista ao vídeo para desbloquear o acesso.", step2: "Passo 2: Seu Link", validBtn: "Validar Link", popT: "IMPORTANTE", popX: "Conta criada! Assista ao vídeo até o fim sem pular.", intBtn: "EU ENTENDO", errVid: "Assista ao vídeo completo." },
+    es: { tagline: "FLUIDEZ • COMPROMISO • ÉXITO", signupTitle: "Crear cuenta", loginTitle: "Iniciar sesión", userPh: "Usuario", passPh: "Contraseña", signupBtn: "Registrarse", loginBtn: "Entrar", haveAcc: "¿Ya eres miembro?", noAcc: "¿Eres nuevo?", forgot: "¿Olvidaste tu contraseña?", step1: "Paso 1: Ver video", step1Desc: "Mira el video para desbloquear el acceso.", step2: "Paso 2: Tu Link", validBtn: "Validar Link", popT: "IMPORTANTE", popX: "¡Cuenta creada! Mira el video hasta el final sin hacer trampa.", intBtn: "COMPRENDO", errVid: "Mira el video completo." },
+    sw: { tagline: "MKIRIRIKO • KUJITOLEA • MAFANIKIO", signupTitle: "Fungua Akaunti", loginTitle: "Ingia", userPh: "Jina la mtumiaji", passPh: "Nenosiri", signupBtn: "Jisajili", loginBtn: "Ingia", haveAcc: "Tayari una akaunti?", noAcc: "Mgeni?", forgot: "Umesahau nenosiri?", step1: "Hatua ya 1: Tazama Video", step1Desc: "Tazama video ili ufungue ufikiaji.", step2: "Hatua ya 2: Kiungo Chako", validBtn: "Thibitisha Kiungo", popT: "MUHIMU", popX: "Akaunti imeundwa! Tazama video mpaka mwisho bila kuruka.", intBtn: "NAELEWA", errVid: "Tazama video yote." },
+    ln: { tagline: "BOPETOLI • KOYEKOLA • BOLONGI", signupTitle: "Fungola Konti", loginTitle: "KOTA", userPh: "Kombo ya mosali", passPh: "Liloba ya sekele", signupBtn: "Komisa kombo", loginBtn: "Kota", haveAcc: "Oza na konti?", noAcc: "Oza sika?", forgot: "Obosani liloba ya sekele?", step1: "Etapa 1: Tala video", step1Desc: "Tala video mobimba mpo na kofungola nzela.", step2: "Etapa 2: Lien na yo", validBtn: "Tondisa Lien", popT: "TALA MALAMU", popX: "Konti efungwami! Tala video tii na suka, kokosa te.", intBtn: "NAYOKI", errVid: "Tala video tii na suka." }
+};
 
-  function togglePassword(id, el) {
-    const input = document.getElementById(id);
-    if (input.type === "password") { input.type = "text"; el.textContent = "🙈"; }
-    else { input.type = "password"; el.textContent = "👁️"; }
-  }
+let currentLang = 'fr';
 
-  function showLoginForm() { document.getElementById("signup-form-card").style.display = "none"; document.getElementById("login-form-card").style.display = "block"; }
-  function showSignupForm() { document.getElementById("signup-form-card").style.display = "block"; document.getElementById("login-form-card").style.display = "none"; }
+function setLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    document.getElementById("txt-tagline").textContent = t.tagline;
+    document.getElementById("txt-signup-title").textContent = t.signupTitle;
+    document.getElementById("txt-login-title").textContent = t.loginTitle;
+    document.getElementById("signup-username").placeholder = t.userPh;
+    document.getElementById("signup-password").placeholder = t.passPh;
+    document.getElementById("login-password").placeholder = t.passPh;
+    document.getElementById("btn-signup").textContent = t.signupBtn;
+    document.getElementById("btn-login").textContent = t.loginBtn;
+    document.getElementById("txt-have-account").textContent = t.haveAcc;
+    document.getElementById("lnk-login").textContent = t.loginBtn;
+    document.getElementById("txt-no-account").textContent = t.noAcc;
+    document.getElementById("lnk-signup").textContent = t.signupBtn;
+    document.getElementById("lnk-forgot").textContent = t.forgot;
+    document.getElementById("txt-step1").textContent = t.step1;
+    document.getElementById("txt-step1-desc").textContent = t.step1Desc;
+    document.getElementById("txt-step2").textContent = t.step2;
+    document.getElementById("validate-link").textContent = t.validBtn;
+    document.getElementById("pop-title").textContent = t.popT;
+    document.getElementById("pop-text").textContent = t.popX;
+    document.getElementById("interact-btn").textContent = t.intBtn;
 
-  // GESTION SESSION
-  supabaseClient.auth.onAuthStateChange((event, session) => {
+    document.getElementById("lang-selection").style.display = "none";
+    document.getElementById("main-content").style.display = "block";
+}
+
+const supabaseClient = supabase.createClient("https://xkyynzbbatglctgdtqyu.supabase.co", "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB");
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session) {
-      document.getElementById("auth-zone").style.display = "none";
-      document.getElementById("video-section").style.display = "block";
-      document.getElementById("logout-btn").style.display = "block";
+        document.getElementById("auth-zone").style.display = "none";
+        document.getElementById("video-section").style.display = "block";
     } else {
-      document.getElementById("auth-zone").style.display = "block";
-      document.getElementById("video-section").style.display = "none";
-      document.getElementById("validation-section").style.display = "none";
-      document.getElementById("logout-btn").style.display = "none";
+        document.getElementById("auth-zone").style.display = "block";
     }
-  });
+});
 
-  // INSCRIPTION
-  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+function showLoginForm() { document.getElementById("signup-form-card").style.display = "none"; document.getElementById("login-form-card").style.display = "block"; }
+function showSignupForm() { document.getElementById("signup-form-card").style.display = "block"; document.getElementById("login-form-card").style.display = "none"; }
+
+document.getElementById("signup-form").onsubmit = async (e) => {
     e.preventDefault();
     const { error } = await supabaseClient.auth.signUp({
-      email: document.getElementById("signup-email").value,
-      password: document.getElementById("signup-password").value,
-      options: { data: { username: document.getElementById("signup-username").value } }
+        email: document.getElementById("signup-email").value,
+        password: document.getElementById("signup-password").value
     });
-    if (error) alert(error.message);
+    if(error) alert(error.message);
     else {
-      document.getElementById("popup").style.display = "flex";
-      setTimeout(() => { document.getElementById("interact-btn").style.display = "block"; }, 2000);
+        document.getElementById("popup").style.display = "flex";
+        setTimeout(() => document.getElementById("interact-btn").style.display = "block", 2000);
     }
-  });
+};
 
-  // CONNEXION
-  document.getElementById("login-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email: document.getElementById("login-email").value,
-      password: document.getElementById("login-password").value
-    });
-    if (error) alert(error.message);
-  });
+async function handleForgotPassword() {
+    const email = document.getElementById("login-email").value;
+    if(!email) { alert(translations[currentLang].forgot); return; }
+    await supabaseClient.auth.resetPasswordForEmail(email);
+    alert("Email sent / Email etindami");
+}
 
-  document.getElementById("interact-btn").onclick = () => { document.getElementById("popup").style.display = "none"; };
+document.getElementById("interact-btn").onclick = () => document.getElementById("popup").style.display = "none";
 
-  // YOUTUBE
-  let player;
-  function onYouTubeIframeAPIReady() {
-    player = new YT.Player("player", {
-      height: '240', width: '100%', videoId: "9uPybhkqYw4",
-      events: { 'onStateChange': onPlayerStateChange }
-    });
-  }
-
-  function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.ENDED) {
-      if (player.getCurrentTime() / player.getDuration() > 0.95) {
-        document.getElementById("validation-section").style.display = "block";
-      } else {
-        alert("Action requise : Regardez toute la vidéo.");
-      }
-    }
-  }
-
-  async function handleLogout() {
-    await supabaseClient.auth.signOut();
-    location.reload();
-  }
+let player;
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player("player", { height: '240', width: '100%', videoId: "9uPybhkqYw4", events: { 'onStateChange': (e) => {
+        if (e.data === YT.PlayerState.ENDED) {
+            if (player.getCurrentTime() / player.getDuration() > 0.95) {
+                document.getElementById("validation-section").style.display = "block";
+            } else {
+                alert(translations[currentLang].errVid);
+            }
+        }
+    }}});
+}
 </script>
 </body>
 </html>
