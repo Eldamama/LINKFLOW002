@@ -3,189 +3,166 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LINK FLOW - Auth & Vidéo</title>
+  <title>LINK FLOW - Correction Finale</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-    form { margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; }
-    .password-container { display: flex; align-items: center; }
-    .password-container input { flex: 1; }
-    .toggle-eye { margin-left: 8px; cursor: pointer; font-size: 18px; }
-    button { margin-top: 15px; padding: 10px 15px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    #player { margin-top: 20px; }
+    :root { --primary: #007bff; --success: #28a745; }
+    body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+    .container { max-width: 500px; margin: 0 auto; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    .password-wrapper { position: relative; }
+    .toggle-eye { position: absolute; right: 10px; top: 12px; cursor: pointer; font-size: 20px; }
+    button { width: 100%; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    .btn-main { background: var(--primary); color: white; }
+    
+    #video-section, #validation-section, #logout-btn, #auth-zone { display: none; }
+    
     #popup {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,1);
-      display: none; justify-content: center; align-items: center;
-      z-index: 9999;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center;
+      z-index: 1000; text-align: center; color: white;
     }
-    .popup-content { text-align: center; color: yellow; max-width: 90%; padding: 20px; }
-    .popup-title { font-size: 32px; font-weight: bold; color: red; text-transform: uppercase; animation: clignote 1s infinite; }
-    @keyframes clignote { 0%{opacity:1;}50%{opacity:0;}100%{opacity:1;} }
-    #interact-btn { margin-top: 20px; padding: 15px 25px; background: red; color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; display: none; font-size: 16px; }
-    #get-link-btn { margin-top: 20px; padding: 12px 20px; background: green; color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>Bienvenue sur LINK FLOW</h1>
 
-  <!-- Formulaire d'inscription -->
-  <form id="signup-form">
-    <h2>Inscription</h2>
-    <label>Email :</label>
-    <input type="email" id="signup-email" required />
+<div class="container">
+  <h1>LINK FLOW</h1>
 
-    <label>Nom d'utilisateur :</label>
-    <input type="text" id="signup-username" required />
-
-    <label>Mot de passe :</label>
-    <div class="password-container">
-      <input type="password" id="signup-password" required />
-      <span class="toggle-eye" onclick="togglePassword('signup-password')">👁️</span>
+  <div id="auth-zone">
+    <div class="card">
+      <h2>Inscription</h2>
+      <form id="signup-form">
+        <input type="text" id="signup-username" placeholder="Nom d'utilisateur" required />
+        <input type="email" id="signup-email" placeholder="Email" required />
+        <div class="password-wrapper">
+          <input type="password" id="signup-password" placeholder="Mot de passe" required />
+          <span class="toggle-eye" onclick="togglePassword('signup-password', this)">👁️</span>
+        </div>
+        <button type="submit" class="btn-main">Créer mon compte</button>
+      </form>
     </div>
 
-    <button type="submit">S'inscrire</button>
-  </form>
-
-  <!-- Formulaire de connexion -->
-  <form id="login-form">
-    <h2>Connexion</h2>
-    <label>Email :</label>
-    <input type="email" id="login-email" required />
-    <label>Mot de passe :</label>
-    <div class="password-container">
-      <input type="password" id="login-password" required />
-      <span class="toggle-eye" onclick="togglePassword('login-password')">👁️</span>
-    </div>
-    <button type="submit">Se connecter</button>
-    <button type="button" id="forgot-btn">Mot de passe oublié ?</button>
-  </form>
-
-  <!-- Bouton de déconnexion -->
-  <button id="logout-btn">Se déconnecter</button>
-
-  <!-- POPUP IMPORTANT -->
-  <div id="popup">
-    <div class="popup-content">
-      <h2 class="popup-title">IMPORTANT</h2>
-      <p>
-        ✅ Compte créé !<br><br>
-        Avant d’accéder au lien, vous êtes appelé à interagir avec la vidéo.<br>
-        Vous devez la regarder entièrement, puis liker et commenter.<br>
-        Sans ces actions, le bouton <strong>J’OBTIENS LE LIEN</strong> reste bloqué.<br><br>
-        ✨ Votre engagement propulse la vidéo dans l’algorithme YouTube, la rend virale et attire de nouveaux adhérents.
-      </p>
-      <button id="interact-btn">INTERAGISSEZ AVEC LA VIDÉO POUR LA RENDRE VIRALE</button>
+    <div class="card">
+      <h2>Connexion</h2>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required />
+        <div class="password-wrapper">
+          <input type="password" id="login-password" placeholder="Mot de passe" required />
+          <span class="toggle-eye" onclick="togglePassword('login-password', this)">👁️</span>
+        </div>
+        <button type="submit" class="btn-main">Se connecter</button>
+      </form>
     </div>
   </div>
 
-  <!-- Vidéo YouTube -->
-  <div id="player"></div>
-
-  <!-- Bouton J'obtiens le lien -->
-  <button id="get-link-btn" disabled>J'obtiens le lien</button>
-
-  <!-- Champ pour coller le lien Victory Automatic -->
-  <div style="margin-top:20px;">
-    <label>Collez ici le lien Victory Automatic reçu après votre don :</label>
-    <input type="text" id="return-link" style="width:100%;padding:8px;" />
-    <button id="validate-link">Valider le lien</button>
+  <div id="video-section" class="card">
+    <h3>Étape 1 : Regardez la vidéo</h3>
+    <div id="player"></div>
   </div>
 
-  <script>
-    // Supabase client
-    const supabaseClient = supabase.createClient(
-      "https://xkyynzbbatglctgdtqyu.supabase.co",
-      "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
-    );
+  <div id="validation-section" class="card">
+    <h3 style="color: var(--success);">Étape 2 : Validez votre lien</h3>
+    <input type="text" id="return-link" placeholder="Collez votre lien ici" />
+    <button id="validate-link" class="btn-main" style="background: var(--success);">Valider</button>
+  </div>
 
-    function togglePassword(fieldId) {
-      const input = document.getElementById(fieldId);
-      input.type = input.type === "password" ? "text" : "password";
+  <button id="logout-btn" onclick="handleLogout()" style="background:#666; color:white;">Déconnexion</button>
+</div>
+
+<div id="popup">
+  <div style="padding: 20px;">
+    <h2 style="color: red;">IMPORTANT</h2>
+    <p>Vous devez regarder la vidéo jusqu'au bout pour débloquer le bouton de validation.</p>
+    <button id="interact-btn" class="btn-main" style="display:none;">J'AI COMPRIS</button>
+  </div>
+</div>
+
+<script>
+  // 1. Configuration Supabase
+  const supabaseClient = supabase.createClient(
+    "https://xkyynzbbatglctgdtqyu.supabase.co",
+    "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
+  );
+
+  // 2. Fonction Œil Magique (Corrigée)
+  function togglePassword(id, el) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+      input.type = "text";
+      el.textContent = "🙈";
+    } else {
+      input.type = "password";
+      el.textContent = "👁️";
     }
+  }
 
-    function showPopup() {
+  // 3. Gestion de la Session
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      document.getElementById("auth-zone").style.display = "none";
+      document.getElementById("video-section").style.display = "block";
+      document.getElementById("logout-btn").style.display = "block";
+    } else {
+      document.getElementById("auth-zone").style.display = "block";
+      document.getElementById("video-section").style.display = "none";
+      document.getElementById("validation-section").style.display = "none";
+      document.getElementById("logout-btn").style.display = "none";
+    }
+  });
+
+  // 4. Inscription
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { error } = await supabaseClient.auth.signUp({
+      email: document.getElementById("signup-email").value,
+      password: document.getElementById("signup-password").value,
+      options: { data: { username: document.getElementById("signup-username").value } }
+    });
+    if (error) alert(error.message);
+    else {
       document.getElementById("popup").style.display = "flex";
-      setTimeout(() => {
-        document.getElementById("interact-btn").style.display = "inline-block";
-      }, 10000);
+      setTimeout(() => { document.getElementById("interact-btn").style.display = "block"; }, 2000);
     }
+  });
 
-    // Inscription avec username
-    document.getElementById("signup-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("signup-email").value;
-      const username = document.getElementById("signup-username").value;
-      const password = document.getElementById("signup-password").value;
+  // 5. Connexion
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: document.getElementById("login-email").value,
+      password: document.getElementById("login-password").value
+    });
+    if (error) alert(error.message);
+  });
 
-      const { error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: { data: { username } } // stocke username dans user_metadata
-      });
+  document.getElementById("interact-btn").onclick = () => { document.getElementById("popup").style.display = "none"; };
 
-      if (error) {
-        alert("Erreur inscription: " + error.message);
+  // 6. YouTube API
+  let player;
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player("player", {
+      height: '250', width: '100%', videoId: "9uPybhkqYw4",
+      events: { 'onStateChange': onPlayerStateChange }
+    });
+  }
+
+  function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+      if (player.getCurrentTime() / player.getDuration() > 0.95) {
+        document.getElementById("validation-section").style.display = "block";
       } else {
-        showPopup();
-      }
-    });
-
-    // Connexion
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        alert("Erreur connexion: " + error.message);
-      } else {
-        showPopup();
-      }
-    });
-
-    // Mot de passe oublié
-    document.getElementById("forgot-btn").addEventListener("click", async () => {
-      const email = document.getElementById("login-email").value;
-      if (!email) {
-        alert("Veuillez entrer votre email pour réinitialiser le mot de passe.");
-        return;
-      }
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-      if (error) {
-        alert("Erreur: " + error.message);
-      } else {
-        alert("Un email de réinitialisation a été envoyé !");
-      }
-    });
-
-    // Déconnexion
-    document.getElementById("logout-btn").addEventListener("click", async () => {
-      await supabaseClient.auth.signOut();
-      alert("Déconnecté !");
-    });
-
-    // Pop-up interaction
-    document.getElementById("interact-btn").addEventListener("click", () => {
-      document.getElementById("popup").style.display = "none";
-    });
-
-    // YouTube Player
-    let player;
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player("player", {
-        videoId: "9uPybhkqYw4",
-        events: { onStateChange: onPlayerStateChange }
-      });
-    }
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED) {
-        document.getElementById("get-link-btn").disabled = false;
+        alert("Vidéo non terminée. Merci de ne pas avancer manuellement.");
       }
     }
+  }
 
-    // Validation du lien Victory Automatic
-    document.getElementById("validate-link").addEventListener("click", async
+  async function handleLogout() {
+    await supabaseClient.auth.signOut();
+    location.reload();
+  }
+</script>
+</body>
+</html>
