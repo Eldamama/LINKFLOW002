@@ -3,69 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LINK FLOW - Expérience Pro avec Logo</title>
+  <title>LINK FLOW - Expérience Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root { 
-      --primary: #007bff; /* Bleu Tech */
+      --primary: #007bff; 
       --success: #28a745; 
       --bg: #f8f9fa;
     }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 10px; background: var(--bg); color: #333; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; background: var(--bg); color: #333; }
     .container { max-width: 480px; margin: 0 auto; }
     
-    /* --- STYLE DE L'ENTÊTE AVEC IMAGE DU LOGO --- */
+    /* --- LOGO --- */
     .brand-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
-    
-    /* Conteneur pour l'image du logo (image_3.png) */
-    .logo-img-container {
-      display: inline-block;
-      margin-bottom: 10px;
-    }
-    
-    .logo-img {
-      max-width: 150px; /* Ajuste la taille selon tes besoins */
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-    
-    /* Cache l'ancien logo CSS */
-    .logo-css, .logo-css::before, .logo-css::after {
-      display: none !important;
-    }
-    
-    .brand-name { font-size: 26px; font-weight: 800; color: #1a1a1a; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
-    .brand-tagline { font-size: 14px; color: #666; margin-top: -5px; }
+    .logo-img { max-width: 180px; height: auto; display: block; margin: 0 auto; border-radius: 10px; }
+    .brand-tagline { font-size: 14px; color: #666; margin-top: 10px; font-weight: 600; }
 
-    /* Forms et Cartes */
+    /* Cartes & Forms */
     .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid #eee; }
-    h2 { margin-top: 0; color: #2c3e50; font-size: 20px; }
+    h2 { margin-top: 0; color: #2c3e50; font-size: 20px; text-align: center; }
     
-    /* Inputs modernes */
-    input { width: 100%; padding: 12px 15px; margin: 8px 0 18px; border: 1px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; background-color: #fcfcfc; transition: 0.2s; }
-    input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); background-color: white; }
+    input { width: 100%; padding: 12px 15px; margin: 8px 0 18px; border: 1px solid #e1e1e1; border-radius: 8px; box-sizing: border-box; background-color: #fcfcfc; }
+    input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
     
-    /* Œil Magique */
     .password-wrapper { position: relative; }
-    .toggle-eye { position: absolute; right: 15px; top: 18px; cursor: pointer; font-size: 18px; opacity: 0.6; transition: 0.2s; user-select: none; }
-    .toggle-eye:hover { opacity: 1; }
+    .toggle-eye { position: absolute; right: 15px; top: 18px; cursor: pointer; font-size: 18px; user-select: none; }
 
-    /* Boutons Premium */
-    button { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; transition: 0.2s; margin-top: 5px; }
+    button { width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; transition: 0.2s; }
     .btn-main { background-color: var(--primary); color: white; }
-    .btn-main:hover { background-color: #0069d9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,123,255,0.2); }
+    .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
     
-    /* Cache les sections par défaut */
     #auth-zone, #video-section, #validation-section, #logout-btn, #login-form-card { display: none; }
-    
-    #player { margin-top: 20px; border-radius: 10px; overflow: hidden; border: 2px solid #eee; }
+    #player { margin-top: 20px; border-radius: 10px; overflow: hidden; border: 2px solid #eee; width: 100%; }
 
-    /* Popup Style */
+    /* Popup */
     #popup {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center;
+      background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center;
       z-index: 9999; color: white; text-align: center;
     }
   </style>
@@ -75,95 +50,79 @@
 <div class="container">
   
   <div class="brand-container">
-    <div class="logo-img-container">
-      <img src="https://raw.githubusercontent.com/ton-depot/ton-image/main/image_3.png" alt="Logo Link Flow" class="logo-img">
-    </div>
-    <div class="brand-tagline">Fluidité. Engagement. Succès.</div>
+    <img src="https://raw.githubusercontent.com/ton-username/ton-repo/main/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195.png" alt="LinkFlow Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/150?text=LINKFLOW'">
+    <div class="brand-tagline">FLUIDITÉ • ENGAGEMENT • SUCCÈS</div>
   </div>
 
   <div id="auth-zone">
     <div class="card" id="signup-form-card">
-      <h2>Créer mon accès gratuit</h2>
+      <h2>Créer un compte</h2>
       <form id="signup-form">
         <input type="text" id="signup-username" placeholder="Nom d'utilisateur" required />
-        <input type="email" id="signup-email" placeholder="Adresse Email" required />
+        <input type="email" id="signup-email" placeholder="Email" required />
         <div class="password-wrapper">
           <input type="password" id="signup-password" placeholder="Mot de passe" required />
           <span class="toggle-eye" onclick="togglePassword('signup-password', this)">👁️</span>
         </div>
         <button type="submit" class="btn-main">S'inscrire</button>
       </form>
-      <p style="text-align:center; font-size:14px; color:#666; margin-top:15px;">Déjà membre ? <a href="#" onclick="showLoginForm()" style="color:var(--primary);">Se connecter</a></p>
+      <p style="text-align:center; font-size:14px; margin-top:15px;">Déjà membre ? <a href="#" onclick="showLoginForm()">Se connecter</a></p>
     </div>
 
     <div class="card" id="login-form-card">
-      <h2>Connexion membre</h2>
+      <h2>Connexion</h2>
       <form id="login-form">
-        <input type="email" id="login-email" placeholder="Adresse Email" required />
+        <input type="email" id="login-email" placeholder="Email" required />
         <div class="password-wrapper">
           <input type="password" id="login-password" placeholder="Mot de passe" required />
           <span class="toggle-eye" onclick="togglePassword('login-password', this)">👁️</span>
         </div>
-        <button type="submit" class="btn-main">Accéder</button>
+        <button type="submit" class="btn-main">Se connecter</button>
       </form>
-      <p style="text-align:center; font-size:14px; color:#666; margin-top:15px;">Nouveau ? <a href="#" onclick="showSignupForm()" style="color:var(--primary);">Créer un compte</a></p>
+      <p style="text-align:center; font-size:14px; margin-top:15px;">Nouveau ? <a href="#" onclick="showSignupForm()">Créer un compte</a></p>
     </div>
   </div>
 
   <div id="video-section" class="card">
-    <h3 style="margin-top:0;">Étape 1/2 : Visionnage Obligatoire</h3>
-    <p style="color:#666; font-size:14px;">Regardez la vidéo jusqu'à la fin pour débloquer votre lien unique. La triche est détectée.</p>
+    <h3 style="margin-top:0;">Étape 1 : Visionnage</h3>
+    <p style="color:#666; font-size:13px;">Regardez la vidéo pour débloquer le bouton de validation.</p>
     <div id="player"></div>
   </div>
 
   <div id="validation-section" class="card">
-    <h3 style="color: var(--success); margin-top:0;">Étape 2/2 : Validez votre lien</h3>
-    <input type="text" id="return-link" placeholder="https://votre-lien-victory.com/..." />
-    <button id="validate-link" class="btn-main" style="background-color: var(--success);">Finaliser & Enregistrer</button>
+    <h3 style="color: var(--success); margin-top:0;">Étape 2 : Votre Lien</h3>
+    <input type="text" id="return-link" placeholder="Collez votre lien Victory ici" />
+    <button id="validate-link" class="btn-main" style="background-color: var(--success);">Valider le lien</button>
   </div>
 
-  <button id="logout-btn" onclick="handleLogout()" style="background:#f1f1f1; color:#555; font-size:13px; padding:8px; margin-top:30px;">Déconnexion</button>
+  <button id="logout-btn" onclick="handleLogout()" style="background:none; color:#999; border:1px solid #ddd; font-size:12px; margin-bottom: 20px;">Déconnexion</button>
 </div>
 
 <div id="popup">
-  <div style="padding: 30px; max-width:400px;">
-    <h2 style="color: #ff4d4d; font-size:30px; animation:clignote 1s infinite;">ATTENTION</h2>
-    <p style="font-size:18px; line-height:1.6;">Votre compte est créé !<br><br>Vous devez regarder la vidéo en entier sans sauter de passages.<br><br>C'est la seule façon de débloquer le lien.</p>
-    <button id="interact-btn" class="btn-main" style="display:none; margin-top:30px; background-color:red;">J'AI COMPRIS, JE REGARDE</button>
+  <div style="padding: 30px;">
+    <h2 style="color: #ff4d4d;">IMPORTANT</h2>
+    <p>Compte créé !<br><br>Regardez la vidéo jusqu'au bout sans tricher pour débloquer l'accès.</p>
+    <button id="interact-btn" class="btn-main" style="display:none; background:red;">J'AI COMPRIS</button>
   </div>
 </div>
-<style>@keyframes clignote { 0%{opacity:1;} 50%{opacity:0.6;} 100%{opacity:1;} }</style>
 
 <script>
-  // SUPABASE CONFIGURATION (Remplis avec tes infos)
+  // 1. INITIALISATION AVEC TES VRAIES INFOS
   const supabaseClient = supabase.createClient(
-    "YOUR_SUPABASE_URL",
-    "YOUR_SUPABASE_ANON_KEY"
+    "https://xkyynzbbatglctgdtqyu.supabase.co",
+    "sb_publishable_pcrDzFZ9rkilVIw12_0uvw_2CcdtvLB"
   );
 
-  // GESTION ŒIL MAGIQUE
   function togglePassword(id, el) {
     const input = document.getElementById(id);
-    if (input.type === "password") {
-      input.type = "text";
-      el.textContent = "🙈";
-    } else {
-      input.type = "password";
-      el.textContent = "👁️";
-    }
+    if (input.type === "password") { input.type = "text"; el.textContent = "🙈"; }
+    else { input.type = "password"; el.textContent = "👁️"; }
   }
 
-  // NAVIGATION FORMULAIRES
-  function showLoginForm() {
-    document.getElementById("signup-form-card").style.display = "none";
-    document.getElementById("login-form-card").style.display = "block";
-  }
-  function showSignupForm() {
-    document.getElementById("signup-form-card").style.display = "block";
-    document.getElementById("login-form-card").style.display = "none";
-  }
+  function showLoginForm() { document.getElementById("signup-form-card").style.display = "none"; document.getElementById("login-form-card").style.display = "block"; }
+  function showSignupForm() { document.getElementById("signup-form-card").style.display = "block"; document.getElementById("login-form-card").style.display = "none"; }
 
-  // GESTION SESSION (Détecte si logué)
+  // GESTION SESSION
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session) {
       document.getElementById("auth-zone").style.display = "none";
@@ -185,10 +144,10 @@
       password: document.getElementById("signup-password").value,
       options: { data: { username: document.getElementById("signup-username").value } }
     });
-    if (error) alert("Erreur : " + error.message);
+    if (error) alert(error.message);
     else {
       document.getElementById("popup").style.display = "flex";
-      setTimeout(() => { document.getElementById("interact-btn").style.display = "block"; }, 3000);
+      setTimeout(() => { document.getElementById("interact-btn").style.display = "block"; }, 2000);
     }
   });
 
@@ -199,37 +158,30 @@
       email: document.getElementById("login-email").value,
       password: document.getElementById("login-password").value
     });
-    if (error) alert("Erreur : " + error.message);
+    if (error) alert(error.message);
   });
 
   document.getElementById("interact-btn").onclick = () => { document.getElementById("popup").style.display = "none"; };
 
-  // YOUTUBE API
+  // YOUTUBE
   let player;
   function onYouTubeIframeAPIReady() {
     player = new YT.Player("player", {
-      height: '240', width: '100%', videoId: "TON_VIDEO_ID_ICI", // Remplace par ton ID vidéo
-      playerVars: { 'modestbranding': 1, 'rel': 0 },
+      height: '240', width: '100%', videoId: "9uPybhkqYw4",
       events: { 'onStateChange': onPlayerStateChange }
     });
   }
 
-  // ANTI-TRICHE VIDEO
   function onPlayerStateChange(event) {
     if (event.data === YT.PlayerState.ENDED) {
-      const duration = player.getDuration();
-      const currentTime = player.getCurrentTime();
-      // Vérification visionnage > 95%
-      if (currentTime / duration > 0.95) {
+      if (player.getCurrentTime() / player.getDuration() > 0.95) {
         document.getElementById("validation-section").style.display = "block";
-        document.getElementById("video-section").style.display = "none"; // Cache la vidéo
       } else {
-        alert("Attention : Vous devez visionner la vidéo en entier. Ne sautez pas d'étapes.");
+        alert("Action requise : Regardez toute la vidéo.");
       }
     }
   }
 
-  // DECONNEXION
   async function handleLogout() {
     await supabaseClient.auth.signOut();
     location.reload();
