@@ -1,427 +1,130 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ELDAMAMA - KINSHASA VIRAL</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELDAMAMA TEST</title>
   <style>
-    :root { 
-      --gold: #d4af37; 
-      --bg-black: #000000; 
-      --success-green: #28a745; 
-      --error-red: #dc3545;
-    }
-    * { box-sizing: border-box; touch-action: manipulation; }
-    body { 
-      font-family: 'Segoe UI', system-ui, sans-serif; 
-      margin: 0; padding: 0; 
-      background-color: var(--bg-black); 
-      color: #ffffff; text-align: center; 
-    }
-    .container { max-width: 480px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { background:#000; color:#fff; font-family:system-ui, sans-serif; text-align:center; }
+    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; }
+    .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
+    .btn-lang:active { background:rgba(212,175,55,0.2); }
     
-    /* SELECTION LANGUE */
-    #lang-overlay {
-      position: fixed; inset: 0; background: #000; z-index: 10000;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; max-width: 400px; }
-    .lang-btn { 
-      padding: 15px; border: 2px solid var(--gold); border-radius: 10px; 
-      background: transparent; color: var(--gold); font-weight: bold; cursor: pointer;
-      transition: 0.3s; font-size: 14px;
-    }
-    .lang-btn:active { transform: scale(0.98); background: rgba(212,175,55,0.2); }
+    #app { display:none; padding:20px; max-width:480px; margin:0 auto; }
+    .card { background:#111; padding:20px; border-radius:12px; margin-top:10px; border:1px solid #333; }
+    input { width:100%; padding:12px; margin:6px 0; background:#000; border:1px solid #d4af37; color:#fff; border-radius:6px; font-size:16px; }
+    .btn { width:100%; padding:14px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:16px; margin-top:10px; cursor:pointer; }
+    .hidden { display:none !important; }
+    a { color:#d4af37; text-decoration:none; }
     
-    /* LOGO */
-    .brand-container { margin: 20px 0; }
-    .logo-img { max-width: 150px; height: auto; display: block; margin: 0 auto; }
-    
-    h1, h2, h3 { color: var(--gold); text-transform: uppercase; margin: 10px 0; }
-    
-    /* CARDS */
-    .card { 
-      background: #0a0a0a; padding: 20px; border-radius: 15px; 
-      border: 1px solid #222; margin-bottom: 20px; 
-    }
-    label { display: block; text-align: left; color: var(--gold); margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-    
-    input { 
-      width: 100%; padding: 14px; margin-bottom: 12px; background: #111; 
-      border: 2px solid #333; border-radius: 8px; color: var(--success-green); 
-      font-weight: bold; font-size: 16px; outline: none;
-    }
-    input:focus { border-color: var(--gold); }
-    
-    button { 
-      width: 100%; padding: 15px; border: none; border-radius: 8px; 
-      cursor: pointer; font-weight: bold; font-size: 16px; 
-      transition: opacity 0.2s;
-    }
-    button:active { opacity: 0.8; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-gold { background-color: var(--gold); color: #000; }
-    .btn-validate { background-color: var(--success-green); color: white; display: none; }
-    
-    /* POPUP VIRAL */
-    #popup { 
-      position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-      display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; 
-    }
-    .popup-box { 
-      background: #111; padding: 25px; border-radius: 16px; 
-      max-width: 400px; width: 100%; text-align: center; border: 2px solid var(--gold);
-    }
-    .sub-link { 
-      display: block; background: #cc0000; color: white; text-decoration: none; 
-      padding: 14px; border-radius: 10px; font-weight: bold; margin: 15px 0;
-      font-size: 14px;
-    }
-    
-    #player { width: 100%; border-radius: 10px; border: 1px solid var(--gold); overflow: hidden; background: #000; }
-    #main-ui, #video-section, #validation-section { display: none; }
-    a { color: var(--gold); text-decoration: none; font-weight: bold; }
-    
-    /* Messages */
-    .message { padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 13px; }
-    .msg-error { background: rgba(220,53,69,0.2); color: var(--error-red); border: 1px solid var(--error-red); }
-    .msg-success { background: rgba(40,167,69,0.2); color: var(--success-green); border: 1px solid var(--success-green); }
-    .hidden { display: none !important; }
+    #debug { position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:#0f0; padding:8px; font-size:12px; text-align:left; z-index:200; border-top:1px solid #333; }
   </style>
 </head>
 <body>
 
-<!-- ÉCRAN DE SÉLECTION DE LANGUE -->
-<div id="lang-overlay">
-    <div class="brand-container">
-        <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo-img" alt="Logo" onerror="this.style.display='none'">
-    </div>
-    <h3 id="txt-lang-title" style="margin-bottom: 20px;">Choose your language</h3>
-    <div class="lang-grid">
-        <button class="lang-btn" data-lang="fr">FRANÇAIS 🇫🇷</button>
-        <button class="lang-btn" data-lang="en">ENGLISH 🇺🇸</button>
-        <button class="lang-btn" data-lang="pt">PORTUGUÊS 🇵🇹</button>
-        <button class="lang-btn" data-lang="es">ESPAÑOL 🇪🇸</button>
-        <button class="lang-btn" data-lang="sw">KISWAHILI 🇰🇪</button>
-        <button class="lang-btn" data-lang="ln">LINGALA 🇨🇩</button>
-    </div>
-</div>
-
-<!-- INTERFACE PRINCIPALE -->
-<div class="container" id="main-ui">
-  <div class="brand-container">
-    <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo-img" alt="Logo" onerror="this.style.display='none'">
+  <div id="overlay">
+    <h2 style="color:#d4af37; margin-bottom:10px;">Choisis ta langue</h2>
+    <button class="btn-lang" onclick="start('fr')">FRANÇAIS 🇫🇷</button>
+    <button class="btn-lang" onclick="start('en')">ENGLISH 🇺🇸</button>
+    <button class="btn-lang" onclick="start('ln')">LINGALA 🇨🇩</button>
   </div>
 
-  <!-- ZONE D'AUTHENTIFICATION -->
-  <div id="auth-zone">
-    <div class="card" id="signup-area">
-      <h2 id="t-signup">Sign Up</h2>
-      <div id="signup-msg"></div>
-      <form id="signup-form">
-        <label id="l-user-label">Name</label>
-        <input type="text" id="s-user" required placeholder="Your name">
-        
-        <label id="l-email-signup">Email</label>
-        <input type="email" id="s-email" required placeholder="your@email.com">
-        
-        <label id="l-pass-signup-label">Password</label>
-        <input type="password" id="s-pass" required placeholder="Min. 6 characters" minlength="6">
-        
-        <button type="submit" class="btn-gold" id="b-signup">Create Account</button>
-      </form>
-      <p><span id="t-have">Member?</span> <a href="#" id="a-login">Login</a></p>
-    </div>
+  <div id="app">
+    <h1 style="color:#d4af37; margin-bottom:20px;">ELDAMAMA</h1>
     
-    <div class="card hidden" id="login-area">
-      <h2 id="t-login">Login</h2>
-      <div id="login-msg"></div>
-      <form id="login-form">
-        <label id="l-email-login">Email</label>
-        <input type="email" id="l-email-input" required placeholder="your@email.com">
-        
-        <label id="l-pass-login-label">Password</label>
-        <input type="password" id="l-pass-input" required placeholder="Your password">
-        
-        <button type="submit" class="btn-gold" id="b-login">Login</button>
+    <div id="signup-box" class="card">
+      <h2 id="title-s">Inscription</h2>
+      <form id="form-s">
+        <input id="s-name" type="text" placeholder="Nom" required>
+        <input id="s-email" type="email" placeholder="Email" required>
+        <input id="s-pass" type="password" placeholder="Mot de passe (min 6)" minlength="6" required>
+        <button type="submit" class="btn" id="btn-s">Créer compte</button>
       </form>
-      <p><span id="t-no">New?</span> <a href="#" id="a-signup">Sign Up</a></p>
+      <p style="margin-top:10px;"><a href="#" onclick="swap('login')">Déjà membre ? Connexion</a></p>
+    </div>
+
+    <div id="login-box" class="card hidden">
+      <h2>Connexion</h2>
+      <form id="form-l">
+        <input id="l-email" type="email" placeholder="Email" required>
+        <input id="l-pass" type="password" placeholder="Mot de passe" required>
+        <button type="submit" class="btn">Se connecter</button>
+      </form>
+      <p style="margin-top:10px;"><a href="#" onclick="swap('signup')">Nouveau ? Inscription</a></p>
     </div>
   </div>
 
-  <!-- SECTION VIDÉO -->
-  <div id="video-section" class="hidden">
-    <h1>Eldamama de Kinshasa</h1>
-    <div id="player"></div>
-    <p style="margin-top:15px; color: var(--gold);" id="t-watch">Watch until the end...</p>
-    <button id="btn-video-done" class="btn-validate" style="display:none; margin-top:15px;">✅ I watched the video</button>
-  </div>
+  <div id="debug">⏳ Chargement...</div>
 
-  <!-- SECTION VALIDATION -->
-  <div id="validation-section" class="card hidden">
-    <h3 id="t-final">Link Activation</h3>
-    <input type="text" id="v-link" placeholder="Enter your Victory Link...">
-    <button id="v-btn" class="btn-validate">Verify your link</button>
-    <div id="validation-msg"></div>
-  </div>
-</div>
-
-<!-- POPUP VIRAL -->
-<div id="popup">
-    <div class="popup-box">
-        <h2>ELDAMAMA DE KINSHASA</h2>
-        <p id="t-pop-msg" style="text-align: left; font-size: 14px; line-height: 1.6; color: #ccc;">
-            Merci de <b>S'abonner</b>, d'<b>aimer</b>, <b>commenter</b> avec <b>"Prêt"</b> pour booster vos liens.
-        </p>
-        <a href="https://www.youtube.com/@Eldamama?sub_confirmation=1" target="_blank" class="sub-link" id="b-sub">1. SUBSCRIBE TO ELDAMAMA 🔔</a>
-        <button id="close-pop" class="btn-gold">2. DONE, WATCH VIDEO</button>
-    </div>
-</div>
-
-<script>
-// ============================================
-// 🌍 TRADUCTIONS COMPLÈTES
-// ============================================
-const translations = {
-    fr: { 
-        signup: "S'inscrire", login: "Connexion", user: "Nom", email: "Email", pass: "Mot de passe", 
-        have: "Déjà membre ?", no: "Nouveau ici ?", watch: "Regardez jusqu'à la fin...", final: "Activation du lien",
-        popMsg: "Merci de <b>S'abonner</b>, <b>aimer</b>, <b>commenter</b> avec <b>'Prêt'</b> pour booster vos liens.",
-        subBtn: "1. S'ABONNER À ELDAMAMA 🔔", doneBtn: "2. OK, REGARDER LA VIDÉO",
-        videoDone: "✅ J'ai regardé la vidéo", verifyLink: "Vérifier mon lien",
-        linkPlaceholder: "Votre lien de victoire...", successSignup: "✅ Compte créé ! Vérifiez vos emails.",
-        errorSignup: "❌ Erreur : ", successLogin: "✅ Connexion réussie !", errorLogin: "❌ Échec : "
-    },
-    en: { 
-        signup: "Sign Up", login: "Login", user: "Name", email: "Email", pass: "Password", 
-        have: "Already member?", no: "New here?", watch: "Watch until the end...", final: "Link Activation",
-        popMsg: "Please <b>Subscribe</b>, <b>like</b>, <b>comment</b> with <b>'Ready'</b> to boost your links.",
-        subBtn: "1. SUBSCRIBE TO ELDAMAMA 🔔", doneBtn: "2. DONE, WATCH VIDEO",
-        videoDone: "✅ I watched the video", verifyLink: "Verify my link",
-        linkPlaceholder: "Your victory link...", successSignup: "✅ Account created! Check your email.",
-        errorSignup: "❌ Error: ", successLogin: "✅ Login successful!", errorLogin: "❌ Failed: "
-    },
-    pt: { 
-        signup: "Cadastrar", login: "Entrar", user: "Nome", email: "Email", pass: "Senha", 
-        have: "Já é membro?", no: "Novato?", watch: "Assista até o fim...", final: "Ativação",
-        popMsg: "<b>Inscreva-se</b>, <b>curta</b>, <b>comente</b> com <b>'Pronto'</b> para impulsionar.",
-        subBtn: "1. INSCREVER-SE 🔔", doneBtn: "2. PRONTO, ASSISTIR",
-        videoDone: "✅ Assisti", verifyLink: "Verificar link",
-        linkPlaceholder: "Seu link...", successSignup: "✅ Conta criada! Verifique o email.",
-        errorSignup: "❌ Erro: ", successLogin: "✅ Sucesso!", errorLogin: "❌ Falha: "
-    },
-    es: { 
-        signup: "Registrarse", login: "Acceder", user: "Nombre", email: "Correo", pass: "Contraseña", 
-        have: "¿Miembro?", no: "¿Nuevo?", watch: "Mira hasta el final...", final: "Activación",
-        popMsg: "<b>Suscríbete</b>, <b>dale like</b>, <b>comenta</b> con <b>'Listo'</b> para impulsar.",
-        subBtn: "1. SUSCRIBIRSE 🔔", doneBtn: "2. LISTO, VER",
-        videoDone: "✅ Vi el video", verifyLink: "Verificar",
-        linkPlaceholder: "Tu enlace...", successSignup: "✅ ¡Cuenta creada! Revisa el correo.",
-        errorSignup: "❌ Error: ", successLogin: "✅ ¡Éxito!", errorLogin: "❌ Falló: "
-    },
-    sw: { 
-        signup: "Jisajili", login: "Ingia", user: "Jina", email: "Barua pepe", pass: "Nenosiri", 
-        have: "Uko tayari?", no: "Mpya?", watch: "Tazama hadi mwisho...", final: "Uanzishaji",
-        popMsg: "<b>Jisajili</b>, <b>penda</b>, <b>maoni</b> na <b>'Tayari'</b> kuongeza nguvu.",
-        subBtn: "1. JISAJILI 🔔", doneBtn: "2. NIMEMALIZA, TAZAMA",
-        videoDone: "✅ Nimetazama", verifyLink: "Thibitisha",
-        linkPlaceholder: "Kiungo chako...", successSignup: "✅ Akaunti imetengenezwa!",
-        errorSignup: "❌ Hitilafu: ", successLogin: "✅ Mafanikio!", errorLogin: "❌ Imeshindwa: "
-    },
-    ln: { 
-        signup: "Komisa", login: "Kota", user: "Nkombo", email: "Email", pass: "Mot de passe", 
-        have: "Oza déjà membre?", no: "Oza sika?", watch: "Tala tii na suka...", final: "Activation",
-        popMsg: "<b>Abonnez-vous</b>, <b>aimez</b>, <b>commentez</b> na <b>'Prêt'</b> pour booster.",
-        subBtn: "1. ABONNEZ-VOUS 🔔", doneBtn: "2. OK, TALA VIDEO",
-        videoDone: "✅ Natale", verifyLink: "Vérifier",
-        linkPlaceholder: "Lien na yo...", successSignup: "✅ Compte esali! Tala email.",
-        errorSignup: "❌ Erreur: ", successLogin: "✅ Kota esalemaki!", errorLogin: "❌ Elingaki te: "
+  <script>
+    function log(msg) {
+      document.getElementById('debug').innerText = msg;
+      console.log(msg);
     }
-};
 
-// ============================================
-// ⚙️ CONFIGURATION & INITIALISATION
-// ============================================
-const SUPABASE_URL = 'https://VOTRE_PROJET.supabase.co'; // ← Remplacer plus tard
-const SUPABASE_ANON_KEY = 'VOTRE_CLE_ANON'; // ← Remplacer plus tard
-let supabase = null;
-
-function initSupabase() {
-    if (SUPABASE_URL.includes('VOTRE_PROJET') || typeof window.supabase === 'undefined') {
-        console.log('📦 Mode démo activé (Supabase non configuré)');
-        return null;
+    function start(lang) {
+      try {
+        log('🌐 Langue sélectionnée : ' + lang);
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        
+        // Traductions rapides
+        const texts = {
+          fr: { t:"Inscription", b:"Créer compte" },
+          en: { t:"Sign Up", b:"Create Account" },
+          ln: { t:"Komisa", b:"Tia compte" }
+        };
+        const t = texts[lang] || texts.en;
+        document.getElementById('title-s').innerText = t.t;
+        document.getElementById('btn-s').innerText = t.b;
+        
+        localStorage.setItem('lang', lang);
+        log('✅ Interface affichée. Prêt à tester.');
+      } catch(e) {
+        log('❌ ERREUR: ' + e.message);
+        alert('Erreur JS : ' + e.message);
+      }
     }
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
 
-// ============================================
-// 🌐 GESTION DE LANGUE
-// ============================================
-function setLang(lang) {
-    const t = translations[lang] || translations['en'];
-    const setText = (id, val) => { const e = document.getElementById(id); if(e) e.innerText = val; };
-    const setPlaceholder = (id, val) => { const e = document.getElementById(id); if(e) e.placeholder = val; };
-
-    setText('t-signup', t.signup); setText('t-login', t.login);
-    setText('l-user-label', t.user); setText('l-email-signup', t.email); setText('l-email-login', t.email);
-    setText('l-pass-signup-label', t.pass); setText('l-pass-login-label', t.pass);
-    setText('t-have', t.have); setText('t-no', t.no);
-    setText('t-watch', t.watch); setText('t-final', t.final);
-    setText('t-pop-msg', t.popMsg); setText('b-sub', t.subBtn); setText('close-pop', t.doneBtn);
-    setText('btn-video-done', t.videoDone); setText('v-btn', t.verifyLink);
-    setText('b-signup', t.signup); setText('b-login', t.login);
-    setPlaceholder('v-link', t.linkPlaceholder);
-
-    document.getElementById('lang-overlay').style.display = 'none';
-    document.getElementById('main-ui').style.display = 'block';
-    localStorage.setItem('eldamama_lang', lang);
-}
-
-// ============================================
-// 🔄 BASCULE LOGIN / SIGNUP
-// ============================================
-function swapToLogin() {
-    document.getElementById('signup-area').classList.add('hidden');
-    document.getElementById('login-area').classList.remove('hidden');
-    document.getElementById('signup-msg').innerHTML = '';
-}
-function swapToSignup() {
-    document.getElementById('login-area').classList.add('hidden');
-    document.getElementById('signup-area').classList.remove('hidden');
-    document.getElementById('login-msg').innerHTML = '';
-}
-
-// ============================================
-// 📺 POPUP & VIDÉO
-// ============================================
-function showPopup() { document.getElementById('popup').style.display = 'flex'; }
-function closePopupAndPlay() {
-    document.getElementById('popup').style.display = 'none';
-    document.getElementById('auth-zone').classList.add('hidden');
-    document.getElementById('video-section').classList.remove('hidden');
-    loadVideo();
-}
-function showValidation() {
-    document.getElementById('video-section').classList.add('hidden');
-    document.getElementById('validation-section').classList.remove('hidden');
-    document.getElementById('v-btn').style.display = 'block';
-}
-let playerReady = false;
-function loadVideo() {
-    if (playerReady) return;
-    const videoId = 'dQw4w9WgXcQ'; // ← Remplacer par ton ID YouTube
-    const container = document.getElementById('player');
-    if (typeof YT !== 'undefined' && YT.Player) {
-        new YT.Player('player', {
-            height: '270', width: '100%', videoId: videoId,
-            playerVars: { playsinline: 1, rel: 0 },
-            events: { 'onStateChange': (e) => { if(e.data === 0) document.getElementById('btn-video-done').style.display = 'block'; }}
-        });
-        playerReady = true;
-    } else {
-        // Fallback si API YouTube pas chargée
-        container.innerHTML = `<iframe width="100%" height="270" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-        setTimeout(() => { document.getElementById('btn-video-done').style.display = 'block'; }, 3000);
+    function swap(mode) {
+      const s = document.getElementById('signup-box');
+      const l = document.getElementById('login-box');
+      if(mode === 'login') { s.classList.add('hidden'); l.classList.remove('hidden'); log('🔄 Affiche Connexion'); }
+      else { l.classList.add('hidden'); s.classList.remove('hidden'); log('🔄 Affiche Inscription'); }
+      return false; // Empêche le rechargement de page
     }
-}
 
-// ============================================
-// ✅ ÉVÉNEMENTS PRINCIPAUX
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    supabase = initSupabase();
-    const savedLang = localStorage.getItem('eldamama_lang');
-    if (savedLang && translations[savedLang]) setLang(savedLang);
-
-    // Boutons langues
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', () => setLang(btn.dataset.lang));
-    });
-
-    // Navigation login/signup
-    document.getElementById('a-login').addEventListener('click', (e) => { e.preventDefault(); swapToLogin(); });
-    document.getElementById('a-signup').addEventListener('click', (e) => { e.preventDefault(); swapToSignup(); });
-
-    // Popup
-    document.getElementById('close-pop').addEventListener('click', closePopupAndPlay);
-
-    // Bouton fin vidéo
-    document.getElementById('btn-video-done').addEventListener('click', showValidation);
-
-    // ===== FORMULAIRE INSCRIPTION =====
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    // Attendre que le DOM soit prêt
+    window.addEventListener('load', function() {
+      log('📱 Page chargée ✅');
+      
+      // Inscription
+      document.getElementById('form-s').addEventListener('submit', function(e) {
         e.preventDefault();
-        const btn = document.getElementById('b-signup');
-        const msg = document.getElementById('signup-msg');
-        msg.innerHTML = '';
-        btn.disabled = true; btn.innerText = '⏳ ...';
+        log('📤 Envoi formulaire inscription...');
+        const btn = document.getElementById('btn-s');
+        btn.disabled = true; btn.innerText = '⏳...';
+        
+        setTimeout(() => {
+          alert('✅ COMPTE CRÉÉ (Mode démo)\n\nLe formulaire fonctionne parfaitement.');
+          log('✅ Succès inscription démo');
+          document.getElementById('form-s').reset();
+          btn.disabled = false; btn.innerText = 'Créer compte';
+        }, 800);
+      });
 
-        const name = document.getElementById('s-user').value.trim();
-        const email = document.getElementById('s-email').value.trim();
-        const pass = document.getElementById('s-pass').value;
-        const lang = localStorage.getItem('eldamama_lang') || 'en';
-
-        try {
-            if (!supabase) {
-                // MODE DÉMO
-                await new Promise(r => setTimeout(r, 1200));
-                msg.innerHTML = `<div class="message msg-success">${translations[lang].successSignup}</div>`;
-                setTimeout(() => { document.getElementById('signup-form').reset(); showPopup(); }, 1500);
-            } else {
-                const { error } = await supabase.auth.signUp({ email, password: pass, options: {  { full_name: name } } });
-                if (error) throw error;
-                msg.innerHTML = `<div class="message msg-success">${translations[lang].successSignup}</div>`;
-                setTimeout(() => { document.getElementById('signup-form').reset(); showPopup(); }, 1500);
-            }
-        } catch (err) {
-            msg.innerHTML = `<div class="message msg-error">${translations[lang].errorSignup}${err.message}</div>`;
-        } finally {
-            btn.disabled = false; btn.innerText = translations[lang].signup;
-        }
-    });
-
-    // ===== FORMULAIRE CONNEXION =====
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      // Connexion
+      document.getElementById('form-l').addEventListener('submit', function(e) {
         e.preventDefault();
-        const btn = document.getElementById('b-login');
-        const msg = document.getElementById('login-msg');
-        msg.innerHTML = '';
-        btn.disabled = true; btn.innerText = '⏳ ...';
-
-        const email = document.getElementById('l-email-input').value.trim();
-        const pass = document.getElementById('l-pass-input').value;
-        const lang = localStorage.getItem('eldamama_lang') || 'en';
-
-        try {
-            if (!supabase) {
-                await new Promise(r => setTimeout(r, 1000));
-                msg.innerHTML = `<div class="message msg-success">${translations[lang].successLogin}</div>`;
-                setTimeout(() => { document.getElementById('login-form').reset(); document.getElementById('auth-zone').classList.add('hidden'); document.getElementById('video-section').classList.remove('hidden'); loadVideo(); }, 1200);
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-                if (error) throw error;
-                msg.innerHTML = `<div class="message msg-success">${translations[lang].successLogin}</div>`;
-                setTimeout(() => { document.getElementById('login-form').reset(); document.getElementById('auth-zone').classList.add('hidden'); document.getElementById('video-section').classList.remove('hidden'); loadVideo(); }, 1200);
-            }
-        } catch (err) {
-            msg.innerHTML = `<div class="message msg-error">${translations[lang].errorLogin}${err.message}</div>`;
-        } finally {
-            btn.disabled = false; btn.innerText = translations[lang].login;
-        }
+        log('📤 Envoi formulaire connexion...');
+        setTimeout(() => {
+          alert('✅ CONNEXION RÉUSSIE (Mode démo)');
+          log('✅ Succès connexion démo');
+          document.getElementById('form-l').reset();
+        }, 800);
+      });
     });
-
-    // ===== VALIDATION LIEN =====
-    document.getElementById('v-btn').addEventListener('click', () => {
-        const link = document.getElementById('v-link').value.trim();
-        const msg = document.getElementById('validation-msg');
-        if (!link) { msg.innerHTML = `<div class="message msg-error">❌ Entrez un lien valide</div>`; return; }
-        msg.innerHTML = `<div class="message msg-success">✅ Lien enregistré ! Vous êtes dans la file.</div>`;
-    });
-});
-</script>
+  </script>
 </body>
 </html>
