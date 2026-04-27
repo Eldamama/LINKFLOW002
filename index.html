@@ -8,31 +8,51 @@
     * { box-sizing: border-box; margin:0; padding:0; }
     body { background:#000; color:#fff; font-family:system-ui, sans-serif; text-align:center; }
     
-    /* OVERLAY LANGUE */
-    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; }
-    .logo { max-width:160px; margin-bottom:10px; border-radius:8px; }
+    /* ÉCRAN DE LANGUE (TOUJOURS VISIBLE AU DÉPART) */
+    #overlay { 
+      position:fixed; inset:0; background:#000; z-index:100; 
+      display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; 
+    }
+    .logo-box { margin-bottom:15px; min-height:80px; display:flex; align-items:center; justify-content:center; }
+    .logo-img { max-width:180px; height:auto; display:block; }
+    .logo-fallback { color:#d4af37; font-size:24px; font-weight:bold; letter-spacing:2px; }
+    
     .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
     .btn-lang:active { background:rgba(212,175,55,0.2); transform:scale(0.98); }
     
-    /* APPLICATION */
-    #app { display:none; padding:20px; max-width:480px; margin:0 auto; }
+    /* APPLICATION PRINCIPALE */
+    #app { display:none; padding:20px; max-width:480px; margin:0 auto; position:relative; }
     .card { background:#111; padding:20px; border-radius:12px; margin-top:10px; border:1px solid #333; }
     label { display:block; text-align:left; color:#d4af37; margin:8px 0 4px; font-weight:bold; font-size:14px; }
     input { width:100%; padding:12px; background:#000; border:1px solid #d4af37; color:#fff; border-radius:6px; font-size:16px; outline:none; }
     input:focus { border-color:#fff; }
     .btn { width:100%; padding:14px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:16px; margin-top:10px; cursor:pointer; }
     .btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .btn-green { background:#28a745; color:#fff; }
     .hidden { display:none !important; }
     a { color:#d4af37; text-decoration:none; }
     
-    /* DEBUG */
+    /* POPUP */
+    #popup { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:90; display:none; justify-content:center; align-items:center; padding:20px; }
+    .popup-box { background:#111; padding:25px; border-radius:16px; max-width:400px; width:100%; border:2px solid #d4af37; text-align:center; }
+    .sub-link { display:block; background:#cc0000; color:#fff; text-decoration:none; padding:14px; border-radius:10px; font-weight:bold; margin:15px 0; }
+    
+    /* VIDEO & VALIDATION */
+    #video-section, #validation-section { display:none; margin-top:20px; }
+    #player-container { margin:15px 0; border-radius:10px; overflow:hidden; border:1px solid #d4af37; background:#000; }
+    
     #debug { position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:#0f0; padding:8px 12px; font-size:12px; text-align:left; z-index:200; border-top:1px solid #333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   </style>
 </head>
 <body>
 
+  <!-- 1️⃣ ÉCRAN DE SÉLECTION DE LANGUE -->
   <div id="overlay">
-    <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo" alt="Logo" onerror="this.style.display='none'">
+    <div class="logo-box">
+      <!-- Placeholder fiable en ligne. Remplace src par ton fichier local plus tard -->
+      <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; document.getElementById('logo-txt').style.display='block';">
+      <div id="logo-txt" class="logo-fallback" style="display:none;">ELDAMAMA</div>
+    </div>
     <h2 style="color:#d4af37; margin-bottom:10px;">Choisis ta langue</h2>
     <button class="btn-lang" onclick="start('fr')">FRANÇAIS 🇫🇷</button>
     <button class="btn-lang" onclick="start('en')">ENGLISH 🇺🇸</button>
@@ -41,21 +61,23 @@
     <button class="btn-lang" onclick="start('ln')">LINGALA 🇨🇩</button>
   </div>
 
+  <!-- 2️⃣ INTERFACE PRINCIPALE -->
   <div id="app">
-    <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo" alt="Logo" onerror="this.style.display='none'">
+    <div class="logo-box">
+      <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <div class="logo-fallback" style="display:none;">ELDAMAMA</div>
+    </div>
     
+    <!-- AUTH -->
     <div id="signup-box" class="card">
       <h2 id="title-s" style="color:#d4af37;">Inscription</h2>
       <form id="form-s">
         <label id="lbl-s-name">Nom</label>
         <input id="s-name" type="text" required>
-        
         <label id="lbl-s-email">Email</label>
         <input id="s-email" type="email" required>
-        
         <label id="lbl-s-pass">Mot de passe (min 6)</label>
         <input id="s-pass" type="password" minlength="6" required>
-        
         <button type="submit" class="btn" id="btn-s">Créer compte</button>
       </form>
       <p style="margin-top:10px;"><a href="#" id="link-to-login">Déjà membre ? Connexion</a></p>
@@ -66,113 +88,148 @@
       <form id="form-l">
         <label id="lbl-l-email">Email</label>
         <input id="l-email" type="email" required>
-        
         <label id="lbl-l-pass">Mot de passe</label>
         <input id="l-pass" type="password" required>
-        
         <button type="submit" class="btn" id="btn-l">Se connecter</button>
       </form>
       <p style="margin-top:10px;"><a href="#" id="link-to-signup">Nouveau ? Inscription</a></p>
     </div>
+
+    <!-- POPUP VIRAL -->
+    <div id="popup">
+      <div class="popup-box">
+        <h2 style="color:#d4af37; margin-bottom:8px;">ELDAMAMA DE KINSHASA</h2>
+        <p id="pop-msg" style="text-align:left; font-size:14px; line-height:1.5; color:#ccc; margin-bottom:15px;"></p>
+        <a id="sub-link" href="https://www.youtube.com/@Eldamama?sub_confirmation=1" target="_blank" class="sub-link">1. S'ABONNER 🔔</a>
+        <button id="pop-close" class="btn">2. OK, REGARDER LA VIDÉO</button>
+      </div>
+    </div>
+
+    <!-- VIDÉO -->
+    <div id="video-section">
+      <h2 style="color:#d4af37;">Eldamama de Kinshasa</h2>
+      <div id="player-container">
+        <iframe id="yt-frame" width="100%" height="250" src="" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <p id="vid-msg" style="color:#d4af37; margin:10px 0;"></p>
+      <button id="vid-done" class="btn btn-green">✅ J'ai regardé la vidéo</button>
+    </div>
+
+    <!-- VALIDATION -->
+    <div id="validation-section" class="card">
+      <h3 id="val-title" style="color:#d4af37;"></h3>
+      <input id="v-link" type="text" placeholder="">
+      <button id="v-btn" class="btn btn-green">Vérifier mon lien</button>
+      <div id="val-msg"></div>
+    </div>
   </div>
 
-  <div id="debug">⏳ Initialisation...</div>
+  <div id="debug">⏳ Chargement en cours...</div>
 
   <script>
-    // 🌍 DICTIONNAIRE COMPLET
     const dict = {
-      fr: { tS:"Inscription", bS:"Créer compte", tL:"Connexion", bL:"Se connecter", u:"Nom", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Déjà membre ?", new:"Nouveau ?" },
-      en: { tS:"Sign Up", bS:"Create Account", tL:"Login", bL:"Sign In", u:"Name", e:"Email", p:"Password (min 6)", p2:"Password", have:"Already member?", new:"New here?" },
-      pt: { tS:"Cadastro", bS:"Criar conta", tL:"Entrar", bL:"Acessar", u:"Nome", e:"Email", p:"Senha (mín. 6)", p2:"Senha", have:"Já é membro?", new:"Novo?" },
-      es: { tS:"Registro", bS:"Crear cuenta", tL:"Acceder", bL:"Iniciar sesión", u:"Nombre", e:"Correo", p:"Contraseña (mín. 6)", p2:"Contraseña", have:"¿Ya miembro?", new:"¿Nuevo?" },
-      ln: { tS:"Komisa", bS:"Tia compte", tL:"Kota", bL:"Kota na ngai", u:"Nkombo", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Oza déjà membre?", new:"Oza sika?" }
+      fr: { tS:"Inscription", bS:"Créer compte", tL:"Connexion", bL:"Se connecter", u:"Nom", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Déjà membre ?", new:"Nouveau ?", popMsg:"Merci de <b>S'abonner</b>, <b>aimer</b>, <b>commenter</b> avec <b>'Prêt'</b> pour booster vos liens.", subBtn:"1. S'ABONNER 🔔", doneBtn:"2. OK, REGARDER", vidMsg:"Regardez jusqu'à la fin...", vidBtn:"✅ J'ai regardé", valTitle:"Activation du lien", valPh:"Votre lien de victoire...", valBtn:"Vérifier mon lien" },
+      en: { tS:"Sign Up", bS:"Create Account", tL:"Login", bL:"Sign In", u:"Name", e:"Email", p:"Password (min 6)", p2:"Password", have:"Already member?", new:"New here?", popMsg:"Please <b>Subscribe</b>, <b>like</b>, <b>comment</b> with <b>'Ready'</b> to boost your links.", subBtn:"1. SUBSCRIBE 🔔", doneBtn:"2. DONE, WATCH", vidMsg:"Watch until the end...", vidBtn:"✅ I watched it", valTitle:"Link Activation", valPh:"Your victory link...", valBtn:"Verify my link" },
+      pt: { tS:"Cadastro", bS:"Criar conta", tL:"Entrar", bL:"Acessar", u:"Nome", e:"Email", p:"Senha (mín. 6)", p2:"Senha", have:"Já é membro?", new:"Novo?", popMsg:"<b>Inscreva-se</b>, <b>curta</b>, <b>comente</b> com <b>'Pronto'</b>.", subBtn:"1. INSCREVER 🔔", doneBtn:"2. PRONTO", vidMsg:"Assista até o fim...", vidBtn:"✅ Assisti", valTitle:"Ativação do Link", valPh:"Seu link...", valBtn:"Verificar" },
+      es: { tS:"Registro", bS:"Crear cuenta", tL:"Acceder", bL:"Iniciar sesión", u:"Nombre", e:"Correo", p:"Contraseña (mín. 6)", p2:"Contraseña", have:"¿Ya miembro?", new:"¿Nuevo?", popMsg:"<b>Suscríbete</b>, <b>like</b>, <b>comenta</b> con <b>'Listo'</b>.", subBtn:"1. SUSCRIBIR 🔔", doneBtn:"2. LISTO", vidMsg:"Mira hasta el final...", vidBtn:"✅ Vi el video", valTitle:"Activación", valPh:"Tu enlace...", valBtn:"Verificar" },
+      ln: { tS:"Komisa", bS:"Tia compte", tL:"Kota", bL:"Kota", u:"Nkombo", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Oza déjà?", new:"Oza sika?", popMsg:"<b>Abonnez-vous</b>, <b>aimez</b>, <b>commentez</b> na <b>'Prêt'</b>.", subBtn:"1. ABONNEZ 🔔", doneBtn:"2. OK, TALA", vidMsg:"Tala tii na suka...", vidBtn:"✅ Natale", valTitle:"Activation", valPh:"Lien na yo...", valBtn:"Vérifier" }
     };
 
-    function log(msg) {
-      document.getElementById('debug').innerText = msg;
-      console.log(msg);
-    }
+    let currentLang = 'fr';
+    // 🔧 Remplace cet ID par le tien (partie après v= dans l'URL YouTube)
+    const YOUTUBE_ID = 'dQw4w9WgXcQ'; 
+
+    function log(msg) { document.getElementById('debug').innerText = msg; console.log(msg); }
 
     function start(lang) {
+      currentLang = lang;
+      const d = dict[currentLang];
       try {
-        const d = dict[lang] || dict.en;
-        
-        // Masquer overlay, afficher app
+        // Masquer langue, afficher app
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         
-        // Appliquer traductions
-        document.getElementById('title-s').innerText = d.tS;
-        document.getElementById('btn-s').innerText = d.bS;
-        document.getElementById('title-l').innerText = d.tL;
-        document.getElementById('btn-l').innerText = d.bL;
+        // Traductions
+        document.getElementById('title-s').innerText = d.tS; document.getElementById('btn-s').innerText = d.bS;
+        document.getElementById('title-l').innerText = d.tL; document.getElementById('btn-l').innerText = d.bL;
+        document.getElementById('lbl-s-name').innerText = d.u; document.getElementById('lbl-s-email').innerText = d.e; document.getElementById('lbl-s-pass').innerText = d.p;
+        document.getElementById('lbl-l-email').innerText = d.e; document.getElementById('lbl-l-pass').innerText = d.p2;
+        document.getElementById('link-to-login').innerText = d.have; document.getElementById('link-to-signup').innerText = d.new;
+        document.getElementById('pop-msg').innerHTML = d.popMsg;
+        document.getElementById('sub-link').innerText = d.subBtn; document.getElementById('pop-close').innerText = d.doneBtn;
+        document.getElementById('vid-msg').innerText = d.vidMsg; document.getElementById('vid-done').innerText = d.vidBtn;
+        document.getElementById('val-title').innerText = d.valTitle; document.getElementById('v-link').placeholder = d.valPh; document.getElementById('v-btn').innerText = d.valBtn;
         
-        document.getElementById('lbl-s-name').innerText = d.u;
-        document.getElementById('lbl-s-email').innerText = d.e;
-        document.getElementById('lbl-s-pass').innerText = d.p;
-        document.getElementById('lbl-l-email').innerText = d.e;
-        document.getElementById('lbl-l-pass').innerText = d.p2;
-        
-        document.getElementById('link-to-login').innerText = d.have;
-        document.getElementById('link-to-signup').innerText = d.new;
-        
-        localStorage.setItem('eldamama_lang', lang);
-        log(`✅ Langue chargée : ${lang} | Interface prête`);
-      } catch(e) {
-        log(`❌ ERREUR: ${e.message}`);
-        alert('Erreur JS : ' + e.message);
-      }
+        localStorage.setItem('eldamama_lang', currentLang);
+        log(`✅ Langue : ${currentLang} | Formulaire prêt`);
+      } catch(e) { log(`❌ ERREUR: ${e.message}`); alert(e.message); }
     }
 
     function swap(mode) {
-      const s = document.getElementById('signup-box');
-      const l = document.getElementById('login-box');
-      if(mode === 'login') { s.classList.add('hidden'); l.classList.remove('hidden'); log('🔄 Mode Connexion'); }
-      else { l.classList.add('hidden'); s.classList.remove('hidden'); log('🔄 Mode Inscription'); }
+      document.getElementById('signup-box').classList.toggle('hidden', mode === 'login');
+      document.getElementById('login-box').classList.toggle('hidden', mode === 'signup');
+      log(`🔄 Mode : ${mode === 'login' ? 'Connexion' : 'Inscription'}`);
       return false;
+    }
+
+    function showPopup() { document.getElementById('popup').style.display = 'flex'; log('📺 Popup affiché'); }
+    
+    function closePopupAndPlay() {
+      document.getElementById('popup').style.display = 'none';
+      document.getElementById('signup-box').classList.add('hidden');
+      document.getElementById('login-box').classList.add('hidden');
+      document.getElementById('video-section').style.display = 'block';
+      // Charge YouTube sans bloquer la page
+      document.getElementById('yt-frame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=0&rel=0`;
+      log('▶️ Vidéo chargée');
+    }
+
+    function showValidation() {
+      document.getElementById('video-section').style.display = 'none';
+      document.getElementById('validation-section').style.display = 'block';
+      document.getElementById('v-btn').style.display = 'block';
+      log('🔗 Validation affichée');
     }
 
     // 🚀 INITIALISATION
     window.addEventListener('load', () => {
-      log('📱 Page chargée avec succès');
+      log('📱 Page chargée. Écran de langue visible.');
       
       // Navigation
       document.getElementById('link-to-login').onclick = e => { e.preventDefault(); swap('login'); };
       document.getElementById('link-to-signup').onclick = e => { e.preventDefault(); swap('signup'); };
-      
-      // Chargement langue sauvegardée
-      const saved = localStorage.getItem('eldamama_lang');
-      if(saved && dict[saved]) start(saved);
+      document.getElementById('pop-close').onclick = closePopupAndPlay;
+      document.getElementById('vid-done').onclick = showValidation;
+      document.getElementById('v-btn').onclick = () => {
+        const link = document.getElementById('v-link').value.trim();
+        document.getElementById('val-msg').innerHTML = link ? `<div style="color:#28a745; margin-top:10px;">✅ Lien enregistré !</div>` : `<div style="color:#ff4444; margin-top:10px;">❌ Entrez un lien</div>`;
+      };
 
-      // FORMULAIRE INSCRIPTION
-      document.getElementById('form-s').addEventListener('submit', function(e) {
+      // INSCRIPTION
+      document.getElementById('form-s').onsubmit = function(e) {
         e.preventDefault();
-        log('📤 Envoi inscription...');
         const btn = document.getElementById('btn-s');
-        btn.disabled = true; btn.innerText = '⏳ ...';
-        
+        btn.disabled = true; btn.innerText = '⏳...';
         setTimeout(() => {
-          alert('✅ COMPTE CRÉÉ (Mode démo)\n\nNom: ' + document.getElementById('s-name').value);
-          log('✅ Succès inscription');
+          log('✅ Inscription réussie (mode démo)');
           document.getElementById('form-s').reset();
-          btn.disabled = false; btn.innerText = dict[localStorage.getItem('eldamama_lang')||'fr'].bS;
+          btn.disabled = false; btn.innerText = dict[currentLang].bS;
+          showPopup(); // ← Le popup s'affiche ICI
         }, 800);
-      });
+      };
 
-      // FORMULAIRE CONNEXION
-      document.getElementById('form-l').addEventListener('submit', function(e) {
+      // CONNEXION
+      document.getElementById('form-l').onsubmit = function(e) {
         e.preventDefault();
-        log('📤 Envoi connexion...');
         const btn = document.getElementById('btn-l');
-        btn.disabled = true; btn.innerText = '⏳ ...';
-        
+        btn.disabled = true; btn.innerText = '⏳...';
         setTimeout(() => {
-          alert('✅ CONNEXION RÉUSSIE (Mode démo)\n\nEmail: ' + document.getElementById('l-email').value);
-          log('✅ Succès connexion');
+          log('✅ Connexion réussie (mode démo)');
           document.getElementById('form-l').reset();
-          btn.disabled = false; btn.innerText = dict[localStorage.getItem('eldamama_lang')||'fr'].bL;
+          btn.disabled = false; btn.innerText = dict[currentLang].bL;
+          showPopup(); // ← Le popup s'affiche ICI
         }, 800);
-      });
+      };
     });
   </script>
 </body>
