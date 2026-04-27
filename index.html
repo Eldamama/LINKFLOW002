@@ -3,61 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ELDAMAMA TEST</title>
+  <title>ELDAMAMA</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0; }
     body { background:#000; color:#fff; font-family:system-ui, sans-serif; text-align:center; }
-    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; }
-    .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
-    .btn-lang:active { background:rgba(212,175,55,0.2); }
     
+    /* OVERLAY LANGUE */
+    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; }
+    .logo { max-width:160px; margin-bottom:10px; border-radius:8px; }
+    .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
+    .btn-lang:active { background:rgba(212,175,55,0.2); transform:scale(0.98); }
+    
+    /* APPLICATION */
     #app { display:none; padding:20px; max-width:480px; margin:0 auto; }
     .card { background:#111; padding:20px; border-radius:12px; margin-top:10px; border:1px solid #333; }
-    input { width:100%; padding:12px; margin:6px 0; background:#000; border:1px solid #d4af37; color:#fff; border-radius:6px; font-size:16px; }
+    label { display:block; text-align:left; color:#d4af37; margin:8px 0 4px; font-weight:bold; font-size:14px; }
+    input { width:100%; padding:12px; background:#000; border:1px solid #d4af37; color:#fff; border-radius:6px; font-size:16px; outline:none; }
+    input:focus { border-color:#fff; }
     .btn { width:100%; padding:14px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:16px; margin-top:10px; cursor:pointer; }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; }
     .hidden { display:none !important; }
     a { color:#d4af37; text-decoration:none; }
     
-    #debug { position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:#0f0; padding:8px; font-size:12px; text-align:left; z-index:200; border-top:1px solid #333; }
+    /* DEBUG */
+    #debug { position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:#0f0; padding:8px 12px; font-size:12px; text-align:left; z-index:200; border-top:1px solid #333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   </style>
 </head>
 <body>
 
   <div id="overlay">
+    <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo" alt="Logo" onerror="this.style.display='none'">
     <h2 style="color:#d4af37; margin-bottom:10px;">Choisis ta langue</h2>
     <button class="btn-lang" onclick="start('fr')">FRANÇAIS 🇫🇷</button>
     <button class="btn-lang" onclick="start('en')">ENGLISH 🇺🇸</button>
+    <button class="btn-lang" onclick="start('pt')">PORTUGUÊS 🇵🇹</button>
+    <button class="btn-lang" onclick="start('es')">ESPAÑOL 🇪🇸</button>
     <button class="btn-lang" onclick="start('ln')">LINGALA 🇨🇩</button>
   </div>
 
   <div id="app">
-    <h1 style="color:#d4af37; margin-bottom:20px;">ELDAMAMA</h1>
+    <img src="dossier_image/BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" class="logo" alt="Logo" onerror="this.style.display='none'">
     
     <div id="signup-box" class="card">
-      <h2 id="title-s">Inscription</h2>
+      <h2 id="title-s" style="color:#d4af37;">Inscription</h2>
       <form id="form-s">
-        <input id="s-name" type="text" placeholder="Nom" required>
-        <input id="s-email" type="email" placeholder="Email" required>
-        <input id="s-pass" type="password" placeholder="Mot de passe (min 6)" minlength="6" required>
+        <label id="lbl-s-name">Nom</label>
+        <input id="s-name" type="text" required>
+        
+        <label id="lbl-s-email">Email</label>
+        <input id="s-email" type="email" required>
+        
+        <label id="lbl-s-pass">Mot de passe (min 6)</label>
+        <input id="s-pass" type="password" minlength="6" required>
+        
         <button type="submit" class="btn" id="btn-s">Créer compte</button>
       </form>
-      <p style="margin-top:10px;"><a href="#" onclick="swap('login')">Déjà membre ? Connexion</a></p>
+      <p style="margin-top:10px;"><a href="#" id="link-to-login">Déjà membre ? Connexion</a></p>
     </div>
 
     <div id="login-box" class="card hidden">
-      <h2>Connexion</h2>
+      <h2 id="title-l" style="color:#d4af37;">Connexion</h2>
       <form id="form-l">
-        <input id="l-email" type="email" placeholder="Email" required>
-        <input id="l-pass" type="password" placeholder="Mot de passe" required>
-        <button type="submit" class="btn">Se connecter</button>
+        <label id="lbl-l-email">Email</label>
+        <input id="l-email" type="email" required>
+        
+        <label id="lbl-l-pass">Mot de passe</label>
+        <input id="l-pass" type="password" required>
+        
+        <button type="submit" class="btn" id="btn-l">Se connecter</button>
       </form>
-      <p style="margin-top:10px;"><a href="#" onclick="swap('signup')">Nouveau ? Inscription</a></p>
+      <p style="margin-top:10px;"><a href="#" id="link-to-signup">Nouveau ? Inscription</a></p>
     </div>
   </div>
 
-  <div id="debug">⏳ Chargement...</div>
+  <div id="debug">⏳ Initialisation...</div>
 
   <script>
+    // 🌍 DICTIONNAIRE COMPLET
+    const dict = {
+      fr: { tS:"Inscription", bS:"Créer compte", tL:"Connexion", bL:"Se connecter", u:"Nom", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Déjà membre ?", new:"Nouveau ?" },
+      en: { tS:"Sign Up", bS:"Create Account", tL:"Login", bL:"Sign In", u:"Name", e:"Email", p:"Password (min 6)", p2:"Password", have:"Already member?", new:"New here?" },
+      pt: { tS:"Cadastro", bS:"Criar conta", tL:"Entrar", bL:"Acessar", u:"Nome", e:"Email", p:"Senha (mín. 6)", p2:"Senha", have:"Já é membro?", new:"Novo?" },
+      es: { tS:"Registro", bS:"Crear cuenta", tL:"Acceder", bL:"Iniciar sesión", u:"Nombre", e:"Correo", p:"Contraseña (mín. 6)", p2:"Contraseña", have:"¿Ya miembro?", new:"¿Nuevo?" },
+      ln: { tS:"Komisa", bS:"Tia compte", tL:"Kota", bL:"Kota na ngai", u:"Nkombo", e:"Email", p:"Mot de passe (min 6)", p2:"Mot de passe", have:"Oza déjà membre?", new:"Oza sika?" }
+    };
+
     function log(msg) {
       document.getElementById('debug').innerText = msg;
       console.log(msg);
@@ -65,24 +95,31 @@
 
     function start(lang) {
       try {
-        log('🌐 Langue sélectionnée : ' + lang);
+        const d = dict[lang] || dict.en;
+        
+        // Masquer overlay, afficher app
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         
-        // Traductions rapides
-        const texts = {
-          fr: { t:"Inscription", b:"Créer compte" },
-          en: { t:"Sign Up", b:"Create Account" },
-          ln: { t:"Komisa", b:"Tia compte" }
-        };
-        const t = texts[lang] || texts.en;
-        document.getElementById('title-s').innerText = t.t;
-        document.getElementById('btn-s').innerText = t.b;
+        // Appliquer traductions
+        document.getElementById('title-s').innerText = d.tS;
+        document.getElementById('btn-s').innerText = d.bS;
+        document.getElementById('title-l').innerText = d.tL;
+        document.getElementById('btn-l').innerText = d.bL;
         
-        localStorage.setItem('lang', lang);
-        log('✅ Interface affichée. Prêt à tester.');
+        document.getElementById('lbl-s-name').innerText = d.u;
+        document.getElementById('lbl-s-email').innerText = d.e;
+        document.getElementById('lbl-s-pass').innerText = d.p;
+        document.getElementById('lbl-l-email').innerText = d.e;
+        document.getElementById('lbl-l-pass').innerText = d.p2;
+        
+        document.getElementById('link-to-login').innerText = d.have;
+        document.getElementById('link-to-signup').innerText = d.new;
+        
+        localStorage.setItem('eldamama_lang', lang);
+        log(`✅ Langue chargée : ${lang} | Interface prête`);
       } catch(e) {
-        log('❌ ERREUR: ' + e.message);
+        log(`❌ ERREUR: ${e.message}`);
         alert('Erreur JS : ' + e.message);
       }
     }
@@ -90,38 +127,50 @@
     function swap(mode) {
       const s = document.getElementById('signup-box');
       const l = document.getElementById('login-box');
-      if(mode === 'login') { s.classList.add('hidden'); l.classList.remove('hidden'); log('🔄 Affiche Connexion'); }
-      else { l.classList.add('hidden'); s.classList.remove('hidden'); log('🔄 Affiche Inscription'); }
-      return false; // Empêche le rechargement de page
+      if(mode === 'login') { s.classList.add('hidden'); l.classList.remove('hidden'); log('🔄 Mode Connexion'); }
+      else { l.classList.add('hidden'); s.classList.remove('hidden'); log('🔄 Mode Inscription'); }
+      return false;
     }
 
-    // Attendre que le DOM soit prêt
-    window.addEventListener('load', function() {
-      log('📱 Page chargée ✅');
+    // 🚀 INITIALISATION
+    window.addEventListener('load', () => {
+      log('📱 Page chargée avec succès');
       
-      // Inscription
+      // Navigation
+      document.getElementById('link-to-login').onclick = e => { e.preventDefault(); swap('login'); };
+      document.getElementById('link-to-signup').onclick = e => { e.preventDefault(); swap('signup'); };
+      
+      // Chargement langue sauvegardée
+      const saved = localStorage.getItem('eldamama_lang');
+      if(saved && dict[saved]) start(saved);
+
+      // FORMULAIRE INSCRIPTION
       document.getElementById('form-s').addEventListener('submit', function(e) {
         e.preventDefault();
-        log('📤 Envoi formulaire inscription...');
+        log('📤 Envoi inscription...');
         const btn = document.getElementById('btn-s');
-        btn.disabled = true; btn.innerText = '⏳...';
+        btn.disabled = true; btn.innerText = '⏳ ...';
         
         setTimeout(() => {
-          alert('✅ COMPTE CRÉÉ (Mode démo)\n\nLe formulaire fonctionne parfaitement.');
-          log('✅ Succès inscription démo');
+          alert('✅ COMPTE CRÉÉ (Mode démo)\n\nNom: ' + document.getElementById('s-name').value);
+          log('✅ Succès inscription');
           document.getElementById('form-s').reset();
-          btn.disabled = false; btn.innerText = 'Créer compte';
+          btn.disabled = false; btn.innerText = dict[localStorage.getItem('eldamama_lang')||'fr'].bS;
         }, 800);
       });
 
-      // Connexion
+      // FORMULAIRE CONNEXION
       document.getElementById('form-l').addEventListener('submit', function(e) {
         e.preventDefault();
-        log('📤 Envoi formulaire connexion...');
+        log('📤 Envoi connexion...');
+        const btn = document.getElementById('btn-l');
+        btn.disabled = true; btn.innerText = '⏳ ...';
+        
         setTimeout(() => {
-          alert('✅ CONNEXION RÉUSSIE (Mode démo)');
-          log('✅ Succès connexion démo');
+          alert('✅ CONNEXION RÉUSSIE (Mode démo)\n\nEmail: ' + document.getElementById('l-email').value);
+          log('✅ Succès connexion');
           document.getElementById('form-l').reset();
+          btn.disabled = false; btn.innerText = dict[localStorage.getItem('eldamama_lang')||'fr'].bL;
         }, 800);
       });
     });
