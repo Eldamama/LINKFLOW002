@@ -8,11 +8,7 @@
     * { box-sizing: border-box; margin:0; padding:0; }
     body { background:#000; color:#fff; font-family:system-ui, sans-serif; text-align:center; }
     
-    /* ÉCRAN DE LANGUE (TOUJOURS VISIBLE AU DÉPART) */
-    #overlay { 
-      position:fixed; inset:0; background:#000; z-index:100; 
-      display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; 
-    }
+    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; }
     .logo-box { margin-bottom:15px; min-height:80px; display:flex; align-items:center; justify-content:center; }
     .logo-img { max-width:180px; height:auto; display:block; }
     .logo-fallback { color:#d4af37; font-size:24px; font-weight:bold; letter-spacing:2px; }
@@ -20,7 +16,6 @@
     .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
     .btn-lang:active { background:rgba(212,175,55,0.2); transform:scale(0.98); }
     
-    /* APPLICATION PRINCIPALE */
     #app { display:none; padding:20px; max-width:480px; margin:0 auto; position:relative; }
     .card { background:#111; padding:20px; border-radius:12px; margin-top:10px; border:1px solid #333; }
     label { display:block; text-align:left; color:#d4af37; margin:8px 0 4px; font-weight:bold; font-size:14px; }
@@ -32,12 +27,10 @@
     .hidden { display:none !important; }
     a { color:#d4af37; text-decoration:none; }
     
-    /* POPUP */
     #popup { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:90; display:none; justify-content:center; align-items:center; padding:20px; }
     .popup-box { background:#111; padding:25px; border-radius:16px; max-width:400px; width:100%; border:2px solid #d4af37; text-align:center; }
     .sub-link { display:block; background:#cc0000; color:#fff; text-decoration:none; padding:14px; border-radius:10px; font-weight:bold; margin:15px 0; }
     
-    /* VIDEO & VALIDATION */
     #video-section, #validation-section { display:none; margin-top:20px; }
     #player-container { margin:15px 0; border-radius:10px; overflow:hidden; border:1px solid #d4af37; background:#000; }
     
@@ -46,10 +39,8 @@
 </head>
 <body>
 
-  <!-- 1️⃣ ÉCRAN DE SÉLECTION DE LANGUE -->
   <div id="overlay">
     <div class="logo-box">
-      <!-- Placeholder fiable en ligne. Remplace src par ton fichier local plus tard -->
       <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; document.getElementById('logo-txt').style.display='block';">
       <div id="logo-txt" class="logo-fallback" style="display:none;">ELDAMAMA</div>
     </div>
@@ -61,14 +52,12 @@
     <button class="btn-lang" onclick="start('ln')">LINGALA 🇨🇩</button>
   </div>
 
-  <!-- 2️⃣ INTERFACE PRINCIPALE -->
   <div id="app">
     <div class="logo-box">
       <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <div class="logo-fallback" style="display:none;">ELDAMAMA</div>
     </div>
     
-    <!-- AUTH -->
     <div id="signup-box" class="card">
       <h2 id="title-s" style="color:#d4af37;">Inscription</h2>
       <form id="form-s">
@@ -95,7 +84,6 @@
       <p style="margin-top:10px;"><a href="#" id="link-to-signup">Nouveau ? Inscription</a></p>
     </div>
 
-    <!-- POPUP VIRAL -->
     <div id="popup">
       <div class="popup-box">
         <h2 style="color:#d4af37; margin-bottom:8px;">ELDAMAMA DE KINSHASA</h2>
@@ -105,7 +93,6 @@
       </div>
     </div>
 
-    <!-- VIDÉO -->
     <div id="video-section">
       <h2 style="color:#d4af37;">Eldamama de Kinshasa</h2>
       <div id="player-container">
@@ -115,7 +102,6 @@
       <button id="vid-done" class="btn btn-green">✅ J'ai regardé la vidéo</button>
     </div>
 
-    <!-- VALIDATION -->
     <div id="validation-section" class="card">
       <h3 id="val-title" style="color:#d4af37;"></h3>
       <input id="v-link" type="text" placeholder="">
@@ -136,8 +122,7 @@
     };
 
     let currentLang = 'fr';
-    // 🔧 Remplace cet ID par le tien (partie après v= dans l'URL YouTube)
-    const YOUTUBE_ID = 'dQw4w9WgXcQ'; 
+    const YOUTUBE_ID = '9uPybhkqYw4'; // ✅ TON ID VIDÉO ICI
 
     function log(msg) { document.getElementById('debug').innerText = msg; console.log(msg); }
 
@@ -145,11 +130,9 @@
       currentLang = lang;
       const d = dict[currentLang];
       try {
-        // Masquer langue, afficher app
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         
-        // Traductions
         document.getElementById('title-s').innerText = d.tS; document.getElementById('btn-s').innerText = d.bS;
         document.getElementById('title-l').innerText = d.tL; document.getElementById('btn-l').innerText = d.bL;
         document.getElementById('lbl-s-name').innerText = d.u; document.getElementById('lbl-s-email').innerText = d.e; document.getElementById('lbl-s-pass').innerText = d.p;
@@ -179,7 +162,6 @@
       document.getElementById('signup-box').classList.add('hidden');
       document.getElementById('login-box').classList.add('hidden');
       document.getElementById('video-section').style.display = 'block';
-      // Charge YouTube sans bloquer la page
       document.getElementById('yt-frame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=0&rel=0`;
       log('▶️ Vidéo chargée');
     }
@@ -191,11 +173,9 @@
       log('🔗 Validation affichée');
     }
 
-    // 🚀 INITIALISATION
     window.addEventListener('load', () => {
       log('📱 Page chargée. Écran de langue visible.');
       
-      // Navigation
       document.getElementById('link-to-login').onclick = e => { e.preventDefault(); swap('login'); };
       document.getElementById('link-to-signup').onclick = e => { e.preventDefault(); swap('signup'); };
       document.getElementById('pop-close').onclick = closePopupAndPlay;
@@ -205,7 +185,6 @@
         document.getElementById('val-msg').innerHTML = link ? `<div style="color:#28a745; margin-top:10px;">✅ Lien enregistré !</div>` : `<div style="color:#ff4444; margin-top:10px;">❌ Entrez un lien</div>`;
       };
 
-      // INSCRIPTION
       document.getElementById('form-s').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('btn-s');
@@ -214,11 +193,10 @@
           log('✅ Inscription réussie (mode démo)');
           document.getElementById('form-s').reset();
           btn.disabled = false; btn.innerText = dict[currentLang].bS;
-          showPopup(); // ← Le popup s'affiche ICI
+          showPopup();
         }, 800);
       };
 
-      // CONNEXION
       document.getElementById('form-l').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('btn-l');
@@ -227,7 +205,7 @@
           log('✅ Connexion réussie (mode démo)');
           document.getElementById('form-l').reset();
           btn.disabled = false; btn.innerText = dict[currentLang].bL;
-          showPopup(); // ← Le popup s'affiche ICI
+          showPopup();
         }, 800);
       };
     });
