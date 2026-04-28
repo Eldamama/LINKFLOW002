@@ -1,413 +1,268 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ELDAMAMA - LINKFLOW</title>
-  <style>
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body { background:#000; color:#fff; font-family:system-ui, sans-serif; text-align:center; }
-    
-    #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; }
-    .logo-box { margin-bottom:15px; min-height:80px; display:flex; align-items:center; justify-content:center; }
-    .logo-img { max-width:180px; height:auto; display:block; }
-    .logo-fallback { color:#d4af37; font-size:24px; font-weight:bold; letter-spacing:2px; }
-    .btn-lang { width:85%; max-width:300px; padding:15px; background:transparent; border:2px solid #d4af37; color:#d4af37; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; }
-    .btn-lang:active { background:rgba(212,175,55,0.2); transform:scale(0.98); }
-    
-    #app { display:none; padding:20px; max-width:480px; margin:0 auto; }
-    .card { background:#111; padding:20px; border-radius:12px; margin-top:10px; border:1px solid #333; }
-    label { display:block; text-align:left; color:#d4af37; margin:8px 0 4px; font-weight:bold; font-size:14px; }
-    input { width:100%; padding:12px; background:#000; border:1px solid #d4af37; color:#fff; border-radius:6px; font-size:16px; outline:none; }
-    input:focus { border-color:#fff; }
-    .btn { width:100%; padding:14px; background:#d4af37; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:16px; margin-top:10px; cursor:pointer; }
-    .btn:disabled { opacity:0.5; cursor:not-allowed; }
-    .btn-green { background:#28a745; color:#fff; }
-    .btn-outline { background:transparent; border:2px solid #d4af37; color:#d4af37; }
-    .hidden { display:none !important; }
-    a { color:#d4af37; text-decoration:none; }
-    
-    #popup { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:90; display:none; justify-content:center; align-items:center; padding:20px; }
-    .popup-box { background:#111; padding:25px; border-radius:16px; max-width:400px; width:100%; border:2px solid #d4af37; text-align:center; }
-    .sub-link { display:block; background:#cc0000; color:#fff; text-decoration:none; padding:14px; border-radius:10px; font-weight:bold; margin:15px 0; }
-    
-    #video-section, #link-section, #validation-section { display:none; margin-top:20px; }
-    #player-container { margin:15px 0; border-radius:10px; overflow:hidden; border:1px solid #d4af37; background:#000; }
-    
-    .link-preview { background:#1a1a1a; padding:12px; border-radius:8px; border:1px solid #d4af37; margin:15px 0; font-size:12px; color:#888; word-break:break-all; }
-    .step-indicator { display:flex; justify-content:center; gap:8px; margin:15px 0; }
-    .step { width:12px; height:12px; border-radius:50%; background:#333; }
-    .step.active { background:#d4af37; }
-    .step.done { background:#28a745; }
-    
-    #debug { position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:#0f0; padding:8px 12px; font-size:11px; text-align:left; z-index:200; border-top:1px solid #333; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELDAMAMA - LINKFLOW PRO</title>
+    <style>
+        /* --- DESIGN GLOBAL --- */
+        * { box-sizing: border-box; margin:0; padding:0; }
+        body { background:#000; color:#fff; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align:center; }
+        
+        .main-logo { max-width: 180px; height: auto; margin-bottom: 10px; }
+
+        /* Écrans */
+        #overlay { position:fixed; inset:0; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px; }
+        #app { display:none; padding:20px; max-width:450px; margin:0 auto; }
+        .card { background:#111; padding:25px; border-radius:15px; margin-top:10px; border:1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* Langues */
+        .btn-lang { width:100%; max-width:300px; padding:14px; background:transparent; border:1px solid #d4af37; color:#d4af37; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition: 0.3s; }
+        .btn-lang:hover { background: rgba(212,175,55,0.1); }
+
+        /* Formulaires */
+        label { display:block; text-align:left; font-size:12px; color:#d4af37; margin-bottom:5px; font-weight:bold; text-transform: uppercase; }
+        input { width:100%; padding:14px; background:#050505; border:1px solid #333; color:#fff; border-radius:8px; margin-bottom:15px; font-size:16px; }
+        input:focus { border-color: #d4af37; outline:none; }
+
+        /* Boutons */
+        .btn { width:100%; padding:16px; background:#d4af37; color:#000; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background:#333; color:#666; cursor:not-allowed; }
+        .btn-green { background:#28a745; color:#fff; }
+        .btn-outline { background:transparent; border:1px solid #d4af37; color:#d4af37; margin-top:10px; }
+
+        /* Vidéo */
+        .video-wrapper { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; border:1px solid #333; margin-bottom:15px; }
+        .video-wrapper iframe { position:absolute; top:0; left:0; width:100%; height:100%; }
+
+        /* Étapes */
+        .step-indicator { display:flex; justify-content:center; gap:8px; margin-bottom:20px; }
+        .step { width:10px; height:10px; border-radius:50%; background:#333; }
+        .step.active { background:#d4af37; box-shadow: 0 0 8px #d4af37; }
+        .step.done { background:#28a745; }
+
+        .hidden { display:none !important; }
+        .monospace { font-family:monospace; color:#d4af37; background:#000; padding:10px; border-radius:5px; border:1px dashed #444; word-break:break-all; }
+    </style>
 </head>
 <body>
 
-  <!-- 1️⃣ SÉLECTION LANGUE -->
-  <div id="overlay">
-    <div class="logo-box">
-      <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; document.getElementById('logo-txt').style.display='block';">
-      <div id="logo-txt" class="logo-fallback" style="display:none;">ELDAMAMA</div>
-    </div>
-    <h2 style="color:#d4af37; margin-bottom:10px;">Choisis ta langue</h2>
-    <button class="btn-lang" onclick="start('fr')">FRANÇAIS 🇫🇷</button>
-    <button class="btn-lang" onclick="start('en')">ENGLISH 🇺🇸</button>
-    <button class="btn-lang" onclick="start('pt')">PORTUGUÊS 🇵🇹</button>
-    <button class="btn-lang" onclick="start('es')">ESPAÑOL 🇪🇸</button>
-    <button class="btn-lang" onclick="start('ln')">LINGALA 🇨🇩</button>
-  </div>
-
-  <!-- 2️⃣ INTERFACE PRINCIPALE -->
-  <div id="app">
-    <div class="logo-box">
-      <img src="https://placehold.co/180x60/d4af37/000000?text=ELDAMAMA" class="logo-img" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-      <div class="logo-fallback" style="display:none;">ELDAMAMA</div>
+    <div id="overlay">
+        <img src="https://i.ibb.co/bW343Y2/BCO-d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" alt="Logo" class="main-logo">
+        <button class="btn-lang" onclick="initApp('fr')">🇫🇷 FRANÇAIS</button>
+        <button class="btn-lang" onclick="initApp('en')">🇺🇸 ENGLISH</button>
+        <button class="btn-lang" onclick="initApp('ln')">🇨🇩 LINGALA</button>
+        <button class="btn-lang" onclick="initApp('pt')">🇵🇹 PORTUGUÊS</button>
+        <button class="btn-lang" onclick="initApp('es')">🇪🇸 ESPAÑOL</button>
+        <button class="btn-lang" onclick="initApp('sw')">🇰🇪 SWAHILI</button>
     </div>
 
-    <!-- Indicateur d'étapes -->
-    <div class="step-indicator">
-      <div class="step active" id="step-1"></div>
-      <div class="step" id="step-2"></div>
-      <div class="step" id="step-3"></div>
-      <div class="step" id="step-4"></div>
+    <div id="app">
+        <div class="step-indicator">
+            <div class="step active" id="step-1"></div>
+            <div class="step" id="step-2"></div>
+            <div class="step" id="step-3"></div>
+            <div class="step" id="step-4"></div>
+        </div>
+
+        <div id="auth-section" class="card">
+            <h2 id="auth-title" style="color:#d4af37; margin-bottom:10px;">Inscription</h2>
+            <p id="auth-desc" style="font-size:13px; color:#888; margin-bottom:20px;"></p>
+            
+            <label id="lbl-email">Email</label>
+            <input id="u-email" type="email" placeholder="votre@email.com">
+            
+            <label id="lbl-pass">Mot de passe</label>
+            <input id="u-pass" type="password" placeholder="******">
+            
+            <button class="btn" id="btn-auth" onclick="handleAuth()">Continuer</button>
+            <p style="margin-top:15px; font-size:13px;"><a href="#" onclick="toggleAuthMode(); return false;" id="auth-switch" style="color:#d4af37; text-decoration:none;">Déjà membre ? Connexion</a></p>
+        </div>
+
+        <div id="video-section" class="card hidden">
+            <h2 id="vid-title" style="color:#d4af37;">Etape 2</h2>
+            <p id="vid-desc" style="font-size:13px; margin-bottom:15px;"></p>
+            <div class="video-wrapper">
+                <iframe id="yt-frame" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div id="timer-display" style="color:#ff4444; font-weight:bold; margin-bottom:10px;"></div>
+            <button id="btn-video-done" class="btn btn-green" disabled>Chargement...</button>
+        </div>
+
+        <div id="link-section" class="card hidden">
+            <h2 id="sponsor-title" style="color:#d4af37;">Etape 3</h2>
+            <p id="sponsor-desc" style="font-size:13px; margin-bottom:15px;"></p>
+            <div id="sponsor-box" class="monospace"></div>
+            <button class="btn btn-green" style="margin-top:20px;" onclick="openSponsorLink()" id="btn-go-victory">🚀 ALLER SUR VICTORY</button>
+            <button class="btn btn-outline" onclick="showValidation()" id="btn-have-donated">J'AI DÉJÀ FAIT MON DON</button>
+        </div>
+
+        <div id="val-section" class="card hidden">
+            <h2 id="val-title" style="color:#d4af37;">Etape 4</h2>
+            <p id="val-desc" style="font-size:13px; margin-bottom:15px;"></p>
+            <input id="v-link" type="text" placeholder="https://victory-monde.com/register?ref=...">
+            <button class="btn btn-green" onclick="finalValidation()" id="btn-activate-lf">ACTIVER MON LIEN</button>
+            <div id="final-msg" style="margin-top:20px;"></div>
+        </div>
     </div>
 
-    <!-- AUTH -->
-    <div id="signup-box" class="card">
-      <h2 id="title-s" style="color:#d4af37;">Inscription</h2>
-      <form id="form-s">
-        <label id="lbl-s-name">Nom</label>
-        <input id="s-name" type="text" required>
-        <label id="lbl-s-email">Email / WhatsApp</label>
-        <input id="s-email" type="text" required placeholder="email@ou num WhatsApp">
-        <label id="lbl-s-pass">Mot de passe (min 6)</label>
-        <input id="s-pass" type="password" minlength="6" required>
-        <button type="submit" class="btn" id="btn-s">Créer compte</button>
-      </form>
-      <p style="margin-top:10px;"><a href="#" id="link-to-login">Déjà membre ? Connexion</a></p>
-    </div>
+    <script>
+        const YOUTUBE_ID = '9uPybhkqYw4'; 
+        const ROOT_REF = 'okoningana';
+        const VIDEO_DURATION = 180; 
 
-    <div id="login-box" class="card hidden">
-      <h2 id="title-l" style="color:#d4af37;">Connexion</h2>
-      <form id="form-l">
-        <label id="lbl-l-email">Email / WhatsApp</label>
-        <input id="l-email" type="text" required>
-        <label id="lbl-l-pass">Mot de passe</label>
-        <input id="l-pass" type="password" required>
-        <button type="submit" class="btn" id="btn-l">Se connecter</button>
-      </form>
-      <p style="margin-top:10px;"><a href="#" id="link-to-signup">Nouveau ? Inscription</a></p>
-    </div>
+        let currentLang = 'fr';
+        let isLoginMode = false;
+        let sponsor = ROOT_REF;
+        let currentUserEmail = '';
 
-    <!-- POPUP VIRAL -->
-    <div id="popup">
-      <div class="popup-box">
-        <h2 style="color:#d4af37; margin-bottom:8px;">ELDAMAMA DE KINSHASA</h2>
-        <p id="pop-msg" style="text-align:left; font-size:14px; line-height:1.5; color:#ccc; margin-bottom:15px;"></p>
-        <a id="sub-link" href="https://www.youtube.com/@Eldamama?sub_confirmation=1" target="_blank" class="sub-link">1. S'ABONNER 🔔</a>
-        <button id="pop-close" class="btn">2. OK, REGARDER LA VIDÉO</button>
-      </div>
-    </div>
+        const dict = {
+            fr: {
+                login: "Connexion", signup: "Inscription", authDescL: "Entrez vos accès pour continuer.", authDescS: "Créez votre compte LinkFlow sans plus attendre.",
+                lblEmail: "Email", lblPass: "Mot de passe", authSwitchL: "Nouveau ? Inscription", authSwitchS: "Déjà membre ? Connexion",
+                vidTitle: "ÉTAPE OBLIGATOIRE", vidDesc: "Regardez cette vidéo de 3 minutes pour débloquer votre accès.", vidBtnWait: "Attendez {s}s...", vidBtnDone: "J'ai fini de regarder",
+                sponsorTitle: "Votre Parrain", sponsorDesc: "Inscrivez-vous sur Victory via ce lien pour rejoindre l'équipe :", btnVictory: "🚀 ALLER SUR VICTORY", btnDonated: "J'AI DÉJÀ FAIT MON DON",
+                valTitle: "Validation", valDesc: "Collez votre lien Victory personnel obtenu après votre don :", btnActivate: "ACTIVER LINKFLOW",
+                valValid: "🎉 FÉLICITATIONS ! Votre lien est actif.", valInvalid: "❌ Lien Victory non reconnu.", valShare: "Votre lien de parrainage :"
+            },
+            en: {
+                login: "Login", signup: "Sign Up", authDescL: "Enter your credentials to continue.", authDescS: "Create your LinkFlow account now.",
+                lblEmail: "Email", lblPass: "Password", authSwitchL: "New? Sign Up", authSwitchS: "Member? Login",
+                vidTitle: "MANDATORY STEP", vidDesc: "Watch this 3-minute video to unlock access.", vidBtnWait: "Wait {s}s...", vidBtnDone: "I finished watching",
+                sponsorTitle: "Your Sponsor", sponsorDesc: "Register on Victory using this link to join the team:", btnVictory: "🚀 GO TO VICTORY", btnDonated: "I HAVE ALREADY DONATED",
+                valTitle: "Validation", valDesc: "Paste your personal Victory link obtained after your donation:", btnActivate: "ACTIVATE LINKFLOW",
+                valValid: "🎉 CONGRATULATIONS! Your link is active.", valInvalid: "❌ Victory link not recognized.", valShare: "Your referral link:"
+            },
+            ln: {
+                login: "Kota", signup: "Komisa nkombo", authDescL: "Kota mpo na kokoba.", authDescS: "Kela compte LinkFlow na yo sikoyo.",
+                lblEmail: "Email", lblPass: "Mot de passe", authSwitchL: "Sika? Komisa nkombo", authSwitchS: "Oza membre? Kota",
+                vidTitle: "HATUA YA LAZIMA", vidDesc: "Tala video oyo ya miniti 3 mpo na kofungola nzela.", vidBtnWait: "Zela {s}s...", vidBtnDone: "Nasilisi kotala",
+                sponsorTitle: "Parrain na yo", sponsorDesc: "Komisa nkombo na Victory na nzela ya lien oyo:", btnVictory: "🚀 KENDE NA VICTORY", btnDonated: "NAPESI DÉJÀ DON",
+                valTitle: "Validation", valDesc: "Tia lien na yo ya Victory oyo ozwaki nsima ya kopesa don:", btnActivate: "ACTIVER LINKFLOW",
+                valValid: "🎉 FÉLICITATIONS! Lien na yo efungwami.", valInvalid: "❌ Lien ya Victory ezali mabe.", valShare: "Lien na yo ya kokabola:"
+            },
+            pt: {
+                login: "Entrar", signup: "Cadastrar", authDescL: "Entre com seus dados para continuar.", authDescS: "Crie sua conta LinkFlow agora.",
+                lblEmail: "Email", lblPass: "Senha", authSwitchL: "Novo? Cadastrar", authSwitchS: "Membro? Entrar",
+                vidTitle: "ETAPA OBRIGATÓRIA", vidDesc: "Assista a este vídeo de 3 minutos para desbloquear.", vidBtnWait: "Aguarde {s}s...", vidBtnDone: "Terminei de assistir",
+                sponsorTitle: "Seu Patrocinador", sponsorDesc: "Cadastre-se na Victory por este link para entrar no time:", btnVictory: "🚀 IR PARA VICTORY", btnDonated: "JÁ FIZ MINHA DOAÇÃO",
+                valTitle: "Validação", valDesc: "Cole seu link Victory pessoal após a doação:", btnActivate: "ATIVAR LINKFLOW",
+                valValid: "🎉 PARABÉNS! Seu link está ativo.", valInvalid: "❌ Link Victory inválido.", valShare: "Seu link de indicação:"
+            },
+            es: {
+                login: "Entrar", signup: "Registro", authDescL: "Inicie sesión para continuar.", authDescS: "Cree su cuenta LinkFlow ahora.",
+                lblEmail: "Email", lblPass: "Contraseña", authSwitchL: "¿Nuevo? Registro", authSwitchS: "¿Ya es miembro? Entrar",
+                vidTitle: "PASO OBLIGATORIO", vidDesc: "Mira este video de 3 minutos para desbloquear.", vidBtnWait: "Espera {s}s...", vidBtnDone: "He terminado de ver",
+                sponsorTitle: "Tu Patrocinador", sponsorDesc: "Regístrate en Victory con este enlace para unirte:", btnVictory: "🚀 IR A VICTORY", btnDonated: "YA HE DONADO",
+                valTitle: "Validación", valDesc: "Pega tu enlace de Victory obtenido tras tu donación:", btnActivate: "ACTIVAR LINKFLOW",
+                valValid: "🎉 ¡FELICIDADES! Tu enlace está activo.", valInvalid: "❌ Enlace de Victory no válido.", valShare: "Tu enlace de referido:"
+            },
+            sw: {
+                login: "Ingia", signup: "Jiandikishe", authDescL: "Ingia ili kuendelea.", authDescS: "Fungua akaunti ya LinkFlow sasa.",
+                lblEmail: "Email", lblPass: "Nenosiri", authSwitchL: "Mgeni? Jiandikishe", authSwitchS: "Mwanachama? Ingia",
+                vidTitle: "HATUA YA LAZIMA", vidDesc: "Tazama video hii ya dakika 3 ili uendelee.", vidBtnWait: "Subiri {s}s...", vidBtnDone: "Nimemaliza kutazama",
+                sponsorTitle: "Mfadhili Wako", sponsorDesc: "Jiandikishe Victory kupitia kiungo hiki kujiunga:", btnVictory: "🚀 NENDA VICTORY", btnDonated: "TAYARI NIMETOA",
+                valTitle: "Uthibitisho", valDesc: "Bandika kiungo chako cha Victory ulichopata baada ya kutoa:", btnActivate: "WEZESHA LINKFLOW",
+                valValid: "🎉 HONGERA! Kiungo chako kimefunguliwa.", valInvalid: "❌ Kiungo cha Victory si sahihi.", valShare: "Kiungo chako cha kualika:"
+            }
+        };
 
-    <!-- VIDÉO -->
-    <div id="video-section">
-      <h2 style="color:#d4af37;">Eldamama de Kinshasa</h2>
-      <div id="player-container">
-        <iframe id="yt-frame" width="100%" height="250" src="" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <p id="vid-msg" style="color:#d4af37; margin:10px 0;"></p>
-      <button id="vid-done" class="btn btn-green">✅ J'ai regardé la vidéo</button>
-    </div>
-
-    <!-- 🎁 OBTENIR MON LIEN (REDIRECTION AUTO) -->
-    <div id="link-section" class="card">
-      <h3 id="link-title" style="color:#d4af37;">🎁 Ton lien Victory est prêt</h3>
-      <p id="link-desc" style="font-size:14px; color:#ccc; margin:10px 0;"></p>
-      
-      <div class="link-preview" id="link-preview">
-        🔗 https://eldamama.github.io/LINKFLOW002/?ref=...
-      </div>
-      
-      <p style="font-size:13px; color:#d4af37; margin:15px 0;">
-        👆 Ce lien permet à tes referrals de s'inscrire sous toi
-      </p>
-      
-      <!-- BOUTON DE REDIRECTION (pas de copie) -->
-      <button id="go-to-sponsor-link" class="btn btn-green">🚀 SUIVRE CE LIEN MAINTENANT</button>
-      
-      <p style="margin-top:20px; font-size:13px; color:#888;">
-        💸 Après avoir fait ton don au parrain, reviens ici pour valider ton entrée :
-      </p>
-      <button id="go-to-validation" class="btn btn-outline">✅ J'ai fait mon don → Valider</button>
-    </div>
-
-    <!-- 🔗 VALIDATION DE MON LIEN -->
-    <div id="validation-section" class="card">
-      <h3 id="val-title" style="color:#d4af37;">🔗 Valider mon entrée</h3>
-      <p id="val-desc" style="font-size:13px; color:#ccc; margin:10px 0;"></p>
-      <input id="v-link" type="text" placeholder="Colle ton lien Victory ici...">
-      <button id="v-btn" class="btn btn-green">Valider mon lien</button>
-      <div id="val-msg"></div>
-    </div>
-  </div>
-
-  <div id="debug">⏳ Chargement...</div>
-
-  <script>
-    // 🌍 TRADUCTIONS
-    const dict = {
-      fr: { 
-        tS:"Inscription", bS:"Créer compte", tL:"Connexion", bL:"Se connecter", 
-        u:"Nom", e:"Email / WhatsApp", p:"Mot de passe (min 6)", p2:"Mot de passe", 
-        have:"Déjà membre ?", new:"Nouveau ?", 
-        popMsg:"Merci de <b>S'abonner</b>, <b>aimer</b>, <b>commenter</b> avec <b>'Prêt'</b> pour booster tes liens.", 
-        subBtn:"1. S'ABONNER 🔔", doneBtn:"2. OK, REGARDER", 
-        vidMsg:"Regarde jusqu'à la fin pour obtenir ton lien Victory...", vidBtn:"✅ J'ai regardé", 
-        linkTitle:"🎁 Ton lien Victory est prêt", linkDesc:"Voici le lien de ton parrain. Clique ci-dessous pour le suivre et inscrire tes 4 referrals :", 
-        linkPreview:"🔗 https://eldamama.github.io/LINKFLOW002/?ref=...", 
-        goLink:"🚀 SUIVRE CE LIEN MAINTENANT", goVal:"✅ J'ai fait mon don → Valider",
-        valTitle:"🔗 Valider mon entrée", valDesc:"Colle le lien Victory que tu as reçu après ton don :", 
-        valPh:"https://eldamama.github.io/LINKFLOW002/?ref=...", valBtn:"Valider mon lien",
-        validated:"✅ Lien vérifié ! Tu es dans la généalogie 🎉", 
-        invalid:"❌ Ce lien n'est pas valide. Vérifie auprès de ton parrain."
-      },
-      en: { 
-        tS:"Sign Up", bS:"Create Account", tL:"Login", bL:"Sign In", 
-        u:"Name", e:"Email / WhatsApp", p:"Password (min 6)", p2:"Password", 
-        have:"Already member?", new:"New here?", 
-        popMsg:"Please <b>Subscribe</b>, <b>like</b>, <b>comment</b> with <b>'Ready'</b>.", 
-        subBtn:"1. SUBSCRIBE 🔔", doneBtn:"2. DONE, WATCH", 
-        vidMsg:"Watch until the end to get your Victory link...", vidBtn:"✅ I watched it", 
-        linkTitle:"🎁 Your Victory Link is Ready", linkDesc:"Here's your sponsor's link. Click below to follow it and register your 4 referrals:", 
-        linkPreview:"🔗 https://eldamama.github.io/LINKFLOW002/?ref=...", 
-        goLink:"🚀 FOLLOW THIS LINK NOW", goVal:"✅ I donated → Validate",
-        valTitle:"🔗 Validate My Entry", valDesc:"Paste the Victory link you received after your donation:", 
-        valPh:"https://eldamama.github.io/LINKFLOW002/?ref=...", valBtn:"Validate My Link",
-        validated:"✅ Link verified! You're in the genealogy 🎉", 
-        invalid:"❌ Invalid link. Check with your sponsor."
-      },
-      pt: { 
-        tS:"Cadastro", bS:"Criar conta", tL:"Entrar", bL:"Acessar", 
-        u:"Nome", e:"Email / WhatsApp", p:"Senha (mín. 6)", p2:"Senha", 
-        have:"Já é membro?", new:"Novo?", 
-        popMsg:"<b>Inscreva-se</b>, <b>curta</b>, <b>comente</b> com <b>'Pronto'</b>.", 
-        subBtn:"1. INSCREVER 🔔", doneBtn:"2. PRONTO", 
-        vidMsg:"Assista até o fim para receber seu link Victory...", vidBtn:"✅ Assisti", 
-        linkTitle:"🎁 Seu Link Victory está Pronto", linkDesc:"Link do seu padrinho. Clique para seguir e cadastrar seus 4 referrals:", 
-        linkPreview:"🔗 https://eldamama.github.io/LINKFLOW002/?ref=...", 
-        goLink:"🚀 SEGUIR ESTE LINK", goVal:"✅ Doei → Validar",
-        valTitle:"🔗 Validar Entrada", valDesc:"Cole o link Victory recebido após sua doação:", 
-        valPh:"https://eldamama.github.io/LINKFLOW002/?ref=...", valBtn:"Validar",
-        validated:"✅ Verificado! Você está na genealogia 🎉", 
-        invalid:"❌ Link inválido. Verifique com seu padrinho."
-      },
-      es: { 
-        tS:"Registro", bS:"Crear cuenta", tL:"Acceder", bL:"Iniciar sesión", 
-        u:"Nombre", e:"Email / WhatsApp", p:"Contraseña (mín. 6)", p2:"Contraseña", 
-        have:"¿Ya miembro?", new:"¿Nuevo?", 
-        popMsg:"<b>Suscríbete</b>, <b>like</b>, <b>comenta</b> con <b>'Listo'</b>.", 
-        subBtn:"1. SUSCRIBIR 🔔", doneBtn:"2. LISTO", 
-        vidMsg:"Mira hasta el final para obtener tu enlace Victory...", vidBtn:"✅ Vi el video", 
-        linkTitle:"🎁 Tu Enlace Victory está Listo", linkDesc:"Enlace de tu padrino. Haz clic para seguirlo y registrar tus 4 referrals:", 
-        linkPreview:"🔗 https://eldamama.github.io/LINKFLOW002/?ref=...", 
-        goLink:"🚀 SEGUIR ESTE ENLACE", goVal:"✅ Doné → Validar",
-        valTitle:"🔗 Validar Entrada", valDesc:"Pega el enlace Victory recibido tras tu donación:", 
-        valPh:"https://eldamama.github.io/LINKFLOW002/?ref=...", valBtn:"Validar",
-        validated:"✅ ¡Verificado! Estás en la genealogía 🎉", 
-        invalid:"❌ Enlace inválido. Verifica con tu padrino."
-      },
-      ln: { 
-        tS:"Komisa", bS:"Tia compte", tL:"Kota", bL:"Kota", 
-        u:"Nkombo", e:"Email / WhatsApp", p:"Mot de passe (min 6)", p2:"Mot de passe", 
-        have:"Oza déjà?", new:"Oza sika?", 
-        popMsg:"<b>Abonnez-vous</b>, <b>aimez</b>, <b>commentez</b> na <b>'Prêt'</b>.", 
-        subBtn:"1. ABONNEZ 🔔", doneBtn:"2. OK, TALA", 
-        vidMsg:"Tala tii na suka kozwa lien na yo Victory...", vidBtn:"✅ Natale", 
-        linkTitle:"🎁 Lien na yo Victory esali", linkDesc:"Lien ya padrin na yo. Beta pour suivre mpe komisa ba referrals 4 na yo:", 
-        linkPreview:"🔗 https://eldamama.github.io/LINKFLOW002/?ref=...", 
-        goLink:"🚀 BETA LIEN OYO", goVal:"✅ Nabeti don → Vérifier",
-        valTitle:"🔗 Vérifier entrée", valDesc:"Tia lien Victory oyo ozwaki nsima ya don na yo:", 
-        valPh:"https://eldamama.github.io/LINKFLOW002/?ref=...", valBtn:"Vérifier",
-        validated:"✅ Esili vérifié! Oza na généalogie 🎉", 
-        invalid:"❌ Lien ezali te. Tala na padrin na yo."
-      }
-    };
-
-    // ⚙️ CONFIGURATION
-    const ROOT_LINK = 'https://eldamama.github.io/LINKFLOW002/?ref=';
-    const VALID_SPONSORS = ['okoningana', 'parrain1', 'parrain2']; // ← À étendre avec ta base
-    const YOUTUBE_ID = '9uPybhkqYw4';
-    
-    let currentLang = 'fr';
-    let userSponsor = 'okoningana'; // Par défaut = racine
-
-    function log(msg) { document.getElementById('debug').innerText = msg; console.log(msg); }
-    function d(id) { return document.getElementById(id); }
-
-    // 🌐 EXTRAIRE ?ref= DE L'URL
-    function getSponsorFromURL() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const ref = params.get('ref');
-        return ref && VALID_SPONSORS.includes(ref) ? ref : 'okoningana';
-      } catch(e) { return 'okoningana'; }
-    }
-
-    function start(lang) {
-      currentLang = lang;
-      const t = dict[currentLang];
-      try {
-        d('overlay').style.display = 'none';
-        d('app').style.display = 'block';
-        
-        // Traductions auth
-        d('title-s').innerText = t.tS; d('btn-s').innerText = t.bS;
-        d('title-l').innerText = t.tL; d('btn-l').innerText = t.bL;
-        d('lbl-s-name').innerText = t.u; d('lbl-s-email').innerText = t.e; d('lbl-s-pass').innerText = t.p;
-        d('lbl-l-email').innerText = t.e; d('lbl-l-pass').innerText = t.p2;
-        d('link-to-login').innerText = t.have; d('link-to-signup').innerText = t.new;
-        
-        // Popup & vidéo
-        d('pop-msg').innerHTML = t.popMsg;
-        d('sub-link').innerText = t.subBtn; d('pop-close').innerText = t.doneBtn;
-        d('vid-msg').innerText = t.vidMsg; d('vid-done').innerText = t.vidBtn;
-        
-        // Section lien (REDIRECTION)
-        d('link-title').innerText = t.linkTitle; d('link-desc').innerText = t.linkDesc;
-        d('link-preview').innerText = t.linkPreview.replace('...', userSponsor);
-        d('go-to-sponsor-link').innerText = t.goLink; d('go-to-validation').innerText = t.goVal;
-        
-        // Validation
-        d('val-title').innerText = t.valTitle; d('val-desc').innerText = t.valDesc;
-        d('v-link').placeholder = t.valPh; d('v-btn').innerText = t.valBtn;
-        
-        localStorage.setItem('eldamama_lang', currentLang);
-        log(`✅ Langue : ${currentLang} | Parrain : ${userSponsor}`);
-      } catch(e) { log(`❌ ERREUR: ${e.message}`); alert(e.message); }
-    }
-
-    function swap(mode) {
-      d('signup-box').classList.toggle('hidden', mode === 'login');
-      d('login-box').classList.toggle('hidden', mode === 'signup');
-      return false;
-    }
-
-    function updateStep(n) {
-      for(let i=1; i<=4; i++) {
-        const el = d(`step-${i}`);
-        el.classList.remove('active','done');
-        if(i < n) el.classList.add('done');
-        if(i === n) el.classList.add('active');
-      }
-    }
-
-    function showPopup() { d('popup').style.display = 'flex'; log('📺 Popup'); }
-    
-    function closePopupAndPlay() {
-      d('popup').style.display = 'none';
-      d('signup-box').classList.add('hidden');
-      d('login-box').classList.add('hidden');
-      d('video-section').style.display = 'block';
-      d('yt-frame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=0&rel=0`;
-      updateStep(2);
-      log('▶️ Vidéo');
-    }
-
-    function showLinkSection() {
-      d('video-section').style.display = 'none';
-      d('link-section').style.display = 'block';
-      updateStep(3);
-      log(`🎁 Section lien affichée | Parrain : ${userSponsor}`);
-    }
-
-    function showValidationSection() {
-      d('link-section').style.display = 'none';
-      d('validation-section').style.display = 'block';
-      updateStep(4);
-      log('🔗 Section validation');
-    }
-
-    // 🚀 INITIALISATION
-    window.addEventListener('load', () => {
-      log('📱 Page chargée');
-      
-      // Récupérer le parrain depuis l'URL
-      userSponsor = getSponsorFromURL();
-      log(`👥 Parrain détecté : ${userSponsor}`);
-      
-      // Navigation
-      d('link-to-login').onclick = e => { e.preventDefault(); swap('login'); };
-      d('link-to-signup').onclick = e => { e.preventDefault(); swap('signup'); };
-      d('pop-close').onclick = closePopupAndPlay;
-      d('vid-done').onclick = showLinkSection;
-      d('go-to-validation').onclick = showValidationSection;
-      
-      // 🚀 REDIRECTION VERS LE LIEN DU PARRAIN (pas de copie)
-      d('go-to-sponsor-link').onclick = () => {
-        const sponsorLink = `${ROOT_LINK}${userSponsor}`;
-        log(`🔗 Redirection vers : ${sponsorLink}`);
-        // Ouvre dans un nouvel onglet pour que l'utilisateur puisse revenir
-        window.open(sponsorLink, '_blank');
-        // Optionnel : afficher un message de rappel
-        setTimeout(() => {
-          alert(dict[currentLang].goVal.includes('don') ? 
-            "💡 N'oublie pas de faire ton don au parrain avant de valider !" : 
-            "💡 Remember to donate to your sponsor before validating!");
-        }, 500);
-      };
-      
-      // Validation du lien utilisateur
-      d('v-btn').onclick = () => {
-        const userLink = d('v-link').value.trim();
-        const msg = d('val-msg');
-        const t = dict[currentLang];
-        
-        // Vérification : le lien doit contenir ?ref= avec un parrain valide
-        const match = userLink.match(/[?&]ref=([^&]+)/);
-        const userRef = match ? match[1] : null;
-        
-        if(userRef && VALID_SPONSORS.includes(userRef)) {
-          msg.innerHTML = `<div style="color:#28a745; margin-top:10px;">${t.validated}</div>`;
-          log(`✅ Lien validé : ${userRef}`);
-          // Ici : enregistrer l'utilisateur dans la généalogie (Supabase plus tard)
-        } else {
-          msg.innerHTML = `<div style="color:#ff4444; margin-top:10px;">${t.invalid}</div>`;
-          log(`❌ Lien invalide : ${userLink}`);
+        function initApp(lang) {
+            currentLang = lang;
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            if(ref) sponsor = ref;
+            updateUI();
         }
-      };
 
-      // Chargement langue sauvegardée (uniquement pour les textes)
-      const saved = localStorage.getItem('eldamama_lang');
-      if(saved && dict[saved]) start(saved);
+        function updateUI() {
+            const t = dict[currentLang];
+            document.getElementById('auth-title').innerText = isLoginMode ? t.login : t.signup;
+            document.getElementById('auth-desc').innerText = isLoginMode ? t.authDescL : t.authDescS;
+            document.getElementById('lbl-email').innerText = t.lblEmail;
+            document.getElementById('lbl-pass').innerText = t.lblPass;
+            document.getElementById('auth-switch').innerText = isLoginMode ? t.authSwitchL : t.authSwitchS;
+            document.getElementById('btn-auth').innerText = isLoginMode ? t.login : t.signup;
+            document.getElementById('vid-title').innerText = t.vidTitle;
+            document.getElementById('vid-desc').innerText = t.vidDesc;
+            document.getElementById('sponsor-title').innerText = t.sponsorTitle;
+            document.getElementById('sponsor-desc').innerText = t.sponsorDesc;
+            document.getElementById('sponsor-box').innerText = `🔗 ID: ${sponsor}`;
+            document.getElementById('btn-go-victory').innerText = t.btnVictory;
+            document.getElementById('btn-have-donated').innerText = t.btnDonated;
+            document.getElementById('val-title').innerText = t.valTitle;
+            document.getElementById('val-desc').innerText = t.valDesc;
+            document.getElementById('btn-activate-lf').innerText = t.btnActivate;
+        }
 
-      // INSCRIPTION
-      d('form-s').onsubmit = function(e) {
-        e.preventDefault();
-        const btn = d('btn-s');
-        btn.disabled = true; btn.innerText = '⏳...';
-        setTimeout(() => {
-          log('✅ Inscription (démo)');
-          d('form-s').reset();
-          btn.disabled = false; btn.innerText = dict[currentLang].bS;
-          showPopup();
-        }, 800);
-      };
+        function toggleAuthMode() { isLoginMode = !isLoginMode; updateUI(); }
 
-      // CONNEXION
-      d('form-l').onsubmit = function(e) {
-        e.preventDefault();
-        const btn = d('btn-l');
-        btn.disabled = true; btn.innerText = '⏳...';
-        setTimeout(() => {
-          log('✅ Connexion (démo)');
-          d('form-l').reset();
-          btn.disabled = false; btn.innerText = dict[currentLang].bL;
-          showPopup();
-        }, 800);
-      };
-    });
-  </script>
+        function handleAuth() {
+            const email = document.getElementById('u-email').value.trim();
+            if(!email || !document.getElementById('u-pass').value) return alert("Infos?");
+            currentUserEmail = email;
+            document.getElementById('auth-section').classList.add('hidden');
+            if(localStorage.getItem(`watched_${email}`)) showSponsorStep(); else showVideoStep();
+        }
+
+        function showVideoStep() {
+            updateSteps(2);
+            document.getElementById('video-section').classList.remove('hidden');
+            document.getElementById('yt-frame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1&rel=0`;
+            const btn = document.getElementById('btn-video-done');
+            let savedTime = localStorage.getItem(`timer_${currentUserEmail}`);
+            let timeLeft = savedTime ? parseInt(savedTime) : VIDEO_DURATION;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                localStorage.setItem(`timer_${currentUserEmail}`, timeLeft);
+                if(timeLeft > 0) {
+                    btn.innerText = dict[currentLang].vidBtnWait.replace('{s}', timeLeft);
+                } else {
+                    clearInterval(timer);
+                    localStorage.removeItem(`timer_${currentUserEmail}`);
+                    btn.disabled = false;
+                    btn.innerText = dict[currentLang].vidBtnDone;
+                    btn.onclick = () => { localStorage.setItem(`watched_${currentUserEmail}`, 'true'); showSponsorStep(); };
+                }
+            }, 1000);
+        }
+
+        function showSponsorStep() {
+            updateSteps(3);
+            document.getElementById('video-section').classList.add('hidden');
+            document.getElementById('link-section').classList.remove('hidden');
+        }
+
+        function openSponsorLink() { window.open(`https://victory-monde.com/register?ref=${sponsor}`, '_blank'); }
+
+        function showValidation() {
+            updateSteps(4);
+            document.getElementById('link-section').classList.add('hidden');
+            document.getElementById('val-section').classList.remove('hidden');
+        }
+
+        function finalValidation() {
+            const link = document.getElementById('v-link').value.trim();
+            const msg = document.getElementById('final-msg');
+            const t = dict[currentLang];
+            if(link.includes('victory-monde.com') && link.includes('ref=')) {
+                const myId = link.split('ref=')[1].split('&')[0];
+                const myLink = `${window.location.origin}${window.location.pathname}?ref=${myId}`;
+                msg.innerHTML = `<div style="color:#28a745; border:1px solid #28a745; padding:10px; border-radius:8px;"><b>${t.valValid}</b><br><br><small>${t.valShare}</small><br><code style="color:#d4af37;">${myLink}</code></div>`;
+            } else { msg.innerHTML = `<b style="color:#ff4444;">${t.valInvalid}</b>`; }
+        }
+
+        function updateSteps(n) {
+            for(let i=1; i<=4; i++) {
+                const s = document.getElementById(`step-${i}`);
+                s.className = 'step';
+                if(i < n) s.classList.add('done'); else if(i === n) s.classList.add('active');
+            }
+        }
+    </script>
 </body>
 </html>
