@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELDAMAMA - LINKFLOW PRO</title>
+    <title>LINKFLOW</title>
     <style>
         /* --- DESIGN GLOBAL --- */
         * { box-sizing: border-box; margin:0; padding:0; }
@@ -52,7 +52,7 @@
         <img src="https://i.ibb.co/bW343Y2/BCO-d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" alt="Logo" class="main-logo">
         <button class="btn-lang" onclick="initApp('fr')">🇫🇷 FRANÇAIS</button>
         <button class="btn-lang" onclick="initApp('en')">🇺🇸 ENGLISH</button>
-        <button class="btn-lang" onclick="initApp('ln')">🇨🇩 LINGALA</button>
+        <button class="btn-lang" onclick="initApp('ar')">🇸🇦 العربية</button>
         <button class="btn-lang" onclick="initApp('pt')">🇵🇹 PORTUGUÊS</button>
         <button class="btn-lang" onclick="initApp('es')">🇪🇸 ESPAÑOL</button>
         <button class="btn-lang" onclick="initApp('sw')">🇰🇪 SWAHILI</button>
@@ -107,7 +107,19 @@
         </div>
     </div>
 
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
+        // 🔑 ==================================================================
+        // ⚠️ REMPLACEZ CES 2 LIGNES PAR VOS PROPRES IDENTIFIANTS SUPABASE
+        // ==================================================================
+        const SUPABASE_URL = 'https://VOTRE-PROJET.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; 
+        // ==================================================================
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const YOUTUBE_ID = '9uPybhkqYw4'; 
         const ROOT_REF = 'okoningana';
         const VIDEO_DURATION = 180; 
@@ -116,6 +128,7 @@
         let isLoginMode = false;
         let sponsor = ROOT_REF;
         let currentUserEmail = '';
+        let session = null; // Stocke la session active Supabase
 
         const dict = {
             fr: {
@@ -134,13 +147,13 @@
                 valTitle: "Validation", valDesc: "Paste your personal Victory link obtained after your donation:", btnActivate: "ACTIVATE LINKFLOW",
                 valValid: "🎉 CONGRATULATIONS! Your link is active.", valInvalid: "❌ Victory link not recognized.", valShare: "Your referral link:"
             },
-            ln: {
-                login: "Kota", signup: "Komisa nkombo", authDescL: "Kota mpo na kokoba.", authDescS: "Kela compte LinkFlow na yo sikoyo.",
-                lblEmail: "Email", lblPass: "Mot de passe", authSwitchL: "Sika? Komisa nkombo", authSwitchS: "Oza membre? Kota",
-                vidTitle: "HATUA YA LAZIMA", vidDesc: "Tala video oyo ya miniti 3 mpo na kofungola nzela.", vidBtnWait: "Zela {s}s...", vidBtnDone: "Nasilisi kotala",
-                sponsorTitle: "Parrain na yo", sponsorDesc: "Komisa nkombo na Victory na nzela ya lien oyo:", btnVictory: "🚀 KENDE NA VICTORY", btnDonated: "NAPESI DÉJÀ DON",
-                valTitle: "Validation", valDesc: "Tia lien na yo ya Victory oyo ozwaki nsima ya kopesa don:", btnActivate: "ACTIVER LINKFLOW",
-                valValid: "🎉 FÉLICITATIONS! Lien na yo efungwami.", valInvalid: "❌ Lien ya Victory ezali mabe.", valShare: "Lien na yo ya kokabola:"
+            ar: {
+                login: "تسجيل الدخول", signup: "إنشاء حساب", authDescL: "أدخل بياناتك للمتابعة.", authDescS: "أنشئ حساب LinkFlow الآن.",
+                lblEmail: "البريد الإلكتروني", lblPass: "كلمة المرور", authSwitchL: "جديد؟ إنشاء حساب", authSwitchS: "عضو؟ تسجيل الدخول",
+                vidTitle: "خطوة إلزامية", vidDesc: "شاهد هذا الفيديو لمدة 3 دقائق لفتح الوصول.", vidBtnWait: "انتظر {s} ثانية...", vidBtnDone: "لقد انتهيت من المشاهدة",
+                sponsorTitle: "كفيلك", sponsorDesc: "سجل في Victory عبر هذا الرابط للانضمام إلى الفريق:", btnVictory: "🚀 اذهب إلى VICTORY", btnDonated: "لقد تبرعت بالفعل",
+                valTitle: "التحقق", valDesc: "الصق رابط Victory الخاص بك الذي حصلت عليه بعد تبرعك:", btnActivate: "تفعيل LINKFLOW",
+                valValid: "🎉 تهانينا! رابطك نشط الآن.", valInvalid: "❌ رابط Victory غير معترف به.", valShare: "رابط الإحالة الخاص بك:"
             },
             pt: {
                 login: "Entrar", signup: "Cadastrar", authDescL: "Entre com seus dados para continuar.", authDescS: "Crie sua conta LinkFlow agora.",
@@ -168,14 +181,17 @@
             }
         };
 
-        function initApp(lang) {
+        async function initApp(lang) {
             currentLang = lang;
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('app').style.display = 'block';
+            
             const urlParams = new URLSearchParams(window.location.search);
             const ref = urlParams.get('ref');
             if(ref) sponsor = ref;
+            
             updateUI();
+            await checkSession(); // Vérifie si déjà connecté au rechargement
         }
 
         function updateUI() {
@@ -200,33 +216,111 @@
 
         function toggleAuthMode() { isLoginMode = !isLoginMode; updateUI(); }
 
-        function handleAuth() {
+        async function handleAuth() {
             const email = document.getElementById('u-email').value.trim();
-            if(!email || !document.getElementById('u-pass').value) return alert("Infos?");
-            currentUserEmail = email;
+            const password = document.getElementById('u-pass').value;
+            const btn = document.getElementById('btn-auth');
+            
+            if(!email || !password) return alert("Veuillez remplir tous les champs");
+            
+            btn.disabled = true;
+            btn.innerText = isLoginMode ? "Connexion..." : "Création...";
+            
+            try {
+                if (isLoginMode) {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    session = data.session;
+                } else {
+                    const { data, error } = await supabase.auth.signUp({
+                        email, password,
+                        options: {  { language: currentLang, sponsor_id: sponsor } }
+                    });
+                    if (error) throw error;
+                    session = data.session;
+                    
+                    // Si confirmation email activée
+                    if (!session) {
+                        alert("✅ Compte créé ! Vérifiez votre email pour activer votre accès.");
+                        btn.disabled = false;
+                        btn.innerText = dict[currentLang][isLoginMode ? 'login' : 'signup'];
+                        return;
+                    }
+                }
+                
+                await routeUser();
+            } catch (err) {
+                console.error(err);
+                alert("❌ " + (err.message || "Erreur d'authentification"));
+                btn.disabled = false;
+                btn.innerText = dict[currentLang][isLoginMode ? 'login' : 'signup'];
+            }
+        }
+
+        async function routeUser() {
+            if(!session) return;
+            currentUserEmail = session.user.email;
+            
+            const {  profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+                
+            if (error) throw error;
+            
+            // Restaurer la langue si sauvegardée
+            if (profile.language) currentLang = profile.language;
+            updateUI();
+            
             document.getElementById('auth-section').classList.add('hidden');
-            if(localStorage.getItem(`watched_${email}`)) showSponsorStep(); else showVideoStep();
+            
+            if (profile.account_activated) {
+                updateSteps(4);
+                document.getElementById('val-section').classList.remove('hidden');
+                const myLink = `${window.location.origin}${window.location.pathname}?ref=${profile.my_ref_id}`;
+                document.getElementById('final-msg').innerHTML = `<div style="color:#28a745; border:1px solid #28a745; padding:10px; border-radius:8px;"><b>${dict[currentLang].valValid}</b><br><br><small>${dict[currentLang].valShare}</small><br><code style="color:#d4af37;">${myLink}</code></div>`;
+            } else if (profile.video_watched) {
+                showSponsorStep();
+            } else {
+                showVideoStep();
+            }
         }
 
         function showVideoStep() {
             updateSteps(2);
             document.getElementById('video-section').classList.remove('hidden');
             document.getElementById('yt-frame').src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1&rel=0`;
+            
             const btn = document.getElementById('btn-video-done');
-            let savedTime = localStorage.getItem(`timer_${currentUserEmail}`);
-            let timeLeft = savedTime ? parseInt(savedTime) : VIDEO_DURATION;
+            let timeLeft = VIDEO_DURATION;
 
             const timer = setInterval(() => {
                 timeLeft--;
-                localStorage.setItem(`timer_${currentUserEmail}`, timeLeft);
+                document.getElementById('timer-display').innerText = `⏳ ${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`;
+                
                 if(timeLeft > 0) {
                     btn.innerText = dict[currentLang].vidBtnWait.replace('{s}', timeLeft);
                 } else {
                     clearInterval(timer);
-                    localStorage.removeItem(`timer_${currentUserEmail}`);
+                    document.getElementById('timer-display').innerText = "✅ Vidéo terminée";
                     btn.disabled = false;
                     btn.innerText = dict[currentLang].vidBtnDone;
-                    btn.onclick = () => { localStorage.setItem(`watched_${currentUserEmail}`, 'true'); showSponsorStep(); };
+                    btn.onclick = async () => {
+                        btn.disabled = true;
+                        btn.innerText = "Sauvegarde...";
+                        try {
+                            await supabase.from('profiles').update({ 
+                                video_watched: true,
+                                video_completed_at: new Date().toISOString()
+                            }).eq('id', session.user.id);
+                            showSponsorStep();
+                        } catch(err) {
+                            alert("Erreur de sauvegarde");
+                            btn.disabled = false;
+                            btn.innerText = dict[currentLang].vidBtnDone;
+                        }
+                    };
                 }
             }, 1000);
         }
@@ -245,15 +339,43 @@
             document.getElementById('val-section').classList.remove('hidden');
         }
 
-        function finalValidation() {
+        async function finalValidation() {
             const link = document.getElementById('v-link').value.trim();
             const msg = document.getElementById('final-msg');
+            const btn = document.getElementById('btn-activate-lf');
             const t = dict[currentLang];
-            if(link.includes('victory-monde.com') && link.includes('ref=')) {
-                const myId = link.split('ref=')[1].split('&')[0];
-                const myLink = `${window.location.origin}${window.location.pathname}?ref=${myId}`;
+            
+            const pattern = /^https:\/\/victory-monde\.com\/register\?ref=[a-zA-Z0-9_-]+$/;
+            if (!pattern.test(link)) {
+                msg.innerHTML = `<b style="color:#ff4444;">${t.valInvalid}</b>`;
+                return;
+            }
+            
+            btn.disabled = true; btn.innerText = "Activation...";
+            
+            try {
+                const extracted = link.split('ref=')[1].split('&')[0];
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .update({ 
+                        victory_link: link, 
+                        victory_ref_extracted: extracted, 
+                        account_activated: true 
+                    })
+                    .eq('id', session.user.id)
+                    .select('my_ref_id')
+                    .single();
+                    
+                if (error) throw error;
+                
+                const myLink = `${window.location.origin}${window.location.pathname}?ref=${data.my_ref_id}`;
                 msg.innerHTML = `<div style="color:#28a745; border:1px solid #28a745; padding:10px; border-radius:8px;"><b>${t.valValid}</b><br><br><small>${t.valShare}</small><br><code style="color:#d4af37;">${myLink}</code></div>`;
-            } else { msg.innerHTML = `<b style="color:#ff4444;">${t.valInvalid}</b>`; }
+            } catch (err) {
+                console.error(err);
+                msg.innerHTML = `<b style="color:#ff4444;">❌ Erreur serveur</b>`;
+            } finally {
+                btn.disabled = false; btn.innerText = t.btnActivate;
+            }
         }
 
         function updateSteps(n) {
@@ -261,6 +383,19 @@
                 const s = document.getElementById(`step-${i}`);
                 s.className = 'step';
                 if(i < n) s.classList.add('done'); else if(i === n) s.classList.add('active');
+            }
+        }
+
+        // 🔄 Vérifie automatiquement la session au chargement de la page
+        async function checkSession() {
+            try {
+                const {  { session: currentSession } } = await supabase.auth.getSession();
+                if (currentSession) {
+                    session = currentSession;
+                    await routeUser();
+                }
+            } catch (err) {
+                console.error("Session check failed", err);
             }
         }
     </script>
