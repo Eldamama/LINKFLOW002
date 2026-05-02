@@ -1,12 +1,38 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <script>
-  // 1. CONFIGURATION (METS TES VRAIES INFOS ICI)
+(() => {
+  "use strict";
+
+  // =========================
+  // 1. CONFIGURATION
+  // =========================
   const supabaseUrl = "https://abc123xyz.supabase.co"; 
   const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-  
-  // Initialisation du client
-  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-  // 2. DICTIONNAIRE DE TRADUCTION
+  let supabaseClient = null;
+
+  try {
+    if (!window.supabase) {
+      console.error("[LINK FLOW] Supabase SDK manquant");
+      return;
+    }
+
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    if (!supabaseClient) {
+      console.error("[LINK FLOW] Échec initialisation Supabase");
+      return;
+    }
+
+  } catch (e) {
+    console.error("[LINK FLOW] Erreur Supabase init:", e);
+    return;
+  }
+
+  // =========================
+  // 2. TRADUCTIONS
+  // =========================
   const translations = {
     fr: { title: "Étape 1 — Authentification", email: "Email", password: "Mot de passe", button: "Connexion / Inscription", confirm: "Formulaire ouvert en" },
     en: { title: "Step 1 — Authentication", email: "Email", password: "Password", button: "Login / Sign up", confirm: "Form opened in" },
@@ -18,78 +44,157 @@
 
   let selectedLanguage = "fr";
 
-  // 3. FONCTIONS DE LOGIQUE
+  // =========================
+  // 3. SAFE DOM HELPER
+  // =========================
+  function safeGet(id) {
+    const el = document.getElementById(id);
+    if (!el) console.warn(`[LINK FLOW] Élément manquant: ${id}`);
+    return el;
+  }
+
+  // =========================
+  // 4. LANGUE
+  // =========================
   function selectLanguage(lang) {
     if (!translations[lang]) return;
+
     selectedLanguage = lang;
     localStorage.setItem("language", lang);
 
-    document.getElementById("language-screen").classList.add("hidden");
-    document.getElementById("register-form").classList.remove("hidden");
+    const langScreen = safeGet("language-screen");
+    const form = safeGet("register-form");
+
+    if (langScreen) langScreen.classList.add("hidden");
+    if (form) form.classList.remove("hidden");
 
     applyLanguage(lang);
 
     const t = translations[lang];
-    document.getElementById("confirmation").textContent = "✅ " + t.confirm + " " + getLanguageName(lang);
+    const confirm = safeGet("confirmation");
+
+    if (confirm) {
+      confirm.textContent = "✅ " + t.confirm + " " + getLanguageName(lang);
+    }
+
+    console.log("[LINK FLOW] Langue sélectionnée:", lang);
   }
 
   function applyLanguage(lang) {
     const t = translations[lang] || translations.fr;
-    document.querySelector("#register-form h2").textContent = t.title;
-    document.querySelector("label[for='email']").textContent = t.email;
-    document.querySelector("label[for='password']").textContent = t.password;
-    document.querySelector("#register-btn").textContent = t.button;
-    document.getElementById("email").placeholder = t.email;
-    document.getElementById("password").placeholder = t.password;
+
+    const title = document.querySelector("#register-form h2");
+    const emailLabel = document.querySelector("label[for='email']");
+    const passLabel = document.querySelector("label[for='password']");
+    const btn = safeGet("register-btn");
+    const email = safeGet("email");
+    const password = safeGet("password");
+
+    if (title) title.textContent = t.title;
+    if (emailLabel) emailLabel.textContent = t.email;
+    if (passLabel) passLabel.textContent = t.password;
+    if (btn) btn.textContent = t.button;
+
+    if (email) email.placeholder = t.email;
+    if (password) password.placeholder = t.password;
   }
 
   function getLanguageName(code) {
-    const names = { fr: "Français", en: "English", hi: "Hindi", pt: "Português", es: "Español", ar: "Arabe" };
+    const names = {
+      fr: "Français",
+      en: "English",
+      hi: "Hindi",
+      pt: "Português",
+      es: "Español",
+      ar: "Arabe"
+    };
     return names[code] || code;
   }
 
+  // =========================
+  // 5. REGISTER SAFE
+  // =========================
   async function handleRegister() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const btn = document.getElementById("register-btn");
-    const loader = document.getElementById("loader");
+    const email = safeGet("email")?.value?.trim();
+    const password = safeGet("password")?.value?.trim();
+    const btn = safeGet("register-btn");
+    const loader = safeGet("loader");
 
     if (!email || !password) {
       alert("Veuillez remplir tous les champs");
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = "Chargement...";
-    loader.style.display = "block";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Chargement...";
+    }
+    if (loader) loader.style.display = "block";
 
     try {
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
-        options: { data: { language: selectedLanguage } }
+        options: {
+          data: { language: selectedLanguage }
+        }
       });
 
       if (error) throw error;
 
       alert("Compte créé. Vérifiez votre email.");
+
       if (data?.user) {
-        await supabaseClient.from("profiles").upsert({ id: data.user.id, email, language: selectedLanguage });
+        const { error: dbError } = await supabaseClient
+          .from("profiles")
+          .upsert({
+            id: data.user.id,
+            email,
+            language: selectedLanguage
+          });
+
+        if (dbError) {
+          console.warn("[LINK FLOW] DB error:", dbError.message);
+        }
       }
+
     } catch (err) {
+      console.error("[LINK FLOW] Register error:", err);
       alert("Erreur: " + err.message);
     } finally {
-      btn.disabled = false;
-      btn.textContent = translations[selectedLanguage]?.button || translations.fr.button;
-      loader.style.display = "none";
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent =
+          translations[selectedLanguage]?.button ||
+          translations.fr.button;
+      }
+      if (loader) loader.style.display = "none";
     }
   }
 
-  // Initialisation au chargement
+  // =========================
+  // 6. INIT SAFE
+  // =========================
   window.addEventListener("DOMContentLoaded", () => {
-    const localLang = localStorage.getItem("language");
-    if (localLang && translations[localLang]) {
-      selectLanguage(localLang);
+    try {
+      const localLang = localStorage.getItem("language");
+
+      if (localLang && translations[localLang]) {
+        selectLanguage(localLang);
+      }
+
+      console.log("[LINK FLOW] Initialisation OK");
+
+    } catch (e) {
+      console.error("[LINK FLOW] Init error:", e);
     }
   });
+
+  // =========================
+  // 7. EXPORT GLOBAL
+  // =========================
+  window.selectLanguage = selectLanguage;
+  window.handleRegister = handleRegister;
+
+})();
 </script>
