@@ -10,13 +10,7 @@
     #app { display: none; }
     #logo { max-width: 250px; height: auto; margin: 20px auto; display: block; }
     #overlay h1 { margin: 20px 0; color: #333; font-size: 28px; }
-    .lang-container { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 15px; 
-      margin: 30px auto; 
-      max-width: 600px; 
-    }
+    .lang-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px auto; max-width: 600px; }
     .lang-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #f0f0f0; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: #333; }
     .lang-btn:hover { background: #4caf50; color: white; border-color: #4caf50; transform: scale(1.05); }
     .lang-flag { font-size: 48px; margin-bottom: 10px; }
@@ -102,6 +96,14 @@ function selectLang(lang) {
   currentLang = lang;
   document.getElementById("overlay").style.display="none";
   document.getElementById("app").style.display="block";
+
+  // ✅ Confirmation visuelle
+  const msg = document.createElement("p");
+  msg.textContent = "✅ Formulaire ouvert avec succès (" + lang + ")";
+  msg.style.color = "green";
+  msg.style.fontWeight = "bold";
+  msg.style.textAlign = "center";
+  document.getElementById("app").prepend(msg);
 }
 
 async function handleAuth() {
@@ -146,13 +148,3 @@ document.getElementById('watchBtn').addEventListener('click', async () => {
         alert("❌ Erreur récupération utilisateur : " + userError.message);
         return;
       }
-
-      const user = userData.user;
-
-      // ✅ Enregistrer côté serveur que la vidéo est terminée
-      const { data, error } = await supabase.rpc('mark_video_completed', { user_id: user.id });
-
-      if (error) {
-        alert("❌ Erreur vidéo : " + error.message);
-      } else {
-        alert("✅ Vidéo validée
