@@ -12,7 +12,7 @@
     #overlay h1 { margin: 20px 0; color: #333; font-size: 28px; }
     .lang-container { 
       display: grid; 
-      grid-template-columns: repeat(3, 1fr); /* 3 colonnes fixes */
+      grid-template-columns: repeat(3, 1fr); 
       gap: 15px; 
       margin: 30px auto; 
       max-width: 600px; 
@@ -90,6 +90,7 @@
   </section>
 </div>
 
+<!-- ✅ JavaScript intégré -->
 <script>
 const VIDEO_DURATION = 180;
 const YOUTUBE_ID = '9uPybhkqYw4';
@@ -131,7 +132,7 @@ function showPopup() {
 }
 
 document.getElementById('watchBtn').addEventListener('click', async () => {
-  window.open("https://www.youtube.com/watch?v="+YOUTUBE_ID, "_blank");
+  window.open("https://www.youtube.com/watch?v=" + YOUTUBE_ID, "_blank");
   let remaining = VIDEO_DURATION;
   let timer = setInterval(async () => {
     remaining--;
@@ -139,9 +140,19 @@ document.getElementById('watchBtn').addEventListener('click', async () => {
       clearInterval(timer);
       document.getElementById('getLinkBtn').disabled = false;
 
-      // ✅ Enregistrer côté serveur que la vidéo est terminée
-      const user = (await supabase.auth.getUser()).data.user;
-      const { data, error } = await supabase.rpc('mark_video_completed', { user_id: o });
-      if(error) {
-        alert("❌ Erreur vidéo : " + error.message);
+      // ✅ Récupérer l'utilisateur connecté
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        alert("❌ Erreur récupération utilisateur : " + userError.message);
+        return;
       }
+
+      const user = userData.user;
+
+      // ✅ Enregistrer côté serveur que la vidéo est terminée
+      const { data, error } = await supabase.rpc('mark_video_completed', { user_id: user.id });
+
+      if (error) {
+        alert("❌ Erreur vidéo : " + error.message);
+      } else {
+        alert("✅ Vidéo validée
