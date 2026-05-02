@@ -7,8 +7,14 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
     #overlay { padding: 20px; }
-    .lang-container { margin-top: 20px; }
-    .lang-btn { margin: 5px; padding: 10px 20px; cursor: pointer; }
+    .lang-container { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 10px; 
+      max-width: 400px; 
+      margin: 20px auto; 
+    }
+    .lang-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; }
     .circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ccc; display: inline-block; margin: 5px; }
     .active { background: #3498db; border-color: #3498db; }
     .done { background: #2ecc71; border-color: #2ecc71; }
@@ -28,6 +34,10 @@
   <div class="lang-container">
     <button class="lang-btn" onclick="selectLang('fr')">🇫🇷 Français</button>
     <button class="lang-btn" onclick="selectLang('en')">🇬🇧 English</button>
+    <button class="lang-btn" onclick="selectLang('pt')">🇵🇹 Português</button>
+    <button class="lang-btn" onclick="selectLang('es')">🇪🇸 Español</button>
+    <button class="lang-btn" onclick="selectLang('ar')">🇸🇦 العربية</button>
+    <button class="lang-btn" onclick="selectLang('hi')">🇮🇳 हिन्दी</button>
   </div>
 </div>
 
