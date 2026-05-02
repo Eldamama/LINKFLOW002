@@ -20,12 +20,19 @@
     button { margin: 10px; padding: 10px 20px; cursor: pointer; }
     .confirmation { color: green; font-weight: bold; margin: 10px; }
   </style>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = "TON_SUPABASE_URL";
+    const supabaseKey = "TON_SUPABASE_ANON_KEY";
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  </script>
 </head>
 <body>
 
 <!-- Écran de sélection de langue -->
 <div id="language-screen">
-  <img id="logo" src="VOTRE_LOGO.png" alt="LINK FLOW Logo" style="max-width:150px;">
   <h1>🌐 Choisissez votre langue</h1>
   <div class="lang-container">
     <button class="lang-btn" onclick="selectLanguage('fr')">🇫🇷 Français</button>
@@ -45,7 +52,7 @@
   <input type="email" id="email" placeholder="Email">
   <label for="password">Mot de passe</label>
   <input type="password" id="password" placeholder="Mot de passe">
-  <button onclick="handleRegister()">Connexion / Inscription</button>
+  <button id="register-btn" onclick="handleRegister()">Connexion / Inscription</button>
 </div>
 
 <script>
@@ -53,18 +60,10 @@ let selectedLanguage = null;
 
 function selectLanguage(lang) {
   selectedLanguage = lang;
-
-  // Masquer l'écran de langue
   document.getElementById("language-screen").classList.add("hidden");
-
-  // Afficher le formulaire
   document.getElementById("register-form").classList.remove("hidden");
-
-  // Message visuel de confirmation
   document.getElementById("confirmation").textContent = 
     "✅ Formulaire ouvert en " + getLanguageName(lang);
-
-  console.log("Langue choisie :", selectedLanguage);
 }
 
 function getLanguageName(code) {
@@ -79,11 +78,59 @@ function getLanguageName(code) {
   }
 }
 
-function handleRegister() {
+async function handleRegister() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const btn = document.getElementById("register-btn");
 
-  alert("Inscription/Connexion en cours pour " + email + " avec langue " + selectedLanguage);
+  if (!email || !password) {
+    alert("Veuillez remplir tous les champs");
+    return;
+  }
+
+  // État "loading"
+  btn.disabled = true;
+  btn.textContent = "Chargement...";
+
+  // Auth Supabase (sign up)
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  if (error) {
+    alert("Erreur auth: " + error.message);
+    btn.disabled = false;
+    btn.textContent = "Connexion / Inscription";
+    return;
+  }
+
+  const user = data?.user;
+  if (!user) {
+    alert("Compte créé mais utilisateur non disponible (confirmation email peut être activée).");
+    btn.disabled = false;
+    btn.textContent = "Connexion / Inscription";
+    return;
+  }
+
+  // Sauvegarde langue dans profils
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      email,
+      language: selectedLanguage
+    }, { onConflict: 'id' });
+
+  if (profileError) {
+    alert("Erreur profil: " + profileError.message);
+    btn.disabled = false;
+    btn.textContent = "Connexion / Inscription";
+    return;
+  }
+
+  alert("Compte créé avec succès en " + getLanguageName(selectedLanguage));
+
+  // Réinitialiser bouton
+  btn.disabled = false;
+  btn.textContent = "Connexion / Inscription";
 }
 </script>
 
