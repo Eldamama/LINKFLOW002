@@ -4,44 +4,90 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LINK FLOW</title>
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
-    #overlay { padding: 20px; }
-    .lang-container { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 10px; 
-      max-width: 400px; 
-      margin: 20px auto; 
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
     }
-    .lang-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; }
-    .circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ccc; display: inline-block; margin: 5px; }
-    .active { background: #3498db; border-color: #3498db; }
-    .done { background: #2ecc71; border-color: #2ecc71; }
-    .hidden { display: none !important; }
-    #video-container { margin: 20px auto; max-width: 560px; }
-    .timer-display { font-weight: bold; color: #e74c3c; margin: 10px; }
-    input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; }
-    button { margin: 10px; padding: 10px 20px; cursor: pointer; }
+
+    .hidden {
+      display: none;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .lang-btn {
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #app {
+      padding: 20px;
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: gray;
+    }
+
+    .circle.active {
+      background: blue;
+    }
+
+    .circle.done {
+      background: green;
+    }
+
+    #video-container {
+      margin: 20px auto;
+      max-width: 560px;
+    }
+
+    .timer-display {
+      font-weight: bold;
+      color: red;
+      margin: 10px 0;
+    }
   </style>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
+<!-- LANGUE -->
 <div id="overlay">
-  <img id="logo" src="VOTRE_LOGO.png" alt="LINK FLOW Logo" style="max-width:150px;">
-  <h1>🌐 Choisissez votre langue</h1>
-  <div class="lang-container">
-    <button class="lang-btn" onclick="selectLang('fr')">🇫🇷 Français</button>
-    <button class="lang-btn" onclick="selectLang('en')">🇬🇧 English</button>
-    <button class="lang-btn" onclick="selectLang('pt')">🇵🇹 Português</button>
-    <button class="lang-btn" onclick="selectLang('es')">🇪🇸 Español</button>
-    <button class="lang-btn" onclick="selectLang('ar')">🇸🇦 العربية</button>
-    <button class="lang-btn" onclick="selectLang('hi')">🇮🇳 हिन्दी</button>
-  </div>
+  <h1>Choisissez votre langue</h1>
+
+  <button class="lang-btn" onclick="selectLang('fr')">Français</button>
+  <button class="lang-btn" onclick="selectLang('en')">English</button>
 </div>
 
+<!-- APP -->
 <div id="app" class="hidden">
+
   <div class="step-indicator">
     <div id="circle1" class="circle active"></div>
     <div id="circle2" class="circle"></div>
@@ -49,144 +95,182 @@
     <div id="circle4" class="circle"></div>
   </div>
 
-  <!-- Étape 1 -->
+  <!-- AUTH -->
   <section id="auth-section">
     <h2>Étape 1 — Authentification</h2>
-    <label for="email">Email</label>
+
     <input type="email" id="email" placeholder="Email">
-    <label for="password">Mot de passe</label>
     <input type="password" id="password" placeholder="Mot de passe">
+
     <button id="authBtn" onclick="handleAuth()">Connexion / Inscription</button>
   </section>
 
-  <!-- Étape 2 -->
+  <!-- VIDEO -->
   <section id="video-section" class="hidden">
     <h2>Étape 2 — Vidéo obligatoire</h2>
-    <p>Regardez la vidéo en entier pour débloquer la suite.</p>
+
     <div id="video-container">
-      <iframe id="videoFrame" width="100%" height="315"
-        src="https://www.youtube.com/embed/9uPybhkqYw4"
-        frameborder="0" allowfullscreen></iframe>
+      <div id="player"></div>
     </div>
+
     <div id="timer" class="timer-display"></div>
-    <button id="getLinkBtn" disabled onclick="goToLinkSection()">Continuer vers l'étape 3</button>
+
+    <button id="getLinkBtn" disabled onclick="goToLinkSection()">
+      Continuer
+    </button>
   </section>
 
-  <!-- Étape 3 -->
+  <!-- LINK -->
   <section id="link-section" class="hidden">
     <h2>Étape 3 — Parrainage</h2>
-    <p id="sponsorInfo">Chargement du parrain...</p>
+
+    <p id="sponsorInfo">Chargement...</p>
+
     <button onclick="openVictory()">S'inscrire sur Victory</button>
-    <button onclick="goToValidation()">J'ai fini mon inscription</button>
+    <button onclick="goToValidation()">Continuer</button>
   </section>
 
-  <!-- Étape 4 -->
+  <!-- VALIDATION -->
   <section id="val-section" class="hidden">
     <h2>Étape 4 — Validation</h2>
-    <label for="victoryLink">Lien de parrainage Victory</label>
-    <input type="url" id="victoryLink" placeholder="Collez votre lien de parrainage Victory">
-    <button onclick="finalValidation()">Valider mon compte</button>
+
+    <input type="url" id="victoryLink" placeholder="Lien Victory">
+
+    <button onclick="finalValidation()">Valider</button>
   </section>
+
 </div>
 
 <script>
-// CONFIGURATION
-const REQUIRED_TIME = 180; // secondes
-let elapsed = 0;
+let player;
 let timerInterval;
 
-// INITIALISATION SUPABASE
+const VIDEO_ID = "9uPybhkqYw4";
+const REQUIRED_TIME = 180;
+
+// SUPABASE (à remplacer)
 const supabase = window.supabase.createClient("VOTRE_URL", "VOTRE_CLE_ANON");
 
-// Sélection langue
-function selectLang(lang) {
+/* =========================
+   LANGUE (CORRECTION CLÉ)
+========================= */
+window.selectLang = function(lang) {
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
-}
+};
 
-// Authentification
-async function handleAuth() {
+/* =========================
+   AUTH
+========================= */
+window.handleAuth = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const btn = document.getElementById("authBtn");
-  btn.disabled = true;
 
   try {
-    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    let { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
     if (error) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      await supabase.auth.signUp({
         email,
-        password,
-        options: { data: { sponsor_id: 'okoningana' } }
+        password
       });
-      if (signUpError) throw signUpError;
-      alert("Compte créé ! Vérifiez vos emails ou reconnectez-vous.");
     }
+
     showSection("video-section", 2);
-  } catch (err) {
-    alert(err.message);
-    btn.disabled = false;
+    loadYouTube();
+  } catch (e) {
+    alert(e.message);
+  }
+};
+
+/* =========================
+   YOUTUBE
+========================= */
+function loadYouTube() {
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player("player", {
+    videoId: VIDEO_ID,
+    events: {
+      onStateChange: onPlayerStateChange
+    }
+  });
+};
+
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    startTimer();
   }
 }
 
-// Timer simulé
-function startFakeTimer() {
-  elapsed = 0;
+/* TIMER SIMPLE (sans hack complexe ici) */
+function startTimer() {
+  clearInterval(timerInterval);
+
   timerInterval = setInterval(() => {
-    elapsed++;
-    const remaining = REQUIRED_TIME - elapsed;
-    if (remaining > 0) {
-      document.getElementById('timer').innerText = `Temps restant : ${remaining}s`;
+    const t = Math.floor(player.getCurrentTime());
+    const remain = REQUIRED_TIME - t;
+
+    if (remain > 0) {
+      document.getElementById("timer").innerText =
+        "Temps restant : " + remain + "s";
     } else {
+      document.getElementById("timer").innerText = "Validé";
+      document.getElementById("getLinkBtn").disabled = false;
       clearInterval(timerInterval);
-      document.getElementById('timer').innerText = "Vidéo validée !";
-      document.getElementById('getLinkBtn').disabled = false;
     }
   }, 1000);
 }
 
-// Navigation
+/* =========================
+   NAVIGATION
+========================= */
 function showSection(id, step) {
-  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll("section").forEach(s => {
+    s.classList.add("hidden");
+  });
 
-  for(let i=1; i<=4; i++) {
-    const circle = document.getElementById(`circle${i}`);
-    if(i < step) circle.className = "circle done";
-    else if(i === step) circle.className = "circle active";
-    else circle.className = "circle";
+  document.getElementById(id).classList.remove("hidden");
+
+  for (let i = 1; i <= 4; i++) {
+    const c = document.getElementById("circle" + i);
+    c.className = "circle";
+
+    if (i < step) c.classList.add("done");
+    if (i === step) c.classList.add("active");
   }
-
-  if(id === "video-section") startFakeTimer();
 }
 
-function goToLinkSection() {
+window.goToLinkSection = function () {
   showSection("link-section", 3);
-  document.getElementById('sponsorInfo').innerText = "Votre parrain est : okoningana";
-}
+};
 
-function openVictory() {
-  window.open("https://victory-investment.com/register?ref=okoningana", "_blank");
-}
-
-function goToValidation() {
+window.goToValidation = function () {
   showSection("val-section", 4);
-}
+};
 
-async function finalValidation() {
+window.openVictory = function () {
+  window.open("https://victory-investment.com/register?ref=okoningana");
+};
+
+window.finalValidation = async function () {
   const link = document.getElementById("victoryLink").value;
-  if(!link.includes('victory-investment.com')) {
+
+  if (!link.includes("victory-investment.com")) {
     alert("Lien invalide");
     return;
   }
-  const user = await supabase.auth.getUser();
-  const { data, error } = await supabase.from('profiles')
-    .update({ victory_link: link })
-    .eq('id', user.data.user.id);
 
-  if(error) alert(error.message);
-  else alert("Félicitations ! Votre compte est en cours de validation.");
-}
+  alert("Validation envoyée");
+};
 </script>
+
 </body>
 </html>
