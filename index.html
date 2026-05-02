@@ -21,6 +21,16 @@
     const supabaseUrl = "TON_SUPABASE_URL";
     const supabaseKey = "TON_SUPABASE_ANON_KEY";
     window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // ✅ Dictionnaire de traductions
+    const translations = {
+      fr: { title: "Étape 1 — Authentification", email: "Email", password: "Mot de passe", button: "Connexion / Inscription" },
+      en: { title: "Step 1 — Authentication", email: "Email", password: "Password", button: "Login / Sign up" },
+      es: { title: "Paso 1 — Autenticación", email: "Correo", password: "Contraseña", button: "Iniciar sesión / Registro" },
+      pt: { title: "Etapa 1 — Autenticação", email: "Email", password: "Senha", button: "Entrar / Registar" },
+      ar: { title: "الخطوة 1 — المصادقة", email: "البريد الإلكتروني", password: "كلمة المرور", button: "تسجيل الدخول / إنشاء حساب" },
+      hi: { title: "चरण 1 — प्रमाणीकरण", email: "ईमेल", password: "पासवर्ड", button: "लॉगिन / साइन अप" }
+    };
   </script>
 </head>
 <body>
@@ -40,7 +50,9 @@
 <div id="register-form" class="hidden">
   <h2>Étape 1 — Authentification</h2>
   <p id="confirmation" class="confirmation"></p>
+  <label for="email">Email</label>
   <input type="email" id="email" placeholder="Email">
+  <label for="password">Mot de passe</label>
   <input type="password" id="password" placeholder="Mot de passe">
   <button id="register-btn" onclick="handleRegister()">Connexion / Inscription</button>
   <div id="loader">⏳ Veuillez patienter...</div>
@@ -53,7 +65,19 @@ function selectLanguage(lang) {
   selectedLanguage = lang;
   document.getElementById("language-screen").classList.add("hidden");
   document.getElementById("register-form").classList.remove("hidden");
-  document.getElementById("confirmation").textContent = "✅ Formulaire ouvert en " + getLanguageName(lang);
+
+  applyLanguage(lang);
+
+  document.getElementById("confirmation").textContent =
+    "✅ Formulaire ouvert en " + getLanguageName(lang);
+}
+
+function applyLanguage(lang) {
+  const t = translations[lang] || translations.fr;
+  document.querySelector("#register-form h2").textContent = t.title;
+  document.querySelector("label[for='email']").textContent = t.email;
+  document.querySelector("label[for='password']").textContent = t.password;
+  document.querySelector("#register-btn").textContent = t.button;
 }
 
 function getLanguageName(code) {
@@ -87,9 +111,7 @@ async function handleRegister() {
     const { error } = await supabaseClient.auth.signUp({
       email,
       password,
-      options: {
-        data: { language: selectedLanguage }
-      }
+      options: { data: { language: selectedLanguage } }
     });
 
     if (error) {
@@ -100,7 +122,7 @@ async function handleRegister() {
     alert("Compte créé. Vérifiez votre email.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Connexion / Inscription";
+    btn.textContent = translations[selectedLanguage]?.button || translations.fr.button;
     loader.style.display = "none";
   }
 }
