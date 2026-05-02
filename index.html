@@ -1,147 +1,159 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINK FLOW</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
-    #overlay { text-align: center; padding: 40px 20px; background: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    #app { display: none; }
-    #logo { max-width: 250px; height: auto; margin: 20px auto; display: block; }
-    #overlay h1 { margin: 20px 0; color: #333; font-size: 28px; }
-    .lang-container { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); /* 3 colonnes fixes */
-      gap: 15px; 
-      margin: 30px auto; 
-      max-width: 600px; 
-    }
-    .lang-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #f0f0f0; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: #333; }
-    .lang-btn:hover { background: #4caf50; color: white; border-color: #4caf50; transform: scale(1.05); }
-    .lang-flag { font-size: 48px; margin-bottom: 10px; }
-    .lang-name { font-size: 14px; font-weight: bold; }
-    .step-indicator { display:flex; gap:10px; margin:20px; justify-content: center; }
-    .circle { width:20px; height:20px; border-radius:50%; background:#ccc; }
-    .circle.active { background:#4caf50; }
-    .circle.done { background:#2196f3; }
-    section { padding: 20px; margin: 20px; background: white; border-radius: 5px; }
-    input { padding: 10px; margin: 10px 0; width: 80%; max-width: 400px; border: 1px solid #ddd; border-radius: 5px; }
-    button { margin:10px; padding:10px 20px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-
-<!-- Écran de sélection de langue -->
-<div id="overlay">
-  <img id="logo" src="BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" alt="LINK FLOW Logo">
-  <h1>🌐 Choisissez votre langue</h1>
-  <div class="lang-container">
-    <button class="lang-btn" onclick="selectLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span></button>
-    <button class="lang-btn" onclick="selectLang('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span></button>
-    <button class="lang-btn" onclick="selectLang('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">العربية</span></button>
-    <button class="lang-btn" onclick="selectLang('pt')"><span class="lang-flag">🇵🇹</span><span class="lang-name">Português</span></button>
-    <button class="lang-btn" onclick="selectLang('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span></button>
-    <button class="lang-btn" onclick="selectLang('hi')"><span class="lang-flag">🇮🇳</span><span class="lang-name">हिन्दी</span></button>
-  </div>
-</div>
-
-<!-- Application principale -->
-<div id="app">
-  <div class="step-indicator">
-    <div id="circle1" class="circle active"></div>
-    <div id="circle2" class="circle"></div>
-    <div id="circle3" class="circle"></div>
-    <div id="circle4" class="circle"></div>
-  </div>
-
-  <!-- Étape 1 : Authentification -->
-  <section id="auth-section">
-    <h2>Étape 1 — Authentification</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Mot de passe">
-    <button onclick="handleAuth()">Connexion / Inscription</button>
-  </section>
-
-  <!-- Étape 2 : Vidéo obligatoire -->
-  <section id="video-section" style="display:none;">
-    <h2>Étape 2 — Vidéo obligatoire</h2>
-    <div id="popup" style="display:none;">
-      <p>🎥 Vous devez regarder et interagir avec la vidéo YouTube pour continuer.</p>
-      <button id="watchBtn" disabled>Je regarde la vidéo</button>
-    </div>
-    <button id="getLinkBtn" disabled>J'obtiens le lien</button>
-  </section>
-
-  <!-- Étape 3 : Parrain / Victory -->
-  <section id="link-section" style="display:none;">
-    <h2>Étape 3 — Parrainage</h2>
-    <p id="sponsorInfo"></p>
-    <button onclick="openVictory()">Aller sur Victory</button>
-  </section>
-
-  <!-- Étape 4 : Validation finale -->
-  <section id="val-section" style="display:none;">
-    <h2>Étape 4 — Validation</h2>
-    <input type="text" id="victoryLink" placeholder="Collez votre lien Victory">
-    <button onclick="finalValidation()">Valider mon compte</button>
-  </section>
-</div>
-
 <script>
 const VIDEO_DURATION = 180;
 const YOUTUBE_ID = '9uPybhkqYw4';
 const ROOT_REF = 'okoningana';
 let currentLang = 'fr';
-let supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co","YOUR-ANON-KEY");
+
+const supabase = window.supabase.createClient(
+  "https://YOUR-PROJECT.supabase.co",
+  "YOUR-ANON-KEY"
+);
 
 function selectLang(lang) {
   currentLang = lang;
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("app").style.display="block";
+
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("app").style.display = "block";
 }
 
 async function handleAuth() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  let { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if(error) {
-    await supabase.auth.signUp({ email, password, options:{ data:{ language: currentLang, sponsor_id: ROOT_REF } } });
+
+  if (!email || !password) {
+    alert("Veuillez remplir email et mot de passe");
+    return;
   }
-  goToVideo();
+
+  try {
+    let { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      const { error: signupError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            language: currentLang,
+            sponsor_id: ROOT_REF
+          }
+        }
+      });
+
+      if (signupError) {
+        alert("Erreur : " + signupError.message);
+        return;
+      }
+    }
+
+    goToVideo();
+
+  } catch (err) {
+    alert("Erreur système : " + err.message);
+  }
 }
 
 function goToVideo() {
-  document.getElementById("auth-section").style.display="none";
-  document.getElementById("video-section").style.display="block";
+  document.getElementById("auth-section").style.display = "none";
+  document.getElementById("video-section").style.display = "block";
+
   document.getElementById("circle1").classList.remove("active");
   document.getElementById("circle1").classList.add("done");
   document.getElementById("circle2").classList.add("active");
+
   showPopup();
 }
 
 function showPopup() {
-  const popup = document.getElementById('popup');
-  popup.style.display = 'block';
+  const popup = document.getElementById("popup");
+  popup.style.display = "block";
+
   setTimeout(() => {
-    document.getElementById('watchBtn').disabled = false;
+    document.getElementById("watchBtn").disabled = false;
   }, 10000);
 }
 
-document.getElementById('watchBtn').addEventListener('click', async () => {
-  window.open("https://www.youtube.com/watch?v="+YOUTUBE_ID, "_blank");
-  let remaining = VIDEO_DURATION;
-  let timer = setInterval(async () => {
-    remaining--;
-    if (remaining <= 0) {
-      clearInterval(timer);
-      document.getElementById('getLinkBtn').disabled = false;
+document.getElementById("watchBtn").addEventListener("click", async () => {
 
-      // ✅ Enregistrer côté serveur que la vidéo est terminée
-      const user = (await supabase.auth.getUser()).data.user;
-      const { data, error } = await supabase.rpc('mark_video_completed', { user_id: user.id });
-      if(error) {
-        alert("❌ Erreur vidéo : " + error.message);
+  window.open(
+    "https://www.youtube.com/watch?v=" + YOUTUBE_ID,
+    "_blank"
+  );
+
+  let remaining = VIDEO_DURATION;
+
+  const timer = setInterval(async () => {
+
+    remaining--;
+
+    if (remaining <= 0) {
+
+      clearInterval(timer);
+
+      document.getElementById("getLinkBtn").disabled = false;
+
+      try {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { error } = await supabase.rpc(
+            "mark_video_completed",
+            {
+              user_id: user.id
+            }
+          );
+
+          if (error) {
+            alert("Erreur vidéo : " + error.message);
+          }
+        }
+
+      } catch (err) {
+        console.error(err);
       }
+    }
+
+  }, 1000);
+});
+
+document.getElementById("getLinkBtn").addEventListener("click", () => {
+
+  document.getElementById("video-section").style.display = "none";
+  document.getElementById("link-section").style.display = "block";
+
+  document.getElementById("circle2").classList.remove("active");
+  document.getElementById("circle2").classList.add("done");
+  document.getElementById("circle3").classList.add("active");
+
+  document.getElementById("sponsorInfo").innerText =
+    "Votre sponsor racine : " + ROOT_REF;
+});
+
+function openVictory() {
+  window.open("https://victory.com", "_blank");
+
+  document.getElementById("link-section").style.display = "none";
+  document.getElementById("val-section").style.display = "block";
+
+  document.getElementById("circle3").classList.remove("active");
+  document.getElementById("circle3").classList.add("done");
+  document.getElementById("circle4").classList.add("active");
+}
+
+function finalValidation() {
+
+  const victoryLink = document.getElementById("victoryLink").value;
+
+  if (!victoryLink) {
+    alert("Veuillez coller votre lien Victory");
+    return;
+  }
+
+  alert("Compte validé avec succès");
+}
+</script>
