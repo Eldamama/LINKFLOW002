@@ -5,22 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LINK FLOW</title>
   <style>
-    /* ... Vos styles existants ... */
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
+    #overlay { padding: 20px; }
+    .lang-container { margin-top: 20px; }
+    .lang-btn { margin: 5px; padding: 10px 20px; cursor: pointer; }
+    .circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ccc; display: inline-block; margin: 5px; }
+    .active { background: #3498db; border-color: #3498db; }
+    .done { background: #2ecc71; border-color: #2ecc71; }
+    .hidden { display: none !important; }
     #video-container { margin: 20px auto; max-width: 560px; }
     .timer-display { font-weight: bold; color: #e74c3c; margin: 10px; }
-    .hidden { display: none !important; }
+    input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; }
+    button { margin: 10px; padding: 10px 20px; cursor: pointer; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div id="overlay">
-  <img id="logo" src="VOTRE_LOGO.png" alt="LINK FLOW Logo">
+  <img id="logo" src="VOTRE_LOGO.png" alt="LINK FLOW Logo" style="max-width:150px;">
   <h1>🌐 Choisissez votre langue</h1>
   <div class="lang-container">
-    <button class="lang-btn" onclick="selectLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span></button>
-    <button class="lang-btn" onclick="selectLang('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span></button>
-    </div>
+    <button class="lang-btn" onclick="selectLang('fr')">🇫🇷 Français</button>
+    <button class="lang-btn" onclick="selectLang('en')">🇬🇧 English</button>
+  </div>
 </div>
 
 <div id="app" class="hidden">
@@ -31,23 +39,30 @@
     <div id="circle4" class="circle"></div>
   </div>
 
+  <!-- Étape 1 -->
   <section id="auth-section">
     <h2>Étape 1 — Authentification</h2>
+    <label for="email">Email</label>
     <input type="email" id="email" placeholder="Email">
+    <label for="password">Mot de passe</label>
     <input type="password" id="password" placeholder="Mot de passe">
     <button id="authBtn" onclick="handleAuth()">Connexion / Inscription</button>
   </section>
 
+  <!-- Étape 2 -->
   <section id="video-section" class="hidden">
     <h2>Étape 2 — Vidéo obligatoire</h2>
     <p>Regardez la vidéo en entier pour débloquer la suite.</p>
     <div id="video-container">
-        <div id="player"></div>
+      <iframe id="videoFrame" width="100%" height="315"
+        src="https://www.youtube.com/embed/9uPybhkqYw4"
+        frameborder="0" allowfullscreen></iframe>
     </div>
     <div id="timer" class="timer-display"></div>
     <button id="getLinkBtn" disabled onclick="goToLinkSection()">Continuer vers l'étape 3</button>
   </section>
 
+  <!-- Étape 3 -->
   <section id="link-section" class="hidden">
     <h2>Étape 3 — Parrainage</h2>
     <p id="sponsorInfo">Chargement du parrain...</p>
@@ -55,8 +70,10 @@
     <button onclick="goToValidation()">J'ai fini mon inscription</button>
   </section>
 
+  <!-- Étape 4 -->
   <section id="val-section" class="hidden">
     <h2>Étape 4 — Validation</h2>
+    <label for="victoryLink">Lien de parrainage Victory</label>
     <input type="url" id="victoryLink" placeholder="Collez votre lien de parrainage Victory">
     <button onclick="finalValidation()">Valider mon compte</button>
   </section>
@@ -64,20 +81,20 @@
 
 <script>
 // CONFIGURATION
-const VIDEO_ID = '9uPybhkqYw4';
 const REQUIRED_TIME = 180; // secondes
-let player;
+let elapsed = 0;
 let timerInterval;
 
 // INITIALISATION SUPABASE
 const supabase = window.supabase.createClient("VOTRE_URL", "VOTRE_CLE_ANON");
 
+// Sélection langue
 function selectLang(lang) {
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
 }
 
-// GESTION AUTHENTIFICATION
+// Authentification
 async function handleAuth() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -86,107 +103,79 @@ async function handleAuth() {
 
   try {
     let { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
     if (error) {
-      // Si erreur, on tente une inscription
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { sponsor_id: 'okoningana' } }
       });
       if (signUpError) throw signUpError;
-      alert("Compte créé ! Veuillez vérifier vos emails (si configuré) ou vous connecter.");
+      alert("Compte créé ! Vérifiez vos emails ou reconnectez-vous.");
     }
-    
     showSection("video-section", 2);
-    loadYouTubeAPI();
   } catch (err) {
     alert(err.message);
     btn.disabled = false;
   }
 }
 
-// CHARGEMENT API YOUTUBE
-function loadYouTubeAPI() {
-  const tag = document.createElement('script');
-  tag.src = "https://www.youtube.com/iframe_api";
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '315',
-    width: '100%',
-    videoId: VIDEO_ID,
-    events: {
-      'onStateChange': onPlayerStateChange
+// Timer simulé
+function startFakeTimer() {
+  elapsed = 0;
+  timerInterval = setInterval(() => {
+    elapsed++;
+    const remaining = REQUIRED_TIME - elapsed;
+    if (remaining > 0) {
+      document.getElementById('timer').innerText = `Temps restant : ${remaining}s`;
+    } else {
+      clearInterval(timerInterval);
+      document.getElementById('timer').innerText = "Vidéo validée !";
+      document.getElementById('getLinkBtn').disabled = false;
     }
-  });
+  }, 1000);
 }
 
-function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.PLAYING) {
-    startTimer();
-  } else {
-    clearInterval(timerInterval);
-  }
-}
-
-function startTimer() {
-    timerInterval = setInterval(() => {
-        const currentTime = Math.floor(player.getCurrentTime());
-        const remaining = REQUIRED_TIME - currentTime;
-        
-        if (remaining > 0) {
-            document.getElementById('timer').innerText = `Temps restant : ${remaining}s`;
-        } else {
-            document.getElementById('timer').innerText = "Vidéo validée !";
-            document.getElementById('getLinkBtn').disabled = false;
-            clearInterval(timerInterval);
-        }
-    }, 1000);
-}
-
-// NAVIGATION ENTRE SECTIONS
+// Navigation
 function showSection(id, step) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    
-    // Update circles
-    for(let i=1; i<=4; i++) {
-        const circle = document.getElementById(`circle${i}`);
-        if(i < step) circle.className = "circle done";
-        else if(i === step) circle.className = "circle active";
-        else circle.className = "circle";
-    }
+  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+
+  for(let i=1; i<=4; i++) {
+    const circle = document.getElementById(`circle${i}`);
+    if(i < step) circle.className = "circle done";
+    else if(i === step) circle.className = "circle active";
+    else circle.className = "circle";
+  }
+
+  if(id === "video-section") startFakeTimer();
 }
 
 function goToLinkSection() {
-    showSection("link-section", 3);
-    // Ici vous pourriez récupérer le vrai parrain depuis Supabase
-    document.getElementById('sponsorInfo').innerText = "Votre parrain est : okoningana";
+  showSection("link-section", 3);
+  document.getElementById('sponsorInfo').innerText = "Votre parrain est : okoningana";
 }
 
 function openVictory() {
-    window.open("https://victory-investment.com/register?ref=okoningana", "_blank");
+  window.open("https://victory-investment.com/register?ref=okoningana", "_blank");
 }
 
 function goToValidation() {
-    showSection("val-section", 4);
+  showSection("val-section", 4);
 }
 
 async function finalValidation() {
-    const link = document.getElementById("victoryLink").value;
-    if(!link.includes('victory-investment.com')) {
-        alert("Lien invalide");
-        return;
-    }
-    
-    const { data, error } = await supabase.from('profiles').update({ victory_link: link }).eq('id', (await supabase.auth.getUser()).data.user.id);
-    
-    if(error) alert(error.message);
-    else alert("Félicitations ! Votre compte est en cours de validation.");
+  const link = document.getElementById("victoryLink").value;
+  if(!link.includes('victory-investment.com')) {
+    alert("Lien invalide");
+    return;
+  }
+  const user = await supabase.auth.getUser();
+  const { data, error } = await supabase.from('profiles')
+    .update({ victory_link: link })
+    .eq('id', user.data.user.id);
+
+  if(error) alert(error.message);
+  else alert("Félicitations ! Votre compte est en cours de validation.");
 }
 </script>
 </body>
