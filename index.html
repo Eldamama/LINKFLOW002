@@ -1,5 +1,176 @@
-<!-- Updated content for index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LINK FLOW</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+    #overlay, #app { display:none; }
+    .step-indicator { display:flex; gap:10px; margin:20px; }
+    .circle { width:20px; height:20px; border-radius:50%; background:#ccc; }
+    .circle.active { background:#4caf50; }
+    .circle.done { background:#2196f3; }
+    button { margin:10px; padding:10px 20px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
 
-... (corrected content here) ...
+<!-- Écran de sélection de langue -->
+<div id="overlay">
+  <h1>🌐 Choisissez votre langue</h1>
+  <button onclick="selectLang('fr')">Français</button>
+  <button onclick="selectLang('en')">English</button>
+  <button onclick="selectLang('ar')">العربية</button>
+  <button onclick="selectLang('pt')">Português</button>
+  <button onclick="selectLang('es')">Español</button>
+  <button onclick="selectLang('hi')">हिन्दी</button>
+</div>
 
-<!-- Ensure lines 237, 264, and 392 have been properly corrected -->
+<!-- Application principale -->
+<div id="app">
+  <div class="step-indicator">
+    <div id="circle1" class="circle active"></div>
+    <div id="circle2" class="circle"></div>
+    <div id="circle3" class="circle"></div>
+    <div id="circle4" class="circle"></div>
+  </div>
+
+  <!-- Étape 1 : Authentification -->
+  <section id="auth-section">
+    <h2>Étape 1 — Authentification</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="handleAuth()">Connexion / Inscription</button>
+  </section>
+
+  <!-- Étape 2 : Vidéo obligatoire -->
+  <section id="video-section" style="display:none;">
+    <h2>Étape 2 — Vidéo obligatoire</h2>
+    <div id="popup" style="display:none;">
+      <p>🎥 Vous devez regarder et interagir avec la vidéo YouTube pour continuer.</p>
+      <button id="watchBtn" disabled>Je regarde la vidéo</button>
+    </div>
+    <button id="getLinkBtn" disabled>J'obtiens le lien</button>
+  </section>
+
+  <!-- Étape 3 : Parrain / Victory -->
+  <section id="link-section" style="display:none;">
+    <h2>Étape 3 — Parrainage</h2>
+    <p id="sponsorInfo"></p>
+    <button onclick="openVictory()">Aller sur Victory</button>
+  </section>
+
+  <!-- Étape 4 : Validation finale -->
+  <section id="val-section" style="display:none;">
+    <h2>Étape 4 — Validation</h2>
+    <input type="text" id="victoryLink" placeholder="Collez votre lien Victory">
+    <button onclick="finalValidation()">Valider mon compte</button>
+  </section>
+</div>
+
+<script>
+const VIDEO_DURATION = 180; // secondes
+const YOUTUBE_ID = '9uPybhkqYw4';
+const ROOT_REF = 'okoningana';
+let currentLang = 'en';
+let supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co","YOUR-ANON-KEY");
+
+// Dictionnaire multilingue
+const dict = {
+  fr: { auth:"Connexion / Inscription", video:"Vidéo obligatoire", link:"Parrainage", val:"Validation" },
+  en: { auth:"Sign Up / Login", video:"Mandatory Video", link:"Referral", val:"Validation" },
+  ar: { auth:"تسجيل الدخول / إنشاء حساب", video:"فيديو إلزامي", link:"الإحالة", val:"التحقق" },
+  pt: { auth:"Entrar / Registrar", video:"Vídeo obrigatório", link:"Patrocínio", val:"Validação" },
+  es: { auth:"Iniciar sesión / Registrarse", video:"Video obligatorio", link:"Patrocinio", val:"Validación" },
+  hi: { auth:"साइन अप / लॉगिन", video:"अनिवार्य वीडियो", link:"प्रायोजन", val:"सत्यापन" }
+};
+
+// Sélection de langue
+function selectLang(lang) {
+  currentLang = lang;
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("app").style.display="block";
+}
+
+// Authentification
+async function handleAuth() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) {
+    let { data, error } = await supabase.auth.signUp({ email, password, options:{ data:{ language: currentLang, sponsor_id: ROOT_REF } } });
+  }
+  goToVideo();
+}
+
+// Étape vidéo
+function goToVideo() {
+  document.getElementById("auth-section").style.display="none";
+  document.getElementById("video-section").style.display="block";
+  document.getElementById("circle1").classList.remove("active"); document.getElementById("circle1").classList.add("done");
+  document.getElementById("circle2").classList.add("active");
+  showPopup();
+}
+
+function showPopup() {
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('watchBtn').disabled = false;
+  }, 10000); // 10 secondes
+}
+
+document.getElementById('watchBtn').addEventListener('click', () => {
+  window.open("https://www.youtube.com/watch?v="+YOUTUBE_ID, "_blank");
+  let remaining = VIDEO_DURATION;
+  let timer = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(timer);
+      document.getElementById('getLinkBtn').disabled = false;
+    }
+  }, 1000);
+});
+
+document.getElementById('getLinkBtn').addEventListener('click', () => {
+  goToLink();
+});
+
+// Étape parrainage
+function goToLink() {
+  document.getElementById("video-section").style.display="none";
+  document.getElementById("link-section").style.display="block";
+  document.getElementById("circle2").classList.remove("active"); document.getElementById("circle2").classList.add("done");
+  document.getElementById("circle3").classList.add("active");
+  document.getElementById("sponsorInfo").innerText = "Votre sponsor est: "+ROOT_REF;
+}
+
+function openVictory() {
+  window.open("https://victory-monde.com/register?ref="+ROOT_REF, "_blank");
+  goToValidation();
+}
+
+// Étape validation
+function goToValidation() {
+  document.getElementById("link-section").style.display="none";
+  document.getElementById("val-section").style.display="block";
+  document.getElementById("circle3").classList.remove("active"); document.getElementById("circle3").classList.add("done");
+  document.getElementById("circle4").classList.add("active");
+}
+
+async function finalValidation() {
+  const link = document.getElementById("victoryLink").value;
+  const regex = /^https:\/\/victory-monde\.com\/register\?ref=([a-zA-Z0-9_-]+)$/;
+  const match = link.match(regex);
+  if(match) {
+    const ref = match[1];
+    let { data, error } = await supabase.from("profiles").update({ victory_link: link, victory_ref_extracted: ref, account_activated:true }).eq("id",(await supabase.auth.getUser()).data.user.id);
+    alert("✅ Compte activé avec succès !");
+  } else {
+    alert("❌ Lien invalide !");
+  }
+}
+</script>
+</body>
+</html>
