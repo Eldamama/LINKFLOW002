@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,30 +33,12 @@
   <img id="logo" src="BCO.d4c3aa9d-334b-4a79-8053-0d545cd94195-removebg-preview.png" alt="LINK FLOW Logo">
   <h1>🌐 Choisissez votre langue</h1>
   <div class="lang-container">
-    <button class="lang-btn" onclick="selectLang('fr')">
-      <span class="lang-flag">🇫🇷</span>
-      <span class="lang-name">Français</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('en')">
-      <span class="lang-flag">🇬🇧</span>
-      <span class="lang-name">English</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('ar')">
-      <span class="lang-flag">🇸🇦</span>
-      <span class="lang-name">العربية</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('pt')">
-      <span class="lang-flag">🇵🇹</span>
-      <span class="lang-name">Português</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('es')">
-      <span class="lang-flag">🇪🇸</span>
-      <span class="lang-name">Español</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('hi')">
-      <span class="lang-flag">🇮🇳</span>
-      <span class="lang-name">हिन्दी</span>
-    </button>
+    <button class="lang-btn" onclick="selectLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span></button>
+    <button class="lang-btn" onclick="selectLang('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span></button>
+    <button class="lang-btn" onclick="selectLang('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">العربية</span></button>
+    <button class="lang-btn" onclick="selectLang('pt')"><span class="lang-flag">🇵🇹</span><span class="lang-name">Português</span></button>
+    <button class="lang-btn" onclick="selectLang('es')"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span></button>
+    <button class="lang-btn" onclick="selectLang('hi')"><span class="lang-flag">🇮🇳</span><span class="lang-name">हिन्दी</span></button>
   </div>
 </div>
 
@@ -109,15 +91,6 @@ const ROOT_REF = 'okoningana';
 let currentLang = 'en';
 let supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co","YOUR-ANON-KEY");
 
-const dict = {
-  fr: { auth:"Connexion / Inscription", video:"Vidéo obligatoire", link:"Parrainage", val:"Validation" },
-  en: { auth:"Sign Up / Login", video:"Mandatory Video", link:"Referral", val:"Validation" },
-  ar: { auth:"تسجيل الدخول / إنشاء حساب", video:"فيديو إلزامي", link:"الإحالة", val:"التحقق" },
-  pt: { auth:"Entrar / Registrar", video:"Vídeo obrigatório", link:"Patrocínio", val:"Validação" },
-  es: { auth:"Iniciar sesión / Registrarse", video:"Video obligatorio", link:"Patrocinio", val:"Validación" },
-  hi: { auth:"साइन अप / लॉगिन", video:"अनिवार्य वीडियो", link:"प्रायोजन", val:"सत्यापन" }
-};
-
 function selectLang(lang) {
   currentLang = lang;
   document.getElementById("overlay").style.display="none";
@@ -129,7 +102,7 @@ async function handleAuth() {
   const password = document.getElementById("password").value;
   let { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if(error) {
-    let { data, error } = await supabase.auth.signUp({ email, password, options:{ data:{ language: currentLang, sponsor_id: ROOT_REF } } });
+    await supabase.auth.signUp({ email, password, options:{ data:{ language: currentLang, sponsor_id: ROOT_REF } } });
   }
   goToVideo();
 }
@@ -151,56 +124,26 @@ function showPopup() {
   }, 10000);
 }
 
-document.getElementById('watchBtn').addEventListener('click', () => {
+document.getElementById('watchBtn').addEventListener('click', async () => {
   window.open("https://www.youtube.com/watch?v="+YOUTUBE_ID, "_blank");
   let remaining = VIDEO_DURATION;
-  let timer = setInterval(() => {
+  let timer = setInterval(async () => {
     remaining--;
     if (remaining <= 0) {
       clearInterval(timer);
       document.getElementById('getLinkBtn').disabled = false;
+
+      // ✅ Enregistrer côté serveur que la vidéo est terminée
+      const user = (await supabase.auth.getUser()).data.user;
+      const { data, error } = await supabase.rpc('mark_video_completed', { user_id: user.id });
+      if(error) {
+        alert("❌ Erreur vidéo : " + error.message);
+      } else {
+        console.log("Vidéo validée côté serveur :", data);
+      }
     }
   }, 1000);
 });
 
 document.getElementById('getLinkBtn').addEventListener('click', () => {
-  goToLink();
-});
-
-function goToLink() {
-  document.getElementById("video-section").style.display="none";
-  document.getElementById("link-section").style.display="block";
-  document.getElementById("circle2").classList.remove("active");
-  document.getElementById("circle2").classList.add("done");
-  document.getElementById("circle3").classList.add("active");
-  document.getElementById("sponsorInfo").innerText = "Votre sponsor est: "+ROOT_REF;
-}
-
-function openVictory() {
-  window.open("https://victory-monde.com/register?ref="+ROOT_REF, "_blank");
-  goToValidation();
-}
-
-function goToValidation() {
-  document.getElementById("link-section").style.display="none";
-  document.getElementById("val-section").style.display="block";
-  document.getElementById("circle3").classList.remove("active");
-  document.getElementById("circle3").classList.add("done");
-  document.getElementById("circle4").classList.add("active");
-}
-
-async function finalValidation() {
-  const link = document.getElementById("victoryLink").value;
-  const regex = /^https:\/\/victory-monde\.com\/register\?ref=([a-zA-Z0-9_-]+)$/;
-  const match = link.match(regex);
-  if(match) {
-    const ref = match[1];
-    let { data, error } = await supabase.from("profiles").update({ victory_link: link, victory_ref_extracted: ref, account_activated:true }).eq("id",(await supabase.auth.getUser()).data.user.id);
-    alert("✅ Compte activé avec succès !");
-  } else {
-    alert("❌ Lien invalide !");
-  }
-}
-</script>
-</body>
-</html>
+  goToLink
