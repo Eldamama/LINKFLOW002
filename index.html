@@ -26,7 +26,8 @@
   <script>
     const supabaseUrl = "TON_SUPABASE_URL";
     const supabaseKey = "TON_SUPABASE_ANON_KEY";
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    // ✅ Utiliser supabaseClient pour éviter conflit
+    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 </head>
 <body>
@@ -93,7 +94,7 @@ async function handleRegister() {
   btn.textContent = "Chargement...";
 
   // Auth Supabase (sign up)
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
   if (error) {
     alert("Erreur auth: " + error.message);
@@ -111,7 +112,7 @@ async function handleRegister() {
   }
 
   // Sauvegarde langue dans profils
-  const { error: profileError } = await supabase
+  const { error: profileError } = await supabaseClient
     .from("profiles")
     .upsert({
       id: user.id,
