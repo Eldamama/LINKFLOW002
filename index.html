@@ -1,132 +1,95 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINK FLOW</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    .lang-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 400px; margin: 20px auto; }
-    .lang-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; }
-    .hidden { display: none !important; }
-    input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; }
-    button { margin: 10px; padding: 10px 20px; cursor: pointer; }
-    .confirmation { color: green; font-weight: bold; margin: 10px; }
-    #loader { display: none; margin: 15px; font-weight: bold; color: #007bff; }
-  </style>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const supabaseUrl = "TON_SUPABASE_URL";
-    const supabaseKey = "TON_SUPABASE_ANON_KEY";
-    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    // ✅ Dictionnaire de traductions
-    const translations = {
-      fr: { title: "Étape 1 — Authentification", email: "Email", password: "Mot de passe", button: "Connexion / Inscription" },
-      en: { title: "Step 1 — Authentication", email: "Email", password: "Password", button: "Login / Sign up" },
-      es: { title: "Paso 1 — Autenticación", email: "Correo", password: "Contraseña", button: "Iniciar sesión / Registro" },
-      pt: { title: "Etapa 1 — Autenticação", email: "Email", password: "Senha", button: "Entrar / Registar" },
-      ar: { title: "الخطوة 1 — المصادقة", email: "البريد الإلكتروني", password: "كلمة المرور", button: "تسجيل الدخول / إنشاء حساب" },
-      hi: { title: "चरण 1 — प्रमाणीकरण", email: "ईमेल", password: "पासवर्ड", button: "लॉगिन / साइन अप" }
-    };
-  </script>
-</head>
-<body>
-
-<div id="language-screen">
-  <h1>🌐 Choisissez votre langue</h1>
-  <div class="lang-container">
-    <button class="lang-btn" onclick="selectLanguage('fr')">🇫🇷 Français</button>
-    <button class="lang-btn" onclick="selectLanguage('en')">🇬🇧 English</button>
-    <button class="lang-btn" onclick="selectLanguage('hi')">🇮🇳 हिन्दी</button>
-    <button class="lang-btn" onclick="selectLanguage('pt')">🇵🇹 Português</button>
-    <button class="lang-btn" onclick="selectLanguage('es')">🇪🇸 Español</button>
-    <button class="lang-btn" onclick="selectLanguage('ar')">🇸🇦 العربية</button>
-  </div>
-</div>
-
-<div id="register-form" class="hidden">
-  <h2>Étape 1 — Authentification</h2>
-  <p id="confirmation" class="confirmation"></p>
-  <label for="email">Email</label>
-  <input type="email" id="email" placeholder="Email">
-  <label for="password">Mot de passe</label>
-  <input type="password" id="password" placeholder="Mot de passe">
-  <button id="register-btn" onclick="handleRegister()">Connexion / Inscription</button>
-  <div id="loader">⏳ Veuillez patienter...</div>
-</div>
-
 <script>
-let selectedLanguage = null;
+  // 1. CONFIGURATION (METS TES VRAIES INFOS ICI)
+  const supabaseUrl = "https://abc123xyz.supabase.co"; 
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+  
+  // Initialisation du client
+  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-function selectLanguage(lang) {
-  selectedLanguage = lang;
-  document.getElementById("language-screen").classList.add("hidden");
-  document.getElementById("register-form").classList.remove("hidden");
+  // 2. DICTIONNAIRE DE TRADUCTION
+  const translations = {
+    fr: { title: "Étape 1 — Authentification", email: "Email", password: "Mot de passe", button: "Connexion / Inscription", confirm: "Formulaire ouvert en" },
+    en: { title: "Step 1 — Authentication", email: "Email", password: "Password", button: "Login / Sign up", confirm: "Form opened in" },
+    es: { title: "Paso 1 — Autenticación", email: "Correo", password: "Contraseña", button: "Iniciar sesión / Registro", confirm: "Formulario abierto en" },
+    pt: { title: "Etapa 1 — Autenticação", email: "Email", password: "Senha", button: "Entrar / Registar", confirm: "Formulário aberto em" },
+    ar: { title: "الخطوة 1 — المصادقة", email: "البريد الإلكتروني", password: "كلمة المرور", button: "تسجيل الدخول / إنشاء حساب", confirm: "تم فتح النموذج باللغة" },
+    hi: { title: "चरण 1 — प्रमाणीकरण", email: "ईमेल", password: "पासवर्ड", button: "लॉगिन / साइन अप", confirm: "फॉर्म खुला भाषा में" }
+  };
 
-  applyLanguage(lang);
+  let selectedLanguage = "fr";
 
-  document.getElementById("confirmation").textContent =
-    "✅ Formulaire ouvert en " + getLanguageName(lang);
-}
+  // 3. FONCTIONS DE LOGIQUE
+  function selectLanguage(lang) {
+    if (!translations[lang]) return;
+    selectedLanguage = lang;
+    localStorage.setItem("language", lang);
 
-function applyLanguage(lang) {
-  const t = translations[lang] || translations.fr;
-  document.querySelector("#register-form h2").textContent = t.title;
-  document.querySelector("label[for='email']").textContent = t.email;
-  document.querySelector("label[for='password']").textContent = t.password;
-  document.querySelector("#register-btn").textContent = t.button;
-}
+    document.getElementById("language-screen").classList.add("hidden");
+    document.getElementById("register-form").classList.remove("hidden");
 
-function getLanguageName(code) {
-  switch(code) {
-    case 'fr': return "Français";
-    case 'en': return "English";
-    case 'hi': return "Hindi";
-    case 'pt': return "Português";
-    case 'es': return "Español";
-    case 'ar': return "Arabe";
-    default: return code;
-  }
-}
+    applyLanguage(lang);
 
-async function handleRegister() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const btn = document.getElementById("register-btn");
-  const loader = document.getElementById("loader");
-
-  if (!email || !password) {
-    alert("Veuillez remplir tous les champs");
-    return;
+    const t = translations[lang];
+    document.getElementById("confirmation").textContent = "✅ " + t.confirm + " " + getLanguageName(lang);
   }
 
-  btn.disabled = true;
-  btn.textContent = "Chargement...";
-  loader.style.display = "block";
+  function applyLanguage(lang) {
+    const t = translations[lang] || translations.fr;
+    document.querySelector("#register-form h2").textContent = t.title;
+    document.querySelector("label[for='email']").textContent = t.email;
+    document.querySelector("label[for='password']").textContent = t.password;
+    document.querySelector("#register-btn").textContent = t.button;
+    document.getElementById("email").placeholder = t.email;
+    document.getElementById("password").placeholder = t.password;
+  }
 
-  try {
-    const { error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: { data: { language: selectedLanguage } }
-    });
+  function getLanguageName(code) {
+    const names = { fr: "Français", en: "English", hi: "Hindi", pt: "Português", es: "Español", ar: "Arabe" };
+    return names[code] || code;
+  }
 
-    if (error) {
-      alert("Erreur: " + error.message);
+  async function handleRegister() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const btn = document.getElementById("register-btn");
+    const loader = document.getElementById("loader");
+
+    if (!email || !password) {
+      alert("Veuillez remplir tous les champs");
       return;
     }
 
-    alert("Compte créé. Vérifiez votre email.");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = translations[selectedLanguage]?.button || translations.fr.button;
-    loader.style.display = "none";
-  }
-}
-</script>
+    btn.disabled = true;
+    btn.textContent = "Chargement...";
+    loader.style.display = "block";
 
-</body>
-</html>
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { language: selectedLanguage } }
+      });
+
+      if (error) throw error;
+
+      alert("Compte créé. Vérifiez votre email.");
+      if (data?.user) {
+        await supabaseClient.from("profiles").upsert({ id: data.user.id, email, language: selectedLanguage });
+      }
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = translations[selectedLanguage]?.button || translations.fr.button;
+      loader.style.display = "none";
+    }
+  }
+
+  // Initialisation au chargement
+  window.addEventListener("DOMContentLoaded", () => {
+    const localLang = localStorage.getItem("language");
+    if (localLang && translations[localLang]) {
+      selectLanguage(localLang);
+    }
+  });
+</script>
