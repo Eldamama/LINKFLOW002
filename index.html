@@ -10,7 +10,13 @@
     #app { display: none; }
     #logo { max-width: 250px; height: auto; margin: 20px auto; display: block; }
     #overlay h1 { margin: 20px 0; color: #333; font-size: 28px; }
-    .lang-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 30px auto; max-width: 600px; }
+    .lang-container { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); /* 3 colonnes fixes */
+      gap: 15px; 
+      margin: 30px auto; 
+      max-width: 600px; 
+    }
     .lang-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #f0f0f0; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: #333; }
     .lang-btn:hover { background: #4caf50; color: white; border-color: #4caf50; transform: scale(1.05); }
     .lang-flag { font-size: 48px; margin-bottom: 10px; }
@@ -88,7 +94,7 @@
 const VIDEO_DURATION = 180;
 const YOUTUBE_ID = '9uPybhkqYw4';
 const ROOT_REF = 'okoningana';
-let currentLang = 'en';
+let currentLang = 'fr';
 let supabase = window.supabase.createClient("https://YOUR-PROJECT.supabase.co","YOUR-ANON-KEY");
 
 function selectLang(lang) {
@@ -138,12 +144,4 @@ document.getElementById('watchBtn').addEventListener('click', async () => {
       const { data, error } = await supabase.rpc('mark_video_completed', { user_id: user.id });
       if(error) {
         alert("❌ Erreur vidéo : " + error.message);
-      } else {
-        console.log("Vidéo validée côté serveur :", data);
       }
-    }
-  }, 1000);
-});
-
-document.getElementById('getLinkBtn').addEventListener('click', () => {
-  goToLink
