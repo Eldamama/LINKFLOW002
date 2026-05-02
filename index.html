@@ -5,20 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LINK FLOW</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
-    #language-screen { padding: 20px; }
-    .lang-container { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 10px; 
-      max-width: 400px; 
-      margin: 20px auto; 
-    }
+    body { font-family: Arial, sans-serif; text-align: center; }
+    .lang-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 400px; margin: 20px auto; }
     .lang-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; }
     .hidden { display: none !important; }
     input { display: block; margin: 10px auto; padding: 8px; width: 80%; max-width: 300px; }
     button { margin: 10px; padding: 10px 20px; cursor: pointer; }
     .confirmation { color: green; font-weight: bold; margin: 10px; }
+    #loader { display: none; margin: 15px; font-weight: bold; color: #007bff; }
   </style>
 
   <!-- Supabase -->
@@ -26,13 +20,11 @@
   <script>
     const supabaseUrl = "TON_SUPABASE_URL";
     const supabaseKey = "TON_SUPABASE_ANON_KEY";
-    // ✅ Utiliser supabaseClient pour éviter conflit
     window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 </head>
 <body>
 
-<!-- Écran de sélection de langue -->
 <div id="language-screen">
   <h1>🌐 Choisissez votre langue</h1>
   <div class="lang-container">
@@ -45,15 +37,13 @@
   </div>
 </div>
 
-<!-- Formulaire d'inscription -->
 <div id="register-form" class="hidden">
   <h2>Étape 1 — Authentification</h2>
   <p id="confirmation" class="confirmation"></p>
-  <label for="email">Email</label>
   <input type="email" id="email" placeholder="Email">
-  <label for="password">Mot de passe</label>
   <input type="password" id="password" placeholder="Mot de passe">
   <button id="register-btn" onclick="handleRegister()">Connexion / Inscription</button>
+  <div id="loader">⏳ Veuillez patienter...</div>
 </div>
 
 <script>
@@ -63,8 +53,7 @@ function selectLanguage(lang) {
   selectedLanguage = lang;
   document.getElementById("language-screen").classList.add("hidden");
   document.getElementById("register-form").classList.remove("hidden");
-  document.getElementById("confirmation").textContent = 
-    "✅ Formulaire ouvert en " + getLanguageName(lang);
+  document.getElementById("confirmation").textContent = "✅ Formulaire ouvert en " + getLanguageName(lang);
 }
 
 function getLanguageName(code) {
@@ -83,55 +72,37 @@ async function handleRegister() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const btn = document.getElementById("register-btn");
+  const loader = document.getElementById("loader");
 
   if (!email || !password) {
     alert("Veuillez remplir tous les champs");
     return;
   }
 
-  // État "loading"
   btn.disabled = true;
   btn.textContent = "Chargement...";
+  loader.style.display = "block";
 
-  // Auth Supabase (sign up)
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-  if (error) {
-    alert("Erreur auth: " + error.message);
-    btn.disabled = false;
-    btn.textContent = "Connexion / Inscription";
-    return;
-  }
-
-  const user = data?.user;
-  if (!user) {
-    alert("Compte créé mais utilisateur non disponible (confirmation email peut être activée).");
-    btn.disabled = false;
-    btn.textContent = "Connexion / Inscription";
-    return;
-  }
-
-  // Sauvegarde langue dans profils
-  const { error: profileError } = await supabaseClient
-    .from("profiles")
-    .upsert({
-      id: user.id,
+  try {
+    const { error } = await supabaseClient.auth.signUp({
       email,
-      language: selectedLanguage
-    }, { onConflict: 'id' });
+      password,
+      options: {
+        data: { language: selectedLanguage }
+      }
+    });
 
-  if (profileError) {
-    alert("Erreur profil: " + profileError.message);
+    if (error) {
+      alert("Erreur: " + error.message);
+      return;
+    }
+
+    alert("Compte créé. Vérifiez votre email.");
+  } finally {
     btn.disabled = false;
     btn.textContent = "Connexion / Inscription";
-    return;
+    loader.style.display = "none";
   }
-
-  alert("Compte créé avec succès en " + getLanguageName(selectedLanguage));
-
-  // Réinitialiser bouton
-  btn.disabled = false;
-  btn.textContent = "Connexion / Inscription";
 }
 </script>
 
