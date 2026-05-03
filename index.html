@@ -1,200 +1,144 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
 <script>
-(() => {
-  "use strict";
+// --- CONFIGURATION ---
+const VIDEO_ID = '9uPybhkqYw4';
+const REQUIRED_TIME = 180;
+const ROOT_SPONSOR = 'okoningana';
+const supabase = window.supabase.createClient("VOTRE_URL", "VOTRE_ANON_KEY");
 
-  // =========================
-  // 1. CONFIGURATION
-  // =========================
-  const supabaseUrl = "https://abc123xyz.supabase.co"; 
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+let currentUser = null;
+let timerInterval;
 
-  let supabaseClient = null;
+// --- 1. GESTION DE LA LANGUE & INITIALISATION ---
+async function selectLang(lang) {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    
+    // Vérifier si l'utilisateur est déjà connecté
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        currentUser = session.user;
+        checkProgress();
+    }
+}
 
-  try {
-    if (!window.supabase) {
-      console.error("[LINK FLOW] Supabase SDK manquant");
-      return;
+// --- 2. AUTHENTIFICATION AVEC CRÉATION DE PROFIL ---
+async function handleAuth() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    // Tentative de connexion
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        // Tentative d'inscription si le compte n'existe pas
+        const { data: upData, error: upError } = await supabase.auth.signUp({
+            email, password,
+            options: { data: { sponsor: ROOT_SPONSOR } }
+        });
+
+        if (upError) return alert("Erreur: " + upError.message);
+        
+        // Création du profil initial dans la table 'profiles'
+        await supabase.from('profiles').insert([
+            { id: upData.user.id, email: email, sponsor_id: ROOT_SPONSOR, current_step: 2 }
+        ]);
+        currentUser = upData.user;
+    } else {
+        currentUser = data.user;
+    }
+    checkProgress();
+}
+
+// --- 3. LOGIQUE MÉTIER : VÉRIFICATION DE LA PROGRESSION ---
+async function checkProgress() {
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+    if (!profile) return;
+
+    // Redirection automatique selon l'étape enregistrée en BDD
+    if (profile.current_step === 4) {
+        showSection("val-section", 4);
+    } else if (profile.video_completed || profile.current_step === 3) {
+        loadSponsorStep(profile.sponsor_id);
+    } else if (profile.current_step === 2) {
+        showSection("video-section", 2);
+        initYouTubePlayer();
+    }
+}
+
+// --- 4. LOGIQUE VIDÉO (BLOCAGE TEMPOREL) ---
+function initYouTubePlayer() {
+    // Charge l'API YouTube seulement si nécessaire
+    if (window.YT) { onYouTubeIframeAPIReady(); return; }
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.append(tag);
+}
+
+function onYouTubeIframeAPIReady() {
+    new YT.Player('player', {
+        height: '315', width: '100%', videoId: VIDEO_ID,
+        events: { 'onStateChange': (e) => {
+            if (e.data == YT.PlayerState.PLAYING) {
+                timerInterval = setInterval(updateVideoTimer, 1000);
+            } else {
+                clearInterval(timerInterval);
+            }
+        }}
+    });
+}
+
+async function updateVideoTimer() {
+    // Logique métier : On peut vérifier le temps réel du player ici
+    // Une fois terminé :
+    const { error } = await supabase.rpc('mark_video_completed', { user_id: currentUser.id });
+    if (!error) {
+        document.getElementById('getLinkBtn').disabled = false;
+        clearInterval(timerInterval);
+    }
+}
+
+// --- 5. LOGIQUE DE PARRAINAGE ---
+function loadSponsorStep(sponsorId) {
+    showSection("link-section", 3);
+    document.getElementById('sponsorInfo').innerHTML = `Votre parrain : <strong>${sponsorId}</strong>`;
+    
+    // On génère le lien Victory avec l'ID du parrain stocké
+    window.currentSponsorLink = `https://victory-investment.com/register?ref=${sponsorId}`;
+}
+
+function openVictory() {
+    window.open(window.currentSponsorLink, "_blank");
+}
+
+// --- 6. VALIDATION FINALE ET FERMETURE DE LA BOUCLE ---
+async function finalValidation() {
+    const vLink = document.getElementById("victoryLink").value;
+    
+    // Regex simple pour forcer un lien Victory
+    if (!vLink.includes("victory-investment.com")) {
+        return alert("Veuillez coller votre véritable lien Victory !");
     }
 
-    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const { error } = await supabase
+        .from('profiles')
+        .update({ victory_link: vLink, current_step: 4 })
+        .eq('id', currentUser.id);
 
-    if (!supabaseClient) {
-      console.error("[LINK FLOW] Échec initialisation Supabase");
-      return;
+    if (!error) {
+        alert("Succès ! Votre compte LINK FLOW est activé.");
+        location.reload(); 
     }
+}
 
-  } catch (e) {
-    console.error("[LINK FLOW] Erreur Supabase init:", e);
-    return;
-  }
-
-  // =========================
-  // 2. TRADUCTIONS
-  // =========================
-  const translations = {
-    fr: { title: "Étape 1 — Authentification", email: "Email", password: "Mot de passe", button: "Connexion / Inscription", confirm: "Formulaire ouvert en" },
-    en: { title: "Step 1 — Authentication", email: "Email", password: "Password", button: "Login / Sign up", confirm: "Form opened in" },
-    es: { title: "Paso 1 — Autenticación", email: "Correo", password: "Contraseña", button: "Iniciar sesión / Registro", confirm: "Formulario abierto en" },
-    pt: { title: "Etapa 1 — Autenticação", email: "Email", password: "Senha", button: "Entrar / Registar", confirm: "Formulário aberto em" },
-    ar: { title: "الخطوة 1 — المصادقة", email: "البريد الإلكتروني", password: "كلمة المرور", button: "تسجيل الدخول / إنشاء حساب", confirm: "تم فتح النموذج باللغة" },
-    hi: { title: "चरण 1 — प्रमाणीकरण", email: "ईमेल", password: "पासवर्ड", button: "लॉगिन / साइन अप", confirm: "फॉर्म खुला भाषा में" }
-  };
-
-  let selectedLanguage = "fr";
-
-  // =========================
-  // 3. SAFE DOM HELPER
-  // =========================
-  function safeGet(id) {
-    const el = document.getElementById(id);
-    if (!el) console.warn(`[LINK FLOW] Élément manquant: ${id}`);
-    return el;
-  }
-
-  // =========================
-  // 4. LANGUE
-  // =========================
-  function selectLanguage(lang) {
-    if (!translations[lang]) return;
-
-    selectedLanguage = lang;
-    localStorage.setItem("language", lang);
-
-    const langScreen = safeGet("language-screen");
-    const form = safeGet("register-form");
-
-    if (langScreen) langScreen.classList.add("hidden");
-    if (form) form.classList.remove("hidden");
-
-    applyLanguage(lang);
-
-    const t = translations[lang];
-    const confirm = safeGet("confirmation");
-
-    if (confirm) {
-      confirm.textContent = "✅ " + t.confirm + " " + getLanguageName(lang);
-    }
-
-    console.log("[LINK FLOW] Langue sélectionnée:", lang);
-  }
-
-  function applyLanguage(lang) {
-    const t = translations[lang] || translations.fr;
-
-    const title = document.querySelector("#register-form h2");
-    const emailLabel = document.querySelector("label[for='email']");
-    const passLabel = document.querySelector("label[for='password']");
-    const btn = safeGet("register-btn");
-    const email = safeGet("email");
-    const password = safeGet("password");
-
-    if (title) title.textContent = t.title;
-    if (emailLabel) emailLabel.textContent = t.email;
-    if (passLabel) passLabel.textContent = t.password;
-    if (btn) btn.textContent = t.button;
-
-    if (email) email.placeholder = t.email;
-    if (password) password.placeholder = t.password;
-  }
-
-  function getLanguageName(code) {
-    const names = {
-      fr: "Français",
-      en: "English",
-      hi: "Hindi",
-      pt: "Português",
-      es: "Español",
-      ar: "Arabe"
-    };
-    return names[code] || code;
-  }
-
-  // =========================
-  // 5. REGISTER SAFE
-  // =========================
-  async function handleRegister() {
-    const email = safeGet("email")?.value?.trim();
-    const password = safeGet("password")?.value?.trim();
-    const btn = safeGet("register-btn");
-    const loader = safeGet("loader");
-
-    if (!email || !password) {
-      alert("Veuillez remplir tous les champs");
-      return;
-    }
-
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = "Chargement...";
-    }
-    if (loader) loader.style.display = "block";
-
-    try {
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { language: selectedLanguage }
-        }
-      });
-
-      if (error) throw error;
-
-      alert("Compte créé. Vérifiez votre email.");
-
-      if (data?.user) {
-        const { error: dbError } = await supabaseClient
-          .from("profiles")
-          .upsert({
-            id: data.user.id,
-            email,
-            language: selectedLanguage
-          });
-
-        if (dbError) {
-          console.warn("[LINK FLOW] DB error:", dbError.message);
-        }
-      }
-
-    } catch (err) {
-      console.error("[LINK FLOW] Register error:", err);
-      alert("Erreur: " + err.message);
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent =
-          translations[selectedLanguage]?.button ||
-          translations.fr.button;
-      }
-      if (loader) loader.style.display = "none";
-    }
-  }
-
-  // =========================
-  // 6. INIT SAFE
-  // =========================
-  window.addEventListener("DOMContentLoaded", () => {
-    try {
-      const localLang = localStorage.getItem("language");
-
-      if (localLang && translations[localLang]) {
-        selectLanguage(localLang);
-      }
-
-      console.log("[LINK FLOW] Initialisation OK");
-
-    } catch (e) {
-      console.error("[LINK FLOW] Init error:", e);
-    }
-  });
-
-  // =========================
-  // 7. EXPORT GLOBAL
-  // =========================
-  window.selectLanguage = selectLanguage;
-  window.handleRegister = handleRegister;
-
-})();
+// Utilitaire d'affichage
+function showSection(id, step) {
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    // Mise à jour visuelle des cercles...
+}
 </script>
